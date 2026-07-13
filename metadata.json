@@ -1,0 +1,6 @@
+{
+  "name": "JF CHECK",
+  "description": "Aplicativo profissional para Check List - Entrega Técnica de maquinários agrícolas com fotos, geolocalização e assinaturas digitais.",
+  "requestFramePermissions": ["camera", "geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

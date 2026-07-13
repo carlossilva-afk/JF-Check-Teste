@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* JF Yellow palette - Principal: #fac222 */
+  --color-amber-50: #fffdf5;
+  --color-amber-100: #fff9db;
+  --color-amber-200: #fef1b3;
+  --color-amber-300: #fde582;
+  --color-amber-400: #fcd551;
+  --color-amber-500: #fac222; /* JF Yellow principal */
+  --color-amber-600: #e0ac17;
+  --color-amber-700: #b4870c;
+  --color-amber-800: #8c6607;
+  --color-amber-900: #6c4e04;
+  --color-amber-950: #422f01;
+
+  /* JF Gray palette - Principal: #51514e */
+  --color-zinc-50: #f9f9f9;
+  --color-zinc-100: #f1f1f0;
+  --color-zinc-200: #e2e2e1;
+  --color-zinc-300: #c4c4c2;
+  --color-zinc-400: #a7a7a3;
+  --color-zinc-500: #8b8b87;
+  --color-zinc-600: #6e6e6a;
+  --color-zinc-700: #5e5e5b;
+  --color-zinc-800: #51514e; /* JF Gray principal */
+  --color-zinc-900: #333331;
+  --color-zinc-950: #222220;
+}
+
+/* Custom visual scrollbar for compact elements */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 5px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* High contrast mode enhancement classes */
+.theme-high-contrast {
+  font-weight: 600 !important;
+}
+.theme-high-contrast h1, 
+.theme-high-contrast h2, 
+.theme-high-contrast h3, 
+.theme-high-contrast h4,
+.theme-high-contrast h5,
+.theme-high-contrast h6 {
+  font-weight: 900 !important;
+  color: #000000 !important;
+}
+.theme-high-contrast p,
+.theme-high-contrast span,
+.theme-high-contrast label {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+/* Ensure text remains highly visible (white/amber) on dark backgrounds even in high contrast mode */
+.theme-high-contrast header h1,
+.theme-high-contrast header h2,
+.theme-high-contrast header h3,
+.theme-high-contrast header p,
+.theme-high-contrast header span,
+.theme-high-contrast header label,
+.theme-high-contrast .bg-zinc-900 h1,
+.theme-high-contrast .bg-zinc-900 h2,
+.theme-high-contrast .bg-zinc-900 h3,
+.theme-high-contrast .bg-zinc-900 p,
+.theme-high-contrast .bg-zinc-900 span,
+.theme-high-contrast .bg-zinc-900 label,
+.theme-high-contrast .bg-zinc-950 h1,
+.theme-high-contrast .bg-zinc-950 h2,
+.theme-high-contrast .bg-zinc-950 h3,
+.theme-high-contrast .bg-zinc-950 p,
+.theme-high-contrast .bg-zinc-950 span,
+.theme-high-contrast .bg-zinc-950 label,
+.theme-high-contrast .bg-zinc-800 h1,
+.theme-high-contrast .bg-zinc-800 h2,
+.theme-high-contrast .bg-zinc-800 h3,
+.theme-high-contrast .bg-zinc-800 p,
+.theme-high-contrast .bg-zinc-800 span,
+.theme-high-contrast .bg-zinc-800 label,
+.theme-high-contrast .bg-zinc-950 .text-zinc-300,
+.theme-high-contrast .bg-zinc-900 .text-zinc-300 {
+  color: #e4e4e7 !important;
+}
+
+/* Specific yellow/amber accents for highlights in dark backgrounds during high contrast */
+.theme-high-contrast header .text-amber-400,
+.theme-high-contrast header .text-amber-500,
+.theme-high-contrast .bg-zinc-900 .text-amber-400,
+.theme-high-contrast .bg-zinc-900 .text-amber-500,
+.theme-high-contrast .bg-zinc-950 .text-amber-400,
+.theme-high-contrast .bg-zinc-950 .text-amber-500 {
+  color: #fbbf24 !important; /* bright yellow for high contrast visibility */
+}
+
+/* Bold Typography theme overrides */
+.font-black {
+  font-weight: 900;
+}
+.tracking-tightest {
+  letter-spacing: -0.05em;
+}
+
+
