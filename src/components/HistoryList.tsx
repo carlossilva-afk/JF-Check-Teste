@@ -91,19 +91,17 @@ Acesse para auditar: ${auditUrl}
             <h4 className="font-bold text-sm font-mono text-amber-400">{entrega.id}</h4>
           </div>
           <div className="flex items-center gap-2">
-            {entrega.status === 'rascunho' && (
-              <button
-                onClick={(evt) => {
-                  evt.stopPropagation();
-                  onEditDraft(entrega);
-                }}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition"
-                id={`${isMobile ? 'mobile-' : ''}btn-sidebar-edit`}
-                title="Editar Rascunho"
-              >
-                <Pencil className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Editar</span>
-              </button>
-            )}
+            <button
+              onClick={(evt) => {
+                evt.stopPropagation();
+                onEditDraft(entrega);
+              }}
+              className="flex items-center gap-1 px-2.5 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition"
+              id={`${isMobile ? 'mobile-' : ''}btn-sidebar-edit`}
+              title="Editar Check List"
+            >
+              <Pencil className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Editar</span>
+            </button>
             <button
               onClick={(evt) => {
                 evt.stopPropagation();
@@ -440,19 +438,17 @@ Acesse para auditar: ${auditUrl}
                     </span>
 
                     <div className="flex gap-2">
-                      {e.status === 'rascunho' && (
-                        <button
-                          onClick={(evt) => {
-                            evt.stopPropagation();
-                            onEditDraft(e);
-                          }}
-                          className="p-2 text-blue-700 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 rounded-lg transition border border-blue-200"
-                          title="Editar Rascunho"
-                          id={`btn-edit-${e.id}`}
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                      )}
+                      <button
+                        onClick={(evt) => {
+                          evt.stopPropagation();
+                          onEditDraft(e);
+                        }}
+                        className="p-2 text-blue-700 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 rounded-lg transition border border-blue-200"
+                        title="Editar Check List"
+                        id={`btn-edit-${e.id}`}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={(evt) => {
                           evt.stopPropagation();

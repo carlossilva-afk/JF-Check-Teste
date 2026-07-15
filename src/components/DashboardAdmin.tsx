@@ -125,9 +125,38 @@ export default function DashboardAdmin({ entregas, usuarioLogado }: DashboardAdm
   const [novaMiniatura, setNovaMiniatura] = useState('');
   const [driveLinkInput, setDriveLinkInput] = useState('');
   const [itensChecklist, setItensChecklist] = useState<{ id: string; categoria: string; item: string }[]>([]);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editingItemText, setEditingItemText] = useState('');
+  const [editingItemCategory, setEditingItemCategory] = useState('');
   
   const [itemTexto, setItemTexto] = useState('');
   const [itemCategoria, setItemCategoria] = useState('Recebimento e Inspeção Geral');
+  const [novaCategoriaInput, setNovaCategoriaInput] = useState('');
+  const [mostrarInputNovaCategoria, setMostrarInputNovaCategoria] = useState(false);
+
+  // Categorias disponíveis calculadas dinamicamente com base nos itens atuais do checklist
+  const categoriasDisponiveis = useMemo(() => {
+    const cats = Array.from(new Set(itensChecklist.map(i => i.categoria)));
+    if (cats.length === 0) {
+      return [
+        'Recebimento e Inspeção Geral',
+        'Lubrificação e Fluidos',
+        'Transmissão, Correias e Correntes',
+        'Rolos Alimentadores',
+        'Mecanismo de Corte (Rotor e Facas)',
+        'Giro e Direcionamento da Descarga',
+        'Funcionamento em Vazio (Comissionamento)'
+      ];
+    }
+    return cats;
+  }, [itensChecklist]);
+
+  // Sincroniza a categoria selecionada se ela não estiver mais nas disponíveis
+  useEffect(() => {
+    if (categoriasDisponiveis.length > 0 && !categoriasDisponiveis.includes(itemCategoria) && !mostrarInputNovaCategoria) {
+      setItemCategoria(categoriasDisponiveis[0]);
+    }
+  }, [categoriasDisponiveis, itemCategoria, mostrarInputNovaCategoria]);
 
   // Logs de auditoria do banco filtrados pelo usuário logado
   const logs = useMemo(() => {
@@ -819,28 +848,60 @@ export default function DashboardAdmin({ entregas, usuarioLogado }: DashboardAdm
                   <div className="flex flex-col gap-1 shrink-0 w-full sm:w-auto">
                     <span className="text-[9px] font-black text-zinc-500 uppercase tracking-wider">Categoria</span>
                     <select
-                      value={itemCategoria}
-                      onChange={(e) => setItemCategoria(e.target.value)}
+                      value={mostrarInputNovaCategoria ? '__NOVA_CATEGORIA__' : itemCategoria}
+                      onChange={(e) => {
+                        if (e.target.value === '__NOVA_CATEGORIA__') {
+                          setMostrarInputNovaCategoria(true);
+                        } else {
+                          setMostrarInputNovaCategoria(false);
+                          setItemCategoria(e.target.value);
+                        }
+                      }}
                       className="px-3 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white font-bold"
                     >
-                      {['Recebimento e Inspeção Geral', 'Lubrificação e Fluidos', 'Transmissão, Correias e Correntes', 'Rolos Alimentadores', 'Mecanismo de Corte (Rotor e Facas)', 'Giro e Direcionamento da Descarga', 'Funcionamento em Vazio (Comissionamento)'].map(cat => (
+                      {categoriasDisponiveis.map(cat => (
                         <option key={cat} value={cat}>{cat}</option>
                       ))}
+                      <option value="__NOVA_CATEGORIA__">+ Criar Nova Categoria...</option>
                     </select>
                   </div>
+
+                  {mostrarInputNovaCategoria && (
+                    <div className="flex flex-col gap-1 shrink-0 w-full sm:w-48 animate-fade-in">
+                      <span className="text-[9px] font-black text-zinc-500 uppercase tracking-wider">Nova Categoria</span>
+                      <input
+                        type="text"
+                        placeholder="Nome da Categoria"
+                        value={novaCategoriaInput}
+                        onChange={(e) => setNovaCategoriaInput(e.target.value)}
+                        className="px-3 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white focus:outline-none focus:border-zinc-900 font-bold uppercase"
+                      />
+                    </div>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => {
                       if (!itemTexto.trim()) return;
+                      const catName = mostrarInputNovaCategoria ? novaCategoriaInput.trim().toUpperCase() : itemCategoria;
+                      if (!catName) {
+                        alert("Por favor, selecione ou digite o nome de uma categoria.");
+                        return;
+                      }
                       const newItem = {
                         id: 'item_' + Date.now() + Math.random().toString(36).substr(2, 4),
-                        categoria: itemCategoria,
+                        categoria: catName,
                         item: itemTexto.trim()
                       };
                       setItensChecklist(prev => [...prev, newItem]);
                       setItemTexto('');
+                      if (mostrarInputNovaCategoria) {
+                        setNovaCategoriaInput('');
+                        setMostrarInputNovaCategoria(false);
+                        setItemCategoria(catName);
+                      }
                     }}
-                    className="p-2 bg-zinc-900 hover:bg-zinc-800 text-amber-500 border border-zinc-950 rounded-lg flex items-center justify-center shrink-0 w-full sm:w-auto"
+                    className="p-2 bg-zinc-900 hover:bg-zinc-800 text-amber-500 border border-zinc-950 rounded-lg flex items-center justify-center shrink-0 w-full sm:w-auto h-8 sm:h-auto"
                     title="Adicionar Item"
                   >
                     <Plus className="w-4 h-4" />
@@ -855,23 +916,98 @@ export default function DashboardAdmin({ entregas, usuarioLogado }: DashboardAdm
                     </div>
                   ) : (
                     itensChecklist.map((it, idx) => (
-                      <div key={it.id || idx} className="p-2.5 flex items-center justify-between gap-3 bg-white hover:bg-zinc-50 transition text-xs">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="font-mono text-[9px] text-zinc-400 font-bold">#{idx + 1}</span>
-                          <span className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded-md text-[8px] font-black uppercase tracking-wider shrink-0">
-                            {it.categoria}
-                          </span>
-                          <span className="font-semibold text-zinc-800 truncate">{it.item}</span>
+                      editingItemId === it.id ? (
+                        <div key={it.id || idx} className="p-3 flex flex-col gap-2.5 bg-amber-50/40 border-l-4 border-amber-500 text-xs">
+                          <div className="flex flex-col sm:flex-row gap-2 w-full">
+                            <div className="flex-1 min-w-0 flex flex-col gap-1">
+                              <span className="text-[9px] font-black text-zinc-500 uppercase tracking-wider">Categoria</span>
+                              <input
+                                type="text"
+                                value={editingItemCategory}
+                                onChange={(e) => setEditingItemCategory(e.target.value.toUpperCase())}
+                                className="px-2.5 py-1.5 border border-zinc-300 rounded-lg text-xs bg-white focus:outline-none focus:border-zinc-900 font-bold uppercase"
+                                placeholder="Categoria"
+                              />
+                            </div>
+                            <div className="flex-[2] min-w-0 flex flex-col gap-1">
+                              <span className="text-[9px] font-black text-zinc-500 uppercase tracking-wider">Descrição do Item</span>
+                              <textarea
+                                value={editingItemText}
+                                onChange={(e) => setEditingItemText(e.target.value)}
+                                rows={2}
+                                className="px-2.5 py-1 border border-zinc-300 rounded-lg text-xs bg-white focus:outline-none focus:border-zinc-900 font-medium"
+                                placeholder="Texto do item"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!editingItemText.trim() || !editingItemCategory.trim()) {
+                                  alert("Categoria e texto do item não podem ficar vazios.");
+                                  return;
+                                }
+                                setItensChecklist(prev => prev.map(item => {
+                                  if (item.id === it.id) {
+                                    return { ...item, categoria: editingItemCategory.trim(), item: editingItemText.trim() };
+                                  }
+                                  return item;
+                                }));
+                                setEditingItemId(null);
+                                setEditingItemText('');
+                                setEditingItemCategory('');
+                              }}
+                              className="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] uppercase tracking-wider rounded-md transition shadow-sm"
+                            >
+                              Salvar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingItemId(null);
+                                setEditingItemText('');
+                                setEditingItemCategory('');
+                              }}
+                              className="px-2.5 py-1 bg-zinc-200 hover:bg-zinc-300 text-zinc-700 font-black text-[10px] uppercase tracking-wider rounded-md transition"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setItensChecklist(prev => prev.filter(item => item.id !== it.id))}
-                          className="p-1 text-zinc-400 hover:text-red-600 transition shrink-0"
-                          title="Excluir Item"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                      ) : (
+                        <div key={it.id || idx} className="p-2.5 flex items-center justify-between gap-3 bg-white hover:bg-zinc-50 transition text-xs">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="font-mono text-[9px] text-zinc-400 font-bold">#{idx + 1}</span>
+                            <span className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded-md text-[8px] font-black uppercase tracking-wider shrink-0">
+                              {it.categoria}
+                            </span>
+                            <span className="font-semibold text-zinc-800 truncate" title={it.item}>{it.item}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingItemId(it.id);
+                                setEditingItemText(it.item);
+                                setEditingItemCategory(it.categoria);
+                              }}
+                              className="p-1 text-zinc-400 hover:text-amber-600 hover:bg-amber-50 rounded transition shrink-0"
+                              title="Editar Item"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setItensChecklist(prev => prev.filter(item => item.id !== it.id))}
+                              className="p-1 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded transition shrink-0"
+                              title="Excluir Item"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      )
                     ))
                   )}
                 </div>

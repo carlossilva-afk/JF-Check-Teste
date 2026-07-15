@@ -91,7 +91,8 @@ export const TECNICOS_PADRAO: Usuario[] = [
   { id: 'u2', nome: 'Rodrigo Medeiros Souza', usuario: 'rodrigo.tecnico', perfil: 'tecnico', revendaId: 'r2' },
   { id: 'u3', nome: 'André Ramos Silva', usuario: 'andre.supervisor', perfil: 'supervisor', revendaId: 'r3' },
   { id: 'u4', nome: 'Marcos Vinicius Borges', usuario: 'marcos.borges', perfil: 'tecnico', revendaId: 'r4' },
-  { id: 'u5', nome: 'Carlos Silva', usuario: 'carlos.silva@industriasnb.com.br', perfil: 'administrador', revendaId: 'r1' } // Usuário logado padrão do metadata
+  { id: 'u5', nome: 'Carlos Silva Administrador', usuario: 'carlos.silva@industriasnb.com.br', perfil: 'administrador', revendaId: 'r1' },
+  { id: 'u_revjf', nome: 'Técnico Autorizado RevJF', usuario: 'revjf', perfil: 'tecnico', revendaId: 'r1' }
 ];
 
 // Placeholder SVG base64 para assinaturas e fotos reais
@@ -394,7 +395,22 @@ export function getRevendas(): Revenda[] {
 
 export function getTecnicos(): Usuario[] {
   inicializarBancoDeDados();
-  return JSON.parse(localStorage.getItem('agro_tecnicos') || '[]');
+  const list: Usuario[] = JSON.parse(localStorage.getItem('agro_tecnicos') || '[]');
+  const temCarlos = list.some(u => u.usuario.toLowerCase() === 'carlos.silva@industriasnb.com.br');
+  const temRevjf = list.some(u => u.usuario.toLowerCase() === 'revjf');
+  let mudou = false;
+  if (!temCarlos) {
+    list.push({ id: 'u_carlos_mestre', nome: 'Carlos Silva Administrador', usuario: 'carlos.silva@industriasnb.com.br', perfil: 'administrador', revendaId: 'r1' });
+    mudou = true;
+  }
+  if (!temRevjf) {
+    list.push({ id: 'u_revjf_user', nome: 'Técnico Autorizado RevJF', usuario: 'revjf', perfil: 'tecnico', revendaId: 'r1' });
+    mudou = true;
+  }
+  if (mudou) {
+    localStorage.setItem('agro_tecnicos', JSON.stringify(list));
+  }
+  return list;
 }
 
 export function getEntregas(): EntregaTecnica[] {
