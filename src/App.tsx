@@ -442,7 +442,7 @@ export default function App() {
       {/* Botão Flutuante Voltar ao Topo */}
       <button
         onClick={scrollToTop}
-        className={`fixed bottom-6 right-6 z-50 p-3 bg-zinc-900/90 hover:bg-zinc-800 backdrop-blur-md text-amber-500 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-zinc-800/80 hover:border-zinc-700/80 transition-all duration-300 flex items-center justify-center group hover:-translate-y-1 ${
+        className={`fixed bottom-24 right-4 sm:bottom-8 sm:right-8 z-50 p-3 bg-zinc-900/90 hover:bg-zinc-800 backdrop-blur-md text-amber-500 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-zinc-800/80 hover:border-zinc-700/80 transition-all duration-300 flex items-center justify-center group hover:-translate-y-1 ${
           showScrollTop ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
         }`}
         title="Voltar ao topo"
