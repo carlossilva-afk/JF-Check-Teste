@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Usuario, EntregaTecnica } from './types';
 import { 
   inicializarBancoDeDados, getEntregas, sincronizarEntregasLocais, registrarLog, excluirEntrega,
@@ -24,8 +24,55 @@ import { ForageHarvesterIcon } from './components/ForageHarvesterIcon';
 export default function App() {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [activeTab, setActiveTab] = useState<'form' | 'history' | 'admin'>('form');
+  const [formStep, setFormStep] = useState(1);
   const [existingDraft, setExistingDraft] = useState<EntregaTecnica | null>(null);
   const [verifyId, setVerifyId] = useState<string | null>(null);
+  
+  // Sincronização do botão voltar do celular com abas e passos do formulário
+  const isNavigatingFromPopstate = useRef(false);
+
+  useEffect(() => {
+    if (!usuario) return;
+    if (isNavigatingFromPopstate.current) return;
+
+    const currentState = window.history.state;
+    if (currentState && currentState.tab === activeTab && currentState.step === formStep) {
+      return;
+    }
+
+    window.history.pushState({ tab: activeTab, step: formStep }, '');
+  }, [activeTab, formStep, usuario]);
+
+  useEffect(() => {
+    if (!usuario) return;
+
+    // Inicializa o estado atual do histórico com as abas e passos ativos
+    window.history.replaceState({ tab: activeTab, step: formStep }, '');
+
+    const handlePopState = (event: PopStateEvent) => {
+      const state = event.state;
+      if (state && typeof state === 'object' && 'tab' in state) {
+        isNavigatingFromPopstate.current = true;
+        setActiveTab(state.tab);
+        if ('step' in state && state.step !== undefined) {
+          setFormStep(state.step);
+        }
+        setTimeout(() => {
+          isNavigatingFromPopstate.current = false;
+        }, 0);
+      } else {
+        // Se voltar para antes do estado inicial, re-empilha para evitar sair do app acidentalmente
+        isNavigatingFromPopstate.current = true;
+        window.history.pushState({ tab: activeTab, step: formStep }, '');
+        setTimeout(() => {
+          isNavigatingFromPopstate.current = false;
+        }, 0);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [activeTab, formStep, usuario]);
   
   // Controle de Entrega Técnica Ativa em Andamento
   const [entregaEmAndamento, setEntregaEmAndamento] = useState(false);
@@ -129,6 +176,7 @@ export default function App() {
     setUsuario(null);
     setExistingDraft(null);
     setEntregaEmAndamento(false);
+    setFormStep(1);
   };
 
   const handleLogoutClick = () => {
@@ -392,12 +440,15 @@ export default function App() {
               setExistingDraft(null);
               setEntregaEmAndamento(false);
               setFormKey(prev => prev + 1);
+              setFormStep(1);
               refreshData();
               setActiveTab('history');
             }}
             existingDraft={existingDraft}
             onStatusChange={setEntregaEmAndamento}
             activeTab={activeTab}
+            step={formStep}
+            setStep={setFormStep}
           />
         </div>
 
@@ -473,6 +524,7 @@ export default function App() {
           setExistingDraft(null);
           setEntregaEmAndamento(false);
           setFormKey(prev => prev + 1);
+          setFormStep(1);
         }}
         title="Descartar Entrega Técnica"
         message="Você já possui uma entrega técnica em andamento. Deseja descartar a atual para iniciar uma nova do zero?"
@@ -500,6 +552,7 @@ export default function App() {
         onConfirm={() => {
           setShowLogoutConfirm(false);
           setFormKey(prev => prev + 1);
+          setFormStep(1);
           handleLogout();
         }}
         title="Sair do Aplicativo"

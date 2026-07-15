@@ -32,6 +32,8 @@ interface DeliveryFormProps {
   existingDraft?: EntregaTecnica | null;
   onStatusChange?: (iniciada: boolean) => void;
   activeTab?: string;
+  step: number;
+  setStep: React.Dispatch<React.SetStateAction<number>>;
 }
 
 // Compressão resiliente e de alta fidelidade de imagens em canvas para poupar local storage mantendo máxima nitidez
@@ -140,10 +142,7 @@ function formatChassi(value: string): string {
   return prefix;
 }
 
-export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft, onStatusChange, activeTab }: DeliveryFormProps) {
-  // Passos do Wizard: 1 (Identificação), 2 (Fotos Gerais), 3 (Checklist Técnico), 4 (Assinaturas)
-  const [step, setStep] = useState(1);
-
+export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft, onStatusChange, activeTab, step, setStep }: DeliveryFormProps) {
   // Estados de navegação do Checklist Passo 3
   const [currentChecklistItemIndex, setCurrentChecklistItemIndex] = useState(0);
   const [showSkipWarning, setShowSkipWarning] = useState(false);
@@ -287,11 +286,16 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
           if (allNull) {
             if (maq.checklistCustomizado && maq.checklistCustomizado.length > 0) {
               setChecklist(
-                maq.checklistCustomizado.map(item => ({
-                  ...item,
-                  conforme: null,
-                  observacao: ''
-                }))
+                maq.checklistCustomizado.map(item => {
+                  const oficial = CHECKLIST_PADRAO.find(p => p.id === item.id);
+                  return {
+                    ...item,
+                    categoria: oficial ? oficial.categoria : item.categoria,
+                    item: oficial ? oficial.item : item.item,
+                    conforme: null,
+                    observacao: ''
+                  };
+                })
               );
             } else {
               setChecklist(
@@ -322,7 +326,19 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
 
     // Semeia checklist
     if (existingDraft) {
-      setChecklist(existingDraft.checklist);
+      setChecklist(
+        existingDraft.checklist.map(item => {
+          const oficial = CHECKLIST_PADRAO.find(p => p.id === item.id);
+          if (oficial) {
+            return {
+              ...item,
+              categoria: oficial.categoria,
+              item: oficial.item
+            };
+          }
+          return item;
+        })
+      );
       setFotosGerais(existingDraft.fotosGerais);
       setObservacoesGerais(existingDraft.observacoesGerais);
       if (existingDraft.assinaturas.tecnico) setAssinaturaTecnico(existingDraft.assinaturas.tecnico);
@@ -1017,8 +1033,8 @@ Acesse para auditar: ${entrega.qrCodeUrl}
   return (
     <div className={`flex flex-col ${step === 3 ? 'gap-2 sm:gap-4' : 'gap-6'}`} id="delivery-form-wizard">
       {/* Indicador de Passos */}
-      <div className={`bg-zinc-950 text-white rounded-2xl shadow-lg border-2 border-zinc-900 flex flex-row items-center justify-between ${step === 3 ? 'p-2 sm:p-4 gap-1.5' : 'p-3 sm:p-4 gap-3'}`}>
-        <div className="flex items-center gap-2">
+      <div className={`bg-zinc-950 text-white rounded-2xl shadow-lg border-2 border-zinc-900 flex flex-col sm:flex-row items-center justify-between ${step === 3 ? 'p-3 sm:p-4 gap-3 sm:gap-1.5' : 'p-3 sm:p-4 gap-3'}`}>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <div className={`rounded-full shrink-0 overflow-hidden flex items-center justify-center ${step === 3 ? 'w-6 h-6 sm:w-11 sm:h-11' : 'w-9 h-9 sm:w-11 sm:h-11'}`}>
             <img 
               src="https://lh3.googleusercontent.com/d/1_1AYI1j9md2diNRj_8RhdPEs9tM_vUmy" 
@@ -1033,7 +1049,7 @@ Acesse para auditar: ${entrega.qrCodeUrl}
             />
           </div>
           <div>
-            <h3 className={`font-black uppercase tracking-wider ${step === 3 ? 'text-[10px] sm:text-base' : 'text-sm sm:text-base md:text-lg'}`}>Nova Entrega</h3>
+            <h3 className={`font-black uppercase tracking-wider text-left ${step === 3 ? 'text-[10px] sm:text-base' : 'text-sm sm:text-base md:text-lg'}`}>Nova Entrega</h3>
             <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
               <span className="text-[9px] sm:text-xs text-amber-400 font-bold flex items-center gap-1 font-mono">
                 <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 animate-pulse" />
@@ -1055,7 +1071,7 @@ Acesse para auditar: ${entrega.qrCodeUrl}
         </div>
 
         {/* Círculos dos passos */}
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex items-center justify-center gap-1 sm:gap-2 w-full sm:w-auto pt-2.5 sm:pt-0 border-t border-zinc-900 sm:border-0">
           {[1, 2, 3, 4].map((s) => (
             <div key={s} className="flex items-center">
               <div className={`rounded-full flex items-center justify-center font-black transition duration-150 border-2 ${

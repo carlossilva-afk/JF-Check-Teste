@@ -362,8 +362,12 @@ export function inicializarBancoDeDados() {
   } else {
     try {
       const parsed = JSON.parse(storedChk);
-      const hasOldCat = Array.isArray(parsed) && parsed.some((it: any) => it.categoria === 'Recebimento e Inspeção Geral');
-      if (hasOldCat || (Array.isArray(parsed) && parsed.length === 25)) {
+      const hasOldCat = Array.isArray(parsed) && parsed.some((it: any) => 
+        it.categoria === 'Recebimento e Inspeção Geral' || 
+        it.categoria === 'Recebimento e Inspeção Ge' ||
+        it.categoria.toLowerCase().includes('recebimento e inspe')
+      );
+      if (hasOldCat || (Array.isArray(parsed) && parsed.length !== 43)) {
         // Upgrade to 43 factory-default items with 10 correct categories automatically
         localStorage.setItem('agro_checklist_padrao', JSON.stringify(CHECKLIST_PADRAO));
         localStorage.setItem('agro_checklist_updated_at', String(Date.now()));
@@ -422,6 +426,28 @@ export function getTecnicos(): Usuario[] {
 
 export function getEntregas(): EntregaTecnica[] {
   inicializarBancoDeDados();
+  try {
+    const stored = localStorage.getItem('agro_entregas');
+    if (stored) {
+      const parsed: EntregaTecnica[] = JSON.parse(stored);
+      if (Array.isArray(parsed)) {
+        return parsed.map(e => ({
+          ...e,
+          checklist: Array.isArray(e.checklist) ? e.checklist.map(item => {
+            const oficial = CHECKLIST_PADRAO.find(p => p.id === item.id);
+            if (oficial) {
+              return {
+                ...item,
+                categoria: oficial.categoria,
+                item: oficial.item
+              };
+            }
+            return item;
+          }) : []
+        }));
+      }
+    }
+  } catch (err) {}
   return JSON.parse(localStorage.getItem('agro_entregas') || '[]');
 }
 
@@ -504,11 +530,27 @@ export async function sincronizarDadosNuvem() {
       const cloudChkUpdatedAt = cloudData.checklist.updatedAt;
       const cloudChk = cloudData.checklist.data;
 
+      // Sanitizar dados recebidos da nuvem com as categorias e textos atualizados de fábrica
+      let sanitizedCloudChk = cloudChk;
+      if (Array.isArray(cloudChk)) {
+        sanitizedCloudChk = cloudChk.map((item: any) => {
+          const oficial = CHECKLIST_PADRAO.find(p => p.id === item.id);
+          if (oficial) {
+            return {
+              ...item,
+              categoria: oficial.categoria,
+              item: oficial.item
+            };
+          }
+          return item;
+        });
+      }
+
       if (cloudChkUpdatedAt > localChkUpdatedAt) {
         // Nuvem é mais recente, atualiza local
-        localStorage.setItem('agro_checklist_padrao', JSON.stringify(cloudChk));
+        localStorage.setItem('agro_checklist_padrao', JSON.stringify(sanitizedCloudChk));
         localStorage.setItem('agro_checklist_updated_at', String(cloudChkUpdatedAt));
-        finalCloudChk = cloudChk;
+        finalCloudChk = sanitizedCloudChk;
         finalCloudChkUpdatedAt = cloudChkUpdatedAt;
       } else if (localChkUpdatedAt > cloudChkUpdatedAt) {
         // Local é mais recente, marca para subir
@@ -732,7 +774,22 @@ export function getChecklistPadrao(): Omit<ItemChecklist, 'conforme' | 'observac
   inicializarBancoDeDados();
   try {
     const stored = localStorage.getItem('agro_checklist_padrao');
-    if (stored) return JSON.parse(stored);
+    if (stored) {
+      const parsed: Omit<ItemChecklist, 'conforme' | 'observacao'>[] = JSON.parse(stored);
+      if (Array.isArray(parsed)) {
+        return parsed.map(item => {
+          const oficial = CHECKLIST_PADRAO.find(p => p.id === item.id);
+          if (oficial) {
+            return {
+              ...item,
+              categoria: oficial.categoria,
+              item: oficial.item
+            };
+          }
+          return item;
+        });
+      }
+    }
   } catch (err) {}
   return CHECKLIST_PADRAO;
 }
