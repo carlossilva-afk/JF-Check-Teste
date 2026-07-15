@@ -5,7 +5,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { EntregaTecnica, KPIStats, Usuario, Maquina } from '../types';
-import { obterKPIs, getLogs, LogAuditoria, getMaquinas, cadastrarMaquina, atualizarMaquina, excluirMaquina, CHECKLIST_PADRAO, getChecklistPadrao, salvarChecklistPadrao, restaurarChecklistFabrica } from '../utils/db';
+import { obterKPIs, getLogs, LogAuditoria, getMaquinas, cadastrarMaquina, atualizarMaquina, excluirMaquina, CHECKLIST_PADRAO, getChecklistPadrao, salvarChecklistPadrao, restaurarChecklistFabrica, getRelativeIndexStr } from '../utils/db';
 import { 
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell 
@@ -1000,7 +1000,7 @@ export default function DashboardAdmin({ entregas, usuarioLogado }: DashboardAdm
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="font-mono text-[9px] text-zinc-400 font-bold">#{idx + 1}</span>
                             <span className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded-md text-[8px] font-black uppercase tracking-wider shrink-0">
-                              {it.categoria}
+                              {it.categoria} {getRelativeIndexStr(it, itensChecklist)}
                             </span>
                             <span className="font-semibold text-zinc-800 truncate" title={it.item}>{it.item}</span>
                           </div>

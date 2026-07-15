@@ -5,64 +5,70 @@
 
 import { Cliente, Maquina, Revenda, Usuario, EntregaTecnica, ItemChecklist, KPIStats } from '../types';
 
-// Checklist padrão
+/// Checklist padrão
 export const CHECKLIST_PADRAO: Omit<ItemChecklist, 'conforme' | 'observacao'>[] = [
-  // Recebimento e Inspeção Geral
-  { id: 'rec_1', categoria: 'Recebimento e Inspeção Geral', item: 'Conferência da nota fiscal e número de série do chassi com a plaqueta física do equipamento.' },
-  { id: 'rec_2', categoria: 'Recebimento e Inspeção Geral', item: 'Verificação de avarias de transporte (amassados, arranhões na pintura, amassamentos estruturais).' },
-  { id: 'rec_3', categoria: 'Recebimento e Inspeção Geral', item: 'Verificação e contagem de itens sobressalentes e caixa de ferramentas de acompanhamento de fábrica.' },
-  { id: 'rec_4', categoria: 'Recebimento e Inspeção Geral', item: 'Verificação da presença dos manuais de operação físicos e guia de garantia de fábrica.' },
-  { id: 'rec_5', categoria: 'Recebimento e Inspeção Geral', item: 'Verificação de trincas ou defeitos visuais de solda nas junções estruturais do chassi e engates.' },
-  { id: 'rec_6', categoria: 'Recebimento e Inspeção Geral', item: 'Verificação da integridade de todas as proteções laterais metálicas e coberturas de fibra/plástico.' },
-  { id: 'rec_7', categoria: 'Recebimento e Inspeção Geral', item: 'Inspeção do bocal de descarga (bica de saída) e chapas internas antidesgaste (liner protetor).' },
-  { id: 'rec_8', categoria: 'Recebimento e Inspeção Geral', item: 'Verificação do quebra-jato da bica e curso livre do cabo de controle de descarga.' },
-  { id: 'rec_9', categoria: 'Recebimento e Inspeção Geral', item: 'Inspeção de pontos de oxidação ou corrosão precoce e estado geral da pintura protetiva.' },
-  { id: 'rec_10', categoria: 'Recebimento e Inspeção Geral', item: 'Conferência e aplicação correta de todos os adesivos de segurança, avisos de perigo e refletores.' },
+  // Recebimento (2 items)
+  { id: 'rec_1', categoria: 'Recebimento', item: 'Conferência da nota fiscal e número de série do chassi com a plaqueta física do equipamento.' },
+  { id: 'rec_2', categoria: 'Recebimento', item: 'Verificação de avarias de transporte (amassados, arranhões na pintura, amassamentos estruturais).' },
 
-  // Lubrificação e Fluidos
-  { id: 'lub_1', categoria: 'Lubrificação e Fluidos', item: 'Lubrificação completa com graxa recomendada em todos os pinos graxeiros da máquina (cruzetas, eixos).' },
-  { id: 'lub_2', categoria: 'Lubrificação e Fluidos', item: 'Verificação do nível e viscosidade do óleo da caixa de transmissão principal.' },
-  { id: 'lub_3', categoria: 'Lubrificação e Fluidos', item: 'Verificação do nível de óleo e vedação das caixas satélites e redutoras de engrenagem.' },
-  { id: 'lub_4', categoria: 'Lubrificação e Fluidos', item: 'Lubrificação da coroa e pinhão de giro da bica de descarga (engrenagem de rotação).' },
-  { id: 'lub_5', categoria: 'Lubrificação e Fluidos', item: 'Aplicação de graxa de alta temperatura nos mancais e rolamentos do rotor principal.' },
-  { id: 'lub_6', categoria: 'Lubrificação e Fluidos', item: 'Inspeção de possíveis vazamentos ou gotejamentos de óleo sob todas as caixas redutoras.' },
-  { id: 'lub_7', categoria: 'Lubrificação e Fluidos', item: 'Verificação da lubrificação das correntes de acionamento mecânico dos rolos.' },
+  // PREPARAÇÃO DA MÁQUINA (10 items)
+  { id: 'prep_1', categoria: 'PREPARAÇÃO DA MÁQUINA', item: 'Alinhamento das polias do acionamento principal do rotor de corte.' },
+  { id: 'prep_2', categoria: 'PREPARAÇÃO DA MÁQUINA', item: 'Verificação e ajuste do tensionamento da correia principal de transmissão del rotor.' },
+  { id: 'prep_3', categoria: 'PREPARAÇÃO DA MÁQUINA', item: 'Inspeção do estado visual das correias de transmissão (ausência de desfiados ou trincas).' },
+  { id: 'prep_4', categoria: 'PREPARAÇÃO DA MÁQUINA', item: 'Regulagem e esticamento correto das correntes de acionamento dos rolos de alimentação.' },
+  { id: 'prep_5', categoria: 'PREPARAÇÃO DA MÁQUINA', item: 'Verificação do encaixe e travamento seguro de todas as chavetas e anéis elásticos nos eixos.' },
+  { id: 'prep_6', categoria: 'PREPARAÇÃO DA MÁQUINA', item: 'Ajuste da folga e contato ideal entre os pinhões metálicos das engrenagens.' },
+  { id: 'prep_7', categoria: 'PREPARAÇÃO DA MÁQUINA', item: 'Inspeção do estado de desgaste e garras dos dentes dos rolos alimentadores dianteiros.' },
+  { id: 'prep_8', categoria: 'PREPARAÇÃO DA MÁQUINA', item: 'Ajuste correto da pressão de compressão das molas tensoras dos rolos oscilantes superiores.' },
+  { id: 'prep_9', categoria: 'PREPARAÇÃO DA MÁQUINA', item: 'Verificação do espaçamento mínimo e livre curso dos braços oscilantes dos rolos.' },
+  { id: 'prep_10', categoria: 'PREPARAÇÃO DA MÁQUINA', item: 'Inspeção e verificação do estado dos pinos fusíveis (pinos de segurança de quebra rápida).' },
 
-  // Transmissão, Correias e Correntes
-  { id: 'trans_1', categoria: 'Transmissão, Correias e Correntes', item: 'Alinhamento das polias do acionamento principal do rotor de corte.' },
-  { id: 'trans_2', categoria: 'Transmissão, Correias e Correntes', item: 'Verificação e ajuste do tensionamento da correia principal de transmissão del rotor.' },
-  { id: 'trans_3', categoria: 'Transmissão, Correias e Correntes', item: 'Inspeção do estado visual das correias de transmissão (ausência de desfiados ou trincas).' },
-  { id: 'trans_4', categoria: 'Transmissão, Correias e Correntes', item: 'Regulagem e esticamento correto das correntes de acionamento dos rolos de alimentação.' },
-  { id: 'trans_5', categoria: 'Transmissão, Correias e Correntes', item: 'Verificação do encaixe e travamento seguro de todas as chavetas e anéis elásticos nos eixos.' },
-  { id: 'trans_6', categoria: 'Transmissão, Correias e Correntes', item: 'Ajuste da folga e contato ideal entre os pinhões metálicos das engrenagens.' },
+  // ACOPLAMENTO DA MÁQUINA AO TRATOR (4 items)
+  { id: 'acop_1', categoria: 'ACOPLAMENTO DA MÁQUINA AO TRATOR', item: 'Acoplamento e travamento correto do cabeçalho de engate da máquina à barra de tração do trator.' },
+  { id: 'acop_2', categoria: 'ACOPLAMENTO DA MÁQUINA AO TRATOR', item: 'Acoplamento e lubrificação do eixo cardan de transmissão de potência (TDP) com pino de segurança.' },
+  { id: 'acop_3', categoria: 'ACOPLAMENTO DA MÁQUINA AO TRATOR', item: 'Verificação do comprimento do eixo cardan e folga de segurança em curvas de trabalho.' },
+  { id: 'acop_4', categoria: 'ACOPLAMENTO DA MÁQUINA AO TRATOR', item: 'Conexão e fixação correta do cabo de aço de controle ou mangueiras hidráulicas de comando.' },
 
-  // Rolos Alimentadores
-  { id: 'ali_1', categoria: 'Rolos Alimentadores', item: 'Inspeção do estado de desgaste e garras dos dentes dos rolos alimentadores dianteiros.' },
-  { id: 'ali_2', categoria: 'Rolos Alimentadores', item: 'Ajuste correto da pressão de compressão das molas tensoras dos rolos oscilantes superiores.' },
-  { id: 'ali_3', categoria: 'Rolos Alimentadores', item: 'Verificação do espaçamento mínimo e livre curso dos braços oscilantes dos rolos.' },
-  { id: 'ali_4', categoria: 'Rolos Alimentadores', item: 'Inspeção e verificação do estado dos pinos fusíveis (pinos de segurança de quebra rápida).' },
-  { id: 'ali_5', categoria: 'Rolos Alimentadores', item: 'Teste de engate e desengate do mecanismo mecânico de reversão de fluxo dos rolos.' },
-  { id: 'ali_6', categoria: 'Rolos Alimentadores', item: 'Verificação e remoção de quaisquer resíduos ou corpos estranhos acumulados na câmara de entrada.' },
+  // MANUTENÇÃO (11 items)
+  { id: 'man_1', categoria: 'MANUTENÇÃO', item: 'Verificação do estado das facas de corte do rotor (ausência de dentes quebrados ou trincas).' },
+  { id: 'man_2', categoria: 'MANUTENÇÃO', item: 'Verificação do torque de aperto e fixação segura de todos os parafusos das facas.' },
+  { id: 'man_3', categoria: 'MANUTENÇÃO', item: 'Ajuste milimétrico de folga regulamentar entre as facas do rotor e a contra-faca.' },
+  { id: 'man_4', categoria: 'MANUTENÇÃO', item: 'Inspeção visual do gume de corte da contra-faca (necessidade de inversão ou substituição).' },
+  { id: 'man_5', categoria: 'MANUTENÇÃO', item: 'Verificação de folgas axiais ou radiais nos mancais principais do rotor de corte.' },
+  { id: 'man_6', categoria: 'MANUTENÇÃO', item: 'Inspeção do rebolo do afiador de facas integrado (estado físico da pedra de afiação).' },
+  { id: 'man_7', categoria: 'MANUTENÇÃO', item: 'Ajuste da guia e curso completo de translação do afiador de facas sobre o rotor.' },
+  { id: 'man_8', categoria: 'MANUTENÇÃO', item: 'Verificação do balanceamento geral do rotor girando-o manualmente (suavidade e rotação livre).' },
+  { id: 'man_9', categoria: 'MANUTENÇÃO', item: 'Verificação mecânica do cabo de aço e engrenagens de giro de 360 graus da bica de descarga.' },
+  { id: 'man_10', categoria: 'MANUTENÇÃO', item: 'Ajuste e funcionamento suave do mecanismo de insignação vertical da bica de descarga (quebra-jato).' },
+  { id: 'man_11', categoria: 'MANUTENÇÃO', item: 'Fixação correta e integridade do defletor de ponta da bica de descarga.' },
 
-  // Mecanismo de Corte (Rotor e Facas)
-  { id: 'cor_1', categoria: 'Mecanismo de Corte (Rotor e Facas)', item: 'Verificação do estado das facas de corte do rotor (ausência de dentes quebrados ou trincas).' },
-  { id: 'cor_2', categoria: 'Mecanismo de Corte (Rotor e Facas)', item: 'Verificação do torque de aperto e fixação segura de todos os parafusos das facas.' },
-  { id: 'cor_3', categoria: 'Mecanismo de Corte (Rotor e Facas)', item: 'Ajuste milimétrico de folga regulamentar entre as facas do rotor e a contra-faca.' },
-  { id: 'cor_4', categoria: 'Mecanismo de Corte (Rotor e Facas)', item: 'Inspeção visual do gume de corte da contra-faca (necessidade de inversão ou substituição).' },
-  { id: 'cor_5', categoria: 'Mecanismo de Corte (Rotor e Facas)', item: 'Verificação de folgas axiais ou radiais nos mancais principais do rotor de corte.' },
-  { id: 'cor_6', categoria: 'Mecanismo de Corte (Rotor e Facas)', item: 'Inspeção do rebolo do afiador de facas integrado (estado físico da pedra de afiação).' },
-  { id: 'cor_7', categoria: 'Mecanismo de Corte (Rotor e Facas)', item: 'Ajuste da guia e curso completo de translação do afiador de facas sobre o rotor.' },
-  { id: 'cor_8', categoria: 'Mecanismo de Corte (Rotor e Facas)', item: 'Verificação do balanceamento geral do rotor girando-o manualmente (suavidade e rotação livre).' },
+  // LUBRIFICAÇÃO COM GRAXA (3 items)
+  { id: 'graxa_1', categoria: 'LUBRIFICAÇÃO COM GRAXA', item: 'Lubrificação completa com graxa recomendada em todos os pinos graxeiros da máquina (cruzetas, eixos).' },
+  { id: 'graxa_2', categoria: 'LUBRIFICAÇÃO COM GRAXA', item: 'Lubrificação da coroa e pinhão de giro da bica de descarga (engrenagem de rotação).' },
+  { id: 'graxa_3', categoria: 'LUBRIFICAÇÃO COM GRAXA', item: 'Aplicação de graxa de alta temperatura nos mancais e rolamentos do rotor principal.' },
 
-  // Giro e Direcionamento da Descarga
-  { id: 'des_1', categoria: 'Giro e Direcionamento da Descarga', item: 'Verificação mecânica do cabo de aço e engrenagens de giro de 360 graus da bica de descarga.' },
-  { id: 'des_2', categoria: 'Giro e Direcionamento da Descarga', item: 'Ajuste e funcionamento suave do mecanismo de inclinação vertical da bica de descarga (quebra-jato).' },
-  { id: 'des_3', categoria: 'Giro e Direcionamento da Descarga', item: 'Fixação correta e integridade do defletor de ponta da bica de descarga.' },
+  // Lubrificação com óleo (4 items)
+  { id: 'oleo_1', categoria: 'Lubrificação com óleo', item: 'Verificação do nível e viscosidade do óleo da caixa de transmissão principal.' },
+  { id: 'oleo_2', categoria: 'Lubrificação com óleo', item: 'Verificação do nível de óleo e vedação das caixas satélites e redutoras de engrenagem.' },
+  { id: 'oleo_3', categoria: 'Lubrificação com óleo', item: 'Inspeção de possíveis vazamentos ou gotejamentos de óleo sob todas as caixas redutoras.' },
+  { id: 'oleo_4', categoria: 'Lubrificação com óleo', item: 'Verificação da lubrificação das correntes de acionamento mecânico dos rolos.' },
 
-  // Funcionamento em Vazio (Comissionamento)
-  { id: 'func_1', categoria: 'Funcionamento em Vazio (Comissionamento)', item: 'Acionamento da transmissão via TDP do trator a 540 ou 1000 RPM observando rotação livre.' },
-  { id: 'func_2', categoria: 'Funcionamento em Vazio (Comissionamento)', item: 'Monitoração de ruídos de fricção, aquecimento excessivo nos mancais ou vibrações severas.' },
-  { id: 'func_3', categoria: 'Funcionamento em Vazio (Comissionamento)', item: 'Teste prático do mecanismo de reversão dos rolos alimentadores acionado com segurança.' }
+  // Periodicidade para as Trocas de óleo - Caixas de Transmissão (2 items)
+  { id: 'troca_1', categoria: 'Periodicidade para as Trocas de óleo - Caixas de Transmissão', item: 'Orientação ao cliente sobre a primeira troca de óleo das caixas de transmissão após as primeiras 50 horas de trabalho.' },
+  { id: 'troca_2', categoria: 'Periodicidade para as Trocas de óleo - Caixas de Transmissão', item: 'Orientação sobre a periodicidade regular de trocas de óleo das caixas a cada 300 horas ou anualmente.' },
+
+  // CONSERVAÇÃO E LIMPEZA (3 items)
+  { id: 'cons_1', categoria: 'CONSERVAÇÃO E LIMPEZA', item: 'Verificação de trincas ou defeitos visuais de solda nas junções estruturais do chassi e engates.' },
+  { id: 'cons_2', categoria: 'CONSERVAÇÃO E LIMPEZA', item: 'Verificação da integridade de todas as proteções laterais metálicas e coberturas de fibra/plástico.' },
+  { id: 'cons_3', categoria: 'CONSERVAÇÃO E LIMPEZA', item: 'Inspeção de pontos de oxidação ou corrosão precoce e estado geral da pintura protetiva.' },
+
+  // REVISÃO ANUAL (2 items)
+  { id: 'rev_1', categoria: 'REVISÃO ANUAL', item: 'Inspeção do bocal de descarga (bica de saída) e chapas internas antidesgaste (liner protetor).' },
+  { id: 'rev_2', categoria: 'REVISÃO ANUAL', item: 'Verificação do quebra-jato da bica e curso livre do cabo de controle de descarga.' },
+
+  // PREENCHIMENTO DO TERMO DE RECEBIMENTO (2 items)
+  { id: 'termo_1', categoria: 'PREENCHIMENTO DO TERMO DE RECEBIMENTO', item: 'Verificação e contagem de itens sobressalentes e caixa de ferramentas de acompanhamento de fábrica.' },
+  { id: 'termo_2', categoria: 'PREENCHIMENTO DO TERMO DE RECEBIMENTO', item: 'Verificação da presença dos manuais de operação físicos e guia de garantia de fábrica.' }
 ];
 
 // Dados iniciais padrões para seleção rápida
@@ -356,8 +362,9 @@ export function inicializarBancoDeDados() {
   } else {
     try {
       const parsed = JSON.parse(storedChk);
-      if (Array.isArray(parsed) && parsed.length === 25) {
-        // Upgrade to 43 factory-default items automatically
+      const hasOldCat = Array.isArray(parsed) && parsed.some((it: any) => it.categoria === 'Recebimento e Inspeção Geral');
+      if (hasOldCat || (Array.isArray(parsed) && parsed.length === 25)) {
+        // Upgrade to 43 factory-default items with 10 correct categories automatically
         localStorage.setItem('agro_checklist_padrao', JSON.stringify(CHECKLIST_PADRAO));
         localStorage.setItem('agro_checklist_updated_at', String(Date.now()));
       }
@@ -744,5 +751,14 @@ export function restaurarChecklistFabrica(logado: string): void {
   salvarChecklistNuvem(CHECKLIST_PADRAO).then(() => {
     dispararAtualizacaoLocal();
   });
+}
+
+export function getRelativeIndexStr(item: { id: string; categoria: string }, list: { id: string; categoria: string }[]): string {
+  const itemsInCat = list.filter(i => i.categoria === item.categoria);
+  const idx = itemsInCat.findIndex(i => i.id === item.id);
+  if (idx === -1) return '';
+  const num = String(idx + 1).padStart(2, '0');
+  const total = String(itemsInCat.length).padStart(2, '0');
+  return `${num}/${total}`;
 }
 

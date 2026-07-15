@@ -368,9 +368,11 @@ export function gerarPDFEntrega(entrega: EntregaTecnica): jsPDF {
     
     // Itens da Categoria
     const itensCat = entrega.checklist.filter(i => i.categoria === cat);
-    itensCat.forEach(item => {
+    itensCat.forEach((item, idxInCat) => {
+      const idxStr = `${String(idxInCat + 1).padStart(2, '0')}/${String(itensCat.length).padStart(2, '0')}`;
+      const fullText = `${idxStr} - ${item.item}`;
       // Medição prévia das linhas para quebra preventiva de página se necessário
-      const textLines = doc.splitTextToSize(item.item, 135);
+      const textLines = doc.splitTextToSize(fullText, 135);
       const totalItemHeight = (textLines.length - 1) * 4.5 + (item.observacao ? 8.0 : 0) + 6.0;
 
       // Se o item inteiro não couber na página, quebra de página preventiva para mantê-lo íntegro

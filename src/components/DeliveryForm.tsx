@@ -10,7 +10,7 @@ import {
 import { 
   CLIENTES_PADRAO, MAQUINAS_PADRAO, REVENDAS_PADRAO, CHECKLIST_PADRAO, 
   salvarEntrega, gerarIdEntrega, getMaquinas, cadastrarMaquina,
-  getChecklistPadrao, salvarChecklistPadrao
+  getChecklistPadrao, salvarChecklistPadrao, getRelativeIndexStr
 } from '../utils/db';
 import { 
   Tractor, User, FileText, CheckCircle2, ChevronRight, ChevronLeft, 
@@ -1486,39 +1486,43 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                             <X className="w-3.5 h-3.5" />
                           </button>
                         </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5 min-w-0 max-w-[150px] sm:max-w-[320px] md:max-w-[450px]">
-                          {currentItem.categoria.length > 22 ? (
-                            <div className="overflow-hidden whitespace-nowrap w-full relative flex items-center">
-                              <div className="animate-marquee-container">
-                                <span className="font-black text-[10px] sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none pr-8">
-                                  {currentItem.categoria}
-                                </span>
-                                <span className="font-black text-[10px] sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none pr-8">
-                                  {currentItem.categoria}
-                                </span>
+                      ) : (() => {
+                        const relIndexStr = getRelativeIndexStr(currentItem, checklist);
+                        const displayedCatText = `${currentItem.categoria} ${relIndexStr}`;
+                        return (
+                          <div className="flex items-center gap-1.5 min-w-0 max-w-[150px] sm:max-w-[320px] md:max-w-[450px]">
+                            {displayedCatText.length > 22 ? (
+                              <div className="overflow-hidden whitespace-nowrap w-full relative flex items-center">
+                                <div className="animate-marquee-container">
+                                  <span className="font-black text-[10px] sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none pr-8">
+                                    {displayedCatText}
+                                  </span>
+                                  <span className="font-black text-[10px] sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none pr-8">
+                                    {displayedCatText}
+                                  </span>
+                                </div>
                               </div>
-                            </div>
-                          ) : (
-                            <span className="font-black text-[10px] sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none whitespace-nowrap">
-                              {currentItem.categoria}
-                            </span>
-                          )}
-                          {usuarioLogado?.usuario?.toLowerCase() === 'carlos.silva@industriasnb.com.br' && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setEditingCategory(true);
-                                setEditingCategoryText(currentItem.categoria);
-                              }}
-                              className="p-0.5 text-zinc-400 hover:text-amber-400 hover:bg-zinc-800 rounded transition shrink-0"
-                              title="Editar nome da categoria/bloco"
-                            >
-                              <Pencil className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                        </div>
-                      )}
+                            ) : (
+                              <span className="font-black text-[10px] sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none whitespace-nowrap">
+                                {displayedCatText}
+                              </span>
+                            )}
+                            {usuarioLogado?.usuario?.toLowerCase() === 'carlos.silva@industriasnb.com.br' && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingCategory(true);
+                                  setEditingCategoryText(currentItem.categoria);
+                                }}
+                                className="p-0.5 text-zinc-400 hover:text-amber-400 hover:bg-zinc-800 rounded transition shrink-0"
+                                title="Editar nome da categoria/bloco"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Badge de progresso na categoria: e.g. 1/4 VERIFICADOS */}
@@ -1884,13 +1888,23 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                         </div>
                       ) : (
                         <>
-                          <div className="flex items-start justify-between gap-3">
-                            <h5 className={`font-bold sm:font-black text-zinc-900 tracking-tight leading-snug sm:leading-relaxed break-words flex-1 ${step === 3 ? 'text-xs sm:text-lg md:text-xl' : 'text-sm sm:text-lg md:text-xl'}`}>
-                              {currentItem.item.length > 120 && !isTextExpanded 
-                                ? `${currentItem.item.slice(0, 120)}...` 
-                                : currentItem.item
-                              } *
-                            </h5>
+                          <div className="flex items-start justify-between gap-3 w-full overflow-hidden">
+                            {currentItem.item.length > 65 && !isTextExpanded ? (
+                              <div className="overflow-hidden whitespace-nowrap w-full relative flex items-center py-1 flex-1 min-w-0">
+                                <div className="animate-marquee-container hover:pause" style={{ animationDuration: '24s' }}>
+                                  <span className={`font-bold sm:font-black text-zinc-900 tracking-tight select-none pr-12 ${step === 3 ? 'text-xs sm:text-lg md:text-xl' : 'text-sm sm:text-lg md:text-xl'}`}>
+                                    {currentItem.item}
+                                  </span>
+                                  <span className={`font-bold sm:font-black text-zinc-900 tracking-tight select-none pr-12 ${step === 3 ? 'text-xs sm:text-lg md:text-xl' : 'text-sm sm:text-lg md:text-xl'}`}>
+                                    {currentItem.item}
+                                  </span>
+                                </div>
+                              </div>
+                            ) : (
+                              <h5 className={`font-bold sm:font-black text-zinc-900 tracking-tight leading-snug sm:leading-relaxed break-words flex-1 ${step === 3 ? 'text-xs sm:text-lg md:text-xl' : 'text-sm sm:text-lg md:text-xl'}`}>
+                                {currentItem.item}
+                              </h5>
+                            )}
                             {usuarioLogado?.usuario?.toLowerCase() === 'carlos.silva@industriasnb.com.br' && (
                               <div className="flex items-center gap-1 shrink-0">
                                 <button
@@ -1917,7 +1931,7 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                               </div>
                             )}
                           </div>
-                          {currentItem.item.length > 120 && (
+                          {currentItem.item.length > 65 && (
                             <button
                               type="button"
                               onClick={() => setIsTextExpanded(!isTextExpanded)}
@@ -1926,12 +1940,12 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                               {isTextExpanded ? (
                                 <>
                                   <ChevronUp className="w-3 h-3" />
-                                  Ocultar descrição
+                                  Modo Rolagem Horizontal
                                 </>
                               ) : (
                                 <>
                                   <ChevronDown className="w-3 h-3" />
-                                  Ver descrição completa
+                                  Exibir Texto Inteiro Estático
                                 </>
                               )}
                             </button>
