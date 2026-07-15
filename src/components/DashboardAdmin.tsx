@@ -5,14 +5,14 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { EntregaTecnica, KPIStats, Usuario, Maquina } from '../types';
-import { obterKPIs, getLogs, LogAuditoria, getMaquinas, cadastrarMaquina, atualizarMaquina, excluirMaquina, CHECKLIST_PADRAO, getChecklistPadrao, salvarChecklistPadrao } from '../utils/db';
+import { obterKPIs, getLogs, LogAuditoria, getMaquinas, cadastrarMaquina, atualizarMaquina, excluirMaquina, CHECKLIST_PADRAO, getChecklistPadrao, salvarChecklistPadrao, restaurarChecklistFabrica } from '../utils/db';
 import { 
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell 
 } from 'recharts';
 import { 
   TrendingUp, Users, MapPin, Tractor, AlertTriangle, FileSpreadsheet, 
-  FileText, Calendar, Search, ShieldCheck, ClipboardList, Shield, Plus, Trash2, Upload, PlusCircle, Check, Share, Pencil
+  FileText, Calendar, Search, ShieldCheck, ClipboardList, Shield, Plus, Trash2, Upload, PlusCircle, Check, Share, Pencil, RotateCcw
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { ForageHarvesterIcon } from './ForageHarvesterIcon';
@@ -822,6 +822,26 @@ export default function DashboardAdmin({ entregas, usuarioLogado }: DashboardAdm
                     >
                       <PlusCircle className="w-3.5 h-3.5" />
                       Usar Padrão
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm("Deseja realmente restaurar o checklist padrão oficial de fábrica para todos os equipamentos? Isso carregará as 7 categorias e 43 itens originais, sobrescrevendo alterações locais no checklist padrão.")) {
+                          restaurarChecklistFabrica(usuarioLogado.usuario);
+                          const defaultItems = CHECKLIST_PADRAO.map(i => ({
+                            id: i.id,
+                            categoria: i.categoria,
+                            item: i.item
+                          }));
+                          setItensChecklist(defaultItems);
+                          alert("Checklist padrão oficial de fábrica restaurado com sucesso!");
+                        }
+                      }}
+                      className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white border border-rose-700 rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1 transition"
+                      title="Restaurar o modelo padrão de fábrica com 43 itens e categorias oficiais"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      Restaurar Fábrica
                     </button>
                     <button
                       type="button"

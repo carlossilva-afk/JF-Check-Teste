@@ -1487,10 +1487,23 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                           </button>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1 min-w-0">
-                          <span className="font-black text-[10px] sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none truncate max-w-[120px] sm:max-w-none">
-                            {currentItem.categoria}
-                          </span>
+                        <div className="flex items-center gap-1.5 min-w-0 max-w-[150px] sm:max-w-[320px] md:max-w-[450px]">
+                          {currentItem.categoria.length > 22 ? (
+                            <div className="overflow-hidden whitespace-nowrap w-full relative flex items-center">
+                              <div className="animate-marquee-container">
+                                <span className="font-black text-[10px] sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none pr-8">
+                                  {currentItem.categoria}
+                                </span>
+                                <span className="font-black text-[10px] sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none pr-8">
+                                  {currentItem.categoria}
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="font-black text-[10px] sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none whitespace-nowrap">
+                              {currentItem.categoria}
+                            </span>
+                          )}
                           {usuarioLogado?.usuario?.toLowerCase() === 'carlos.silva@industriasnb.com.br' && (
                             <button
                               type="button"

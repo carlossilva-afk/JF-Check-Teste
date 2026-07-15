@@ -737,3 +737,12 @@ export function salvarChecklistPadrao(checklist: Omit<ItemChecklist, 'conforme' 
   salvarChecklistNuvem(checklist).then(() => dispararAtualizacaoLocal());
 }
 
+export function restaurarChecklistFabrica(logado: string): void {
+  localStorage.setItem('agro_checklist_padrao', JSON.stringify(CHECKLIST_PADRAO));
+  localStorage.setItem('agro_checklist_updated_at', String(Date.now()));
+  registrarLog(logado, 'RESTAURAR_FABRICA', 'Restaurou o checklist padrão oficial de fábrica (43 itens e categorias oficiais).');
+  salvarChecklistNuvem(CHECKLIST_PADRAO).then(() => {
+    dispararAtualizacaoLocal();
+  });
+}
+

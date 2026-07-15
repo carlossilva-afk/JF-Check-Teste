@@ -112,4 +112,24 @@
   letter-spacing: -0.05em;
 }
 
+/* Horizontal Marquee Animation */
+@keyframes marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-marquee-container {
+  display: flex;
+  width: max-content;
+  animation: marquee 12s linear infinite;
+}
+
+.animate-marquee-container:hover {
+  animation-play-state: paused;
+}
+
 
