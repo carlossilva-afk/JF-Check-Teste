@@ -1015,11 +1015,11 @@ Acesse para auditar: ${entrega.qrCodeUrl}
   }
 
   return (
-    <div className="flex flex-col gap-6" id="delivery-form-wizard">
+    <div className={`flex flex-col ${step === 3 ? 'gap-2 sm:gap-4' : 'gap-6'}`} id="delivery-form-wizard">
       {/* Indicador de Passos */}
-      <div className="bg-zinc-950 text-white p-3 sm:p-4 rounded-2xl shadow-lg border-2 border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full shrink-0 overflow-hidden flex items-center justify-center">
+      <div className={`bg-zinc-950 text-white rounded-2xl shadow-lg border-2 border-zinc-900 flex flex-row items-center justify-between ${step === 3 ? 'p-2 sm:p-4 gap-1.5' : 'p-3 sm:p-4 gap-3'}`}>
+        <div className="flex items-center gap-2">
+          <div className={`rounded-full shrink-0 overflow-hidden flex items-center justify-center ${step === 3 ? 'w-6 h-6 sm:w-11 sm:h-11' : 'w-9 h-9 sm:w-11 sm:h-11'}`}>
             <img 
               src="https://lh3.googleusercontent.com/d/1_1AYI1j9md2diNRj_8RhdPEs9tM_vUmy" 
               alt="Logo JF" 
@@ -1033,21 +1033,21 @@ Acesse para auditar: ${entrega.qrCodeUrl}
             />
           </div>
           <div>
-            <h3 className="text-sm sm:text-base md:text-lg font-black uppercase tracking-wider">Nova Entrega Técnica</h3>
-            <div className="flex flex-wrap items-center gap-2 mt-0.5">
-              <span className="text-[10px] sm:text-xs text-amber-400 font-bold flex items-center gap-1.5 font-mono">
-                <Clock className="w-3.5 h-3.5 animate-pulse" />
-                {entregaIniciada ? `TEMPO DE EXECUÇÃO: ${Math.floor(tempoPassado / 60)}m ${tempoPassado % 60}s` : 'AGUARDANDO INÍCIO...'}
+            <h3 className={`font-black uppercase tracking-wider ${step === 3 ? 'text-[10px] sm:text-base' : 'text-sm sm:text-base md:text-lg'}`}>Nova Entrega</h3>
+            <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+              <span className="text-[9px] sm:text-xs text-amber-400 font-bold flex items-center gap-1 font-mono">
+                <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 animate-pulse" />
+                {entregaIniciada ? `${step === 3 ? 'TEMP' : 'TEMPO'}: ${Math.floor(tempoPassado / 60)}m ${tempoPassado % 60}s` : 'AGUARDANDO...'}
               </span>
               {entregaIniciada && (
                 <button
                   type="button"
                   onClick={() => setShowDescartarConfirm(true)}
-                  className="px-2 py-0.5 bg-rose-950/60 hover:bg-rose-900/85 text-rose-300 hover:text-white border border-rose-800/80 rounded-md text-[9px] font-black uppercase tracking-wider transition duration-150 shadow-sm"
+                  className="px-1.5 py-0.5 bg-rose-950/60 hover:bg-rose-900/85 text-rose-300 hover:text-white border border-rose-800/80 rounded text-[8px] font-black uppercase tracking-wider transition duration-150 shadow-sm"
                   title="Descartar a entrega atual e começar do zero"
                   id="btn-cancel-delivery"
                 >
-                  Descartar
+                  Sair
                 </button>
               )}
             </div>
@@ -1055,26 +1055,26 @@ Acesse para auditar: ${entrega.qrCodeUrl}
         </div>
 
         {/* Círculos dos passos */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           {[1, 2, 3, 4].map((s) => (
             <div key={s} className="flex items-center">
-              <div className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center font-black text-xs sm:text-sm transition duration-150 border-2 ${
+              <div className={`rounded-full flex items-center justify-center font-black transition duration-150 border-2 ${
                 step === s 
-                  ? 'bg-amber-500 text-zinc-950 border-amber-400 shadow-lg ring-4 ring-amber-500/30' 
+                  ? 'bg-amber-500 text-zinc-950 border-amber-400 shadow-lg ring-2 sm:ring-4 ring-amber-500/30' 
                   : step > s 
                     ? 'bg-zinc-800 text-amber-400 border-zinc-700' 
                     : 'bg-zinc-900 text-zinc-500 border-zinc-800'
-              }`}>
+              } ${step === 3 ? 'w-5 h-5 sm:w-9 sm:h-9 text-[10px] sm:text-sm' : 'w-7 h-7 sm:w-9 sm:h-9 text-xs sm:text-sm'}`}>
                 {s}
               </div>
-              {s < 4 && <div className={`w-4 sm:w-8 h-0.5 sm:h-1 ${step > s ? 'bg-amber-500' : 'bg-zinc-800'}`} />}
+              {s < 4 && <div className={`h-0.5 sm:h-1 ${step > s ? 'bg-amber-500' : 'bg-zinc-800'} ${step === 3 ? 'w-2 sm:w-8' : 'w-4 sm:w-8'}`} />}
             </div>
           ))}
         </div>
       </div>
 
       {/* CONTEÚDO DOS PASSOS */}
-      <div className="bg-white border-2 border-zinc-200 rounded-2xl p-6 md:p-8 shadow-md">
+      <div className={`bg-white border-2 border-zinc-200 rounded-2xl shadow-md ${step === 3 ? 'p-2 sm:p-6' : 'p-3 sm:p-6'} md:p-8`}>
         
         {/* PASSO 1: IDENTIFICAÇÃO (CLIENTE E MÁQUINA) */}
         {step === 1 && (
@@ -1406,25 +1406,25 @@ Acesse para auditar: ${entrega.qrCodeUrl}
           const isConforme = currentItem.conforme === 'conforme';
 
           return (
-            <div className="flex flex-col gap-8" id="wizard-step-3">
-              <div>
-                <h4 className="text-xl md:text-2xl font-black text-zinc-900 border-b-4 border-zinc-900 pb-3 flex items-center gap-2 uppercase tracking-tight">
-                  <FileText className="text-amber-500 w-6 h-6 shrink-0" />
+            <div className="flex flex-col gap-2 sm:gap-6" id="wizard-step-3">
+              <div className="hidden sm:block">
+                <h4 className="text-sm sm:text-lg md:text-2xl font-black text-zinc-900 border-b-2 sm:border-b-4 border-zinc-900 pb-1.5 sm:pb-3 flex items-center gap-1.5 sm:gap-2 uppercase tracking-tight">
+                  <FileText className="text-amber-500 w-4 h-4 sm:w-6 sm:h-6 shrink-0" />
                   Checklist Geral de Inspeção Técnica
                 </h4>
               </div>
 
               {/* Barra de Progresso Geral */}
-              <div className="flex flex-col gap-1.5 bg-zinc-50 border-2 border-zinc-900 rounded-2xl p-4 shadow-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-                  <span className="text-[11px] font-black uppercase text-zinc-600 tracking-wider">
-                    Status Geral do Checklist
+              <div className="flex flex-col gap-1 bg-zinc-50 border border-zinc-900/60 rounded-xl p-1.5 sm:p-4 shadow-sm">
+                <div className="flex items-center justify-between gap-1.5">
+                  <span className="text-[8px] sm:text-[11px] font-black uppercase text-zinc-600 tracking-wider">
+                    Status do Checklist
                   </span>
-                  <span className="text-[11px] font-mono font-black text-zinc-800 bg-zinc-200/60 px-2 py-0.5 rounded">
-                    VERIFICADOS: {totalVerificados} DE {totalItens} ({progressPercent}%)
+                  <span className="text-[8px] sm:text-[11px] font-mono font-black text-zinc-800 bg-zinc-200/60 px-1 py-0.5 rounded">
+                    VERIFICADOS: {totalVerificados}/{totalItens} ({progressPercent}%)
                   </span>
                 </div>
-                <div className="w-full bg-zinc-200 rounded-full h-3 overflow-hidden border border-zinc-300 mt-1">
+                <div className="w-full bg-zinc-200 rounded-full h-1.5 sm:h-3 overflow-hidden border border-zinc-300">
                   <div 
                     className="bg-emerald-500 h-full transition-all duration-300" 
                     style={{ width: `${progressPercent}%` }}
@@ -1433,86 +1433,88 @@ Acesse para auditar: ${entrega.qrCodeUrl}
               </div>
 
               {/* Card do Item Ativo */}
-              <div className="border-2 border-zinc-900 rounded-3xl overflow-hidden shadow-lg bg-white">
+              <div className="border-2 border-zinc-900 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg bg-white">
                 {/* Header do Card - Categoria e Progresso na Categoria */}
-                <div className="px-4 sm:px-5 py-4 bg-zinc-900 text-white flex flex-col gap-3 border-b border-zinc-800">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    {/* Badge do total de itens: e.g. 02/25 */}
-                    <div className="px-3.5 py-1.5 bg-zinc-850 border-2 border-amber-500 rounded-xl flex items-center justify-center shadow-md shrink-0">
-                      <span className="text-amber-400 font-mono text-xs sm:text-sm font-black tracking-wide">
-                        {String(currentChecklistItemIndex + 1).padStart(2, '0')}/{String(checklist.length).padStart(2, '0')}
-                      </span>
-                    </div>
-
-                    {/* Título da Categoria */}
-                    {editingCategory ? (
-                      <div className="flex items-center gap-2 max-w-xs sm:max-w-md w-full shrink-0 sm:shrink">
-                        <input
-                          type="text"
-                          value={editingCategoryText}
-                          onChange={(e) => setEditingCategoryText(e.target.value)}
-                          className="px-2 py-1 bg-white text-zinc-900 font-black rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 w-full"
-                          placeholder="Nome da categoria"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (!editingCategoryText.trim()) return;
-                            const oldCat = currentItem.categoria;
-                            const newCat = editingCategoryText.trim();
-                            
-                            // 1. Atualizar no checklist atual em memória
-                            setChecklist(prev => prev.map(item => item.categoria === oldCat ? { ...item, categoria: newCat } : item));
-                            
-                            // 2. Atualizar na checklist padrão
-                            const defaultList = getChecklistPadrao();
-                            const updatedDefault = defaultList.map(item => item.categoria === oldCat ? { ...item, categoria: newCat } : item);
-                            salvarChecklistPadrao(updatedDefault, usuarioLogado.usuario);
-                            
-                            setEditingCategory(false);
-                          }}
-                          className="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition shrink-0 flex items-center justify-center border border-emerald-700"
-                          title="Salvar"
-                        >
-                          <Check className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setEditingCategory(false)}
-                          className="p-1.5 bg-zinc-700 hover:bg-zinc-650 text-zinc-300 rounded-lg transition shrink-0 flex items-center justify-center border border-zinc-600"
-                          title="Cancelar"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="font-black text-sm sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none break-all sm:break-normal">
-                          {currentItem.categoria}
+                <div className="px-2 py-1.5 sm:px-5 sm:py-4 bg-zinc-900 text-white flex flex-col gap-1 sm:gap-3 border-b border-zinc-800">
+                  <div className="flex flex-row items-center justify-between gap-1.5">
+                    <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+                      {/* Badge do total de itens: e.g. 02/25 */}
+                      <div className="px-1.5 py-0.5 sm:px-3.5 sm:py-1.5 bg-zinc-850 border border-amber-500 rounded sm:rounded-xl flex items-center justify-center shadow-md shrink-0">
+                        <span className="text-amber-400 font-mono text-[9px] sm:text-sm font-black tracking-wide">
+                          {String(currentChecklistItemIndex + 1).padStart(2, '0')}/{String(checklist.length).padStart(2, '0')}
                         </span>
-                        {usuarioLogado?.usuario?.toLowerCase() === 'carlos.silva@industriasnb.com.br' && (
+                      </div>
+
+                      {/* Título da Categoria */}
+                      {editingCategory ? (
+                        <div className="flex items-center gap-2 max-w-xs sm:max-w-md w-full shrink-0 sm:shrink">
+                          <input
+                            type="text"
+                            value={editingCategoryText}
+                            onChange={(e) => setEditingCategoryText(e.target.value)}
+                            className="px-2 py-1 bg-white text-zinc-900 font-black rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 w-full"
+                            placeholder="Nome da categoria"
+                          />
                           <button
                             type="button"
                             onClick={() => {
-                              setEditingCategory(true);
-                              setEditingCategoryText(currentItem.categoria);
+                              if (!editingCategoryText.trim()) return;
+                              const oldCat = currentItem.categoria;
+                              const newCat = editingCategoryText.trim();
+                              
+                              // 1. Atualizar no checklist atual em memória
+                              setChecklist(prev => prev.map(item => item.categoria === oldCat ? { ...item, categoria: newCat } : item));
+                              
+                              // 2. Atualizar na checklist padrão
+                              const defaultList = getChecklistPadrao();
+                              const updatedDefault = defaultList.map(item => item.categoria === oldCat ? { ...item, categoria: newCat } : item);
+                              salvarChecklistPadrao(updatedDefault, usuarioLogado.usuario);
+                              
+                              setEditingCategory(false);
                             }}
-                            className="p-1.5 text-zinc-400 hover:text-amber-400 hover:bg-zinc-800 rounded-lg transition shrink-0 border border-transparent hover:border-zinc-700"
-                            title="Editar nome da categoria/bloco"
+                            className="p-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded transition shrink-0 flex items-center justify-center border border-emerald-700"
+                            title="Salvar"
                           >
-                            <Pencil className="w-3.5 h-3.5" />
+                            <Check className="w-3.5 h-3.5" />
                           </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                          <button
+                            type="button"
+                            onClick={() => setEditingCategory(false)}
+                            className="p-1 bg-zinc-700 hover:bg-zinc-650 text-zinc-300 rounded transition shrink-0 flex items-center justify-center border border-zinc-600"
+                            title="Cancelar"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 min-w-0">
+                          <span className="font-black text-[10px] sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none truncate max-w-[120px] sm:max-w-none">
+                            {currentItem.categoria}
+                          </span>
+                          {usuarioLogado?.usuario?.toLowerCase() === 'carlos.silva@industriasnb.com.br' && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingCategory(true);
+                                setEditingCategoryText(currentItem.categoria);
+                              }}
+                              className="p-0.5 text-zinc-400 hover:text-amber-400 hover:bg-zinc-800 rounded transition shrink-0"
+                              title="Editar nome da categoria/bloco"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
 
-                  {/* Badge de progresso na categoria: e.g. 1/4 VERIFICADOS */}
-                  <div className="flex items-center">
-                    <div className="px-3 py-1 bg-zinc-850 border-2 border-amber-500 rounded-xl flex items-center justify-center shadow-md">
-                      <span className="text-amber-400 font-mono text-[10px] sm:text-xs font-black tracking-wide uppercase">
-                        {String(indexInThisCategory + 1)}/{itemsInCategory.length} VERIFICADOS
-                      </span>
+                    {/* Badge de progresso na categoria: e.g. 1/4 VERIFICADOS */}
+                    <div className="flex items-center shrink-0">
+                      <div className="px-1.5 py-0.5 bg-zinc-850 border border-amber-500 rounded sm:rounded-xl flex items-center justify-center shadow-md">
+                        <span className="text-amber-400 font-mono text-[8px] sm:text-xs font-black tracking-wide uppercase">
+                          Item {String(indexInThisCategory + 1)} de {itemsInCategory.length}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
@@ -1769,10 +1771,10 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                   )}
                 </div>
 
-                <div className="p-6 flex flex-col gap-6">
+                <div className={`flex flex-col ${step === 3 ? 'p-2 sm:p-6 gap-2 sm:gap-6' : 'p-3.5 sm:p-6 gap-3.5 sm:gap-6'}`}>
                   {/* Título do Item */}
-                  <div className="p-5 sm:p-6 bg-zinc-50 border-2 border-zinc-900 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-inner min-h-[140px]">
-                    <div className="flex-1 min-w-0 pr-0 md:pr-4 flex flex-col gap-2">
+                  <div className={`bg-zinc-50 border-2 border-zinc-900 rounded-xl sm:rounded-2xl flex flex-row items-center justify-between shadow-inner ${step === 3 ? 'p-2.5 sm:p-6 gap-3 sm:gap-6' : 'p-3 sm:p-6 gap-4 sm:gap-6'}`}>
+                    <div className="flex-1 min-w-0 flex flex-col gap-1.5 sm:gap-2 text-left">
                       {usuarioLogado?.usuario?.toLowerCase() === 'carlos.silva@industriasnb.com.br' && editingItemId === currentItem.id ? (
                         <div className="flex flex-col gap-3 w-full">
                           <textarea
@@ -1870,52 +1872,52 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                       ) : (
                         <>
                           <div className="flex items-start justify-between gap-3">
-                            <h5 className="text-base sm:text-lg md:text-xl font-black text-zinc-900 tracking-tight leading-relaxed break-words flex-1">
-                              {currentItem.item.length > 150 && !isTextExpanded 
-                                ? `${currentItem.item.slice(0, 150)}...` 
+                            <h5 className={`font-bold sm:font-black text-zinc-900 tracking-tight leading-snug sm:leading-relaxed break-words flex-1 ${step === 3 ? 'text-xs sm:text-lg md:text-xl' : 'text-sm sm:text-lg md:text-xl'}`}>
+                              {currentItem.item.length > 120 && !isTextExpanded 
+                                ? `${currentItem.item.slice(0, 120)}...` 
                                 : currentItem.item
                               } *
                             </h5>
                             {usuarioLogado?.usuario?.toLowerCase() === 'carlos.silva@industriasnb.com.br' && (
-                              <div className="flex items-center gap-1.5 shrink-0">
+                              <div className="flex items-center gap-1 shrink-0">
                                 <button
                                   type="button"
                                   onClick={() => {
                                     setEditingItemId(currentItem.id);
                                     setEditingItemText(currentItem.item);
                                   }}
-                                  className="p-1.5 bg-zinc-100 hover:bg-amber-100 text-zinc-600 hover:text-amber-700 border border-zinc-300 hover:border-amber-400 rounded-lg transition shrink-0"
+                                  className="p-1 bg-zinc-150 hover:bg-amber-100 text-zinc-650 hover:text-amber-700 border border-zinc-300 rounded transition shrink-0"
                                   title="Editar este item para todos os usuários"
                                 >
-                                  <Pencil className="w-4 h-4" />
+                                  <Pencil className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => {
                                     setShowDeleteTopicConfirm(true);
                                   }}
-                                  className="p-1.5 bg-zinc-100 hover:bg-red-100 text-zinc-600 hover:text-red-700 border border-zinc-300 hover:border-red-400 rounded-lg transition shrink-0"
+                                  className="p-1 bg-zinc-150 hover:bg-red-100 text-zinc-650 hover:text-red-700 border border-zinc-300 rounded transition shrink-0"
                                   title="Excluir este item/tópico para todos os usuários"
                                 >
-                                  <Trash2 className="w-4 h-4" />
+                                  <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                               </div>
                             )}
                           </div>
-                          {currentItem.item.length > 150 && (
+                          {currentItem.item.length > 120 && (
                             <button
                               type="button"
                               onClick={() => setIsTextExpanded(!isTextExpanded)}
-                              className="self-start flex items-center gap-1.5 mt-2 text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-600 hover:text-amber-700 bg-amber-500/10 hover:bg-amber-500/15 border-2 border-amber-500/35 hover:border-amber-500/50 px-3 py-1.5 rounded-xl transition duration-150 shadow-sm"
+                              className={`self-start flex items-center gap-1 mt-1 font-black uppercase tracking-wider text-amber-600 hover:text-amber-700 bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/30 hover:border-amber-500/50 rounded-lg transition duration-150 shadow-sm ${step === 3 ? 'text-[8px] sm:text-xs px-2 py-0.5' : 'text-[9px] sm:text-xs px-2.5 py-1'}`}
                             >
                               {isTextExpanded ? (
                                 <>
-                                  <ChevronUp className="w-3.5 h-3.5" />
+                                  <ChevronUp className="w-3 h-3" />
                                   Ocultar descrição
                                 </>
                               ) : (
                                 <>
-                                  <ChevronDown className="w-3.5 h-3.5" />
+                                  <ChevronDown className="w-3 h-3" />
                                   Ver descrição completa
                                 </>
                               )}
@@ -1926,7 +1928,7 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                     </div>
                     
                     {/* Botão Único com Símbolo de Certo */}
-                    <div className="flex justify-center items-center shrink-0 pt-2 md:pt-0">
+                    <div className="flex justify-center items-center shrink-0">
                       <button
                         type="button"
                         onClick={() => {
@@ -1934,17 +1936,18 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                           handleConformidadeChange(currentChecklistItemIndex, novoStatus);
                           setShowSkipWarning(false);
                         }}
-                        className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 transition-all duration-300 flex items-center justify-center shadow-lg cursor-pointer select-none ${
+                        className={`${step === 3 ? 'w-11 h-11 sm:w-24 sm:h-24' : 'w-14 h-14 sm:w-24 sm:h-24'} rounded-full border-2 sm:border-4 transition-all duration-300 flex items-center justify-center shadow-md sm:shadow-lg cursor-pointer select-none shrink-0 ${
                           isConforme
                             ? 'bg-emerald-600 border-emerald-700 text-white scale-105 sm:scale-110 shadow-emerald-200'
                             : 'bg-white border-zinc-300 text-zinc-300 hover:bg-zinc-100 hover:border-zinc-400 hover:text-zinc-500 hover:scale-105 active:scale-95'
                         }`}
                         title={isConforme ? "Desmarcar item" : "Marcar como verificado"}
                       >
-                        <Check className={`w-10 h-10 sm:w-12 sm:h-12 stroke-[4] transition-transform duration-300 ${isConforme ? 'scale-110' : 'scale-90 opacity-60'}`} />
+                        <Check className={`${step === 3 ? 'w-5.5 h-5.5 sm:w-12 sm:h-12' : 'w-7 h-7 sm:w-12 sm:h-12'} stroke-[4] transition-transform duration-300 ${isConforme ? 'scale-110' : 'scale-90 opacity-60'}`} />
                       </button>
                     </div>
                   </div>
+                </div>
 
                   {/* Nota / Warning se o usuário tentar avançar sem ticar */}
                   {showSkipWarning && (
@@ -1993,8 +1996,7 @@ Acesse para auditar: ${entrega.qrCodeUrl}
 
                 </div>
               </div>
-            </div>
-          );
+            );
         })()}
 
         {/* PASSO 4: ASSINATURAS E PARECER FINAL */}
@@ -2043,7 +2045,7 @@ Acesse para auditar: ${entrega.qrCodeUrl}
       </div>
 
       {/* BOTÕES DE NAVEGAÇÃO DO WIZARD */}
-      <div className="flex items-center gap-1.5 sm:gap-4 bg-zinc-50 p-2.5 sm:p-4 border-2 border-zinc-900 rounded-2xl shadow-md w-full box-border">
+      <div className={`flex items-center gap-1 sm:gap-4 bg-zinc-50 border-2 border-zinc-900 rounded-2xl shadow-md w-full box-border ${step === 3 ? 'p-1 sm:p-4' : 'p-1.5 sm:p-4'}`}>
         <button
           type="button"
           onClick={() => {
@@ -2054,11 +2056,11 @@ Acesse para auditar: ${entrega.qrCodeUrl}
             }
           }}
           disabled={step === 1}
-          className="flex-1 sm:flex-none flex items-center justify-center gap-1 h-10 sm:h-11 px-2 sm:px-5 text-[10px] sm:text-sm font-black uppercase tracking-wider border-2 border-zinc-300 rounded-xl bg-white text-zinc-700 hover:bg-zinc-100 hover:border-zinc-400 active:bg-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed transition select-none"
+          className="flex-1 sm:flex-none flex items-center justify-center gap-1 h-10 sm:h-11 px-1 sm:px-5 text-[9px] sm:text-sm font-black uppercase tracking-wider border-2 border-zinc-300 rounded-xl bg-white text-zinc-700 hover:bg-zinc-100 hover:border-zinc-400 active:bg-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed transition select-none"
           id="btn-wizard-prev"
         >
           <ChevronLeft className="w-3.5 h-3.5 shrink-0" />
-          <span>Voltar</span>
+          <span>{step === 3 && currentChecklistItemIndex > 0 ? "Voltar Item" : "Voltar"}</span>
         </button>
 
         {/* Spacer to push buttons to the right on desktop, keeps them grouped equally on mobile */}
@@ -2068,10 +2070,10 @@ Acesse para auditar: ${entrega.qrCodeUrl}
         <button
           type="button"
           onClick={handleSalvarComoRascunho}
-          className="flex-1 sm:flex-none flex items-center justify-center h-10 sm:h-11 px-2 sm:px-5 border-2 border-zinc-300 rounded-xl bg-white text-[10px] sm:text-sm font-black uppercase tracking-wider text-zinc-700 hover:bg-zinc-100 hover:border-zinc-400 active:bg-zinc-200 transition select-none whitespace-nowrap"
+          className="flex-1 sm:flex-none flex items-center justify-center h-10 sm:h-11 px-1 sm:px-5 border-2 border-zinc-300 rounded-xl bg-white text-[9px] sm:text-sm font-black uppercase tracking-wider text-zinc-700 hover:bg-zinc-100 hover:border-zinc-400 active:bg-zinc-200 transition select-none whitespace-nowrap"
           id="btn-save-draft"
         >
-          <span>Salvar Rascunho</span>
+          <span>Salvar<span className="hidden min-[380px]:inline"> Rascunho</span></span>
         </button>
 
         {/* Próximo ou Finalizar */}
@@ -2098,10 +2100,10 @@ Acesse para auditar: ${entrega.qrCodeUrl}
               (step === 2 && !validarPasso2()) ||
               (step === 3 && !validarPasso3())
             }
-            className="flex-1 sm:flex-none flex items-center justify-center gap-1 h-10 sm:h-11 px-2.5 sm:px-6 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-not-allowed text-zinc-950 font-black text-[10px] sm:text-sm uppercase tracking-wider rounded-xl transition shadow-md select-none whitespace-nowrap"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1 h-10 sm:h-11 px-1.5 sm:px-6 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-not-allowed text-zinc-950 font-black text-[9px] sm:text-sm uppercase tracking-wider rounded-xl transition shadow-md select-none whitespace-nowrap"
             id="btn-wizard-next"
           >
-            <span>Avançar</span>
+            <span>{step === 3 ? (currentChecklistItemIndex === checklist.length - 1 ? "Assinatura" : "Próximo Item") : "Avançar"}</span>
             <ChevronRight className="w-3.5 h-3.5 shrink-0" />
           </button>
         ) : (
@@ -2109,7 +2111,7 @@ Acesse para auditar: ${entrega.qrCodeUrl}
             type="button"
             onClick={handleFinalizarEGerarCheckList}
             disabled={!assinaturaTecnico || !assinaturaCliente}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-1 h-10 sm:h-11 px-3 sm:px-7 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-not-allowed text-zinc-950 font-black text-[10px] sm:text-sm uppercase tracking-wider rounded-xl transition shadow-lg select-none whitespace-nowrap"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1 h-10 sm:h-11 px-1.5 sm:px-7 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-not-allowed text-zinc-950 font-black text-[9px] sm:text-sm uppercase tracking-wider rounded-xl transition shadow-lg select-none whitespace-nowrap"
             id="btn-wizard-finalize"
           >
             <span>Finalizar</span>
