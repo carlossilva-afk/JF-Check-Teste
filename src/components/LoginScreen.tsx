@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { Usuario } from '../types';
 import { getTecnicos } from '../utils/db';
-import { Shield, Lock, User, AlertCircle, HelpCircle, Mail } from 'lucide-react';
+import { Shield, Lock, User, AlertCircle, HelpCircle, Mail, Eye, EyeOff } from 'lucide-react';
 
 interface LoginScreenProps {
   onLoginSuccess: (usuario: Usuario) => void;
@@ -18,6 +18,7 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const [senhaInput, setSenhaInput] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [showHelp, setShowHelp] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,7 +113,7 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         <div className="flex border-b border-zinc-150 bg-zinc-50">
           <button
             type="button"
-            onClick={() => { setLoginTab('geral'); setErrorMsg(''); setUsuarioInput(''); setSenhaInput(''); }}
+            onClick={() => { setLoginTab('geral'); setErrorMsg(''); setUsuarioInput(''); setSenhaInput(''); setShowPassword(false); }}
             className={`flex-1 py-3 sm:py-4 text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all ${
               loginTab === 'geral'
                 ? 'bg-white text-amber-500 border-b-2 border-amber-500'
@@ -123,7 +124,7 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           </button>
           <button
             type="button"
-            onClick={() => { setLoginTab('admin'); setErrorMsg(''); setUsuarioInput(''); setSenhaInput(''); }}
+            onClick={() => { setLoginTab('admin'); setErrorMsg(''); setUsuarioInput(''); setSenhaInput(''); setShowPassword(false); }}
             className={`flex-1 py-3 sm:py-4 text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all ${
               loginTab === 'admin'
                 ? 'bg-white text-amber-500 border-b-2 border-amber-500'
@@ -187,14 +188,28 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
               <label className="text-[9px] sm:text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-1">
                 <Lock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400" /> Senha de Segurança
               </label>
-              <input
-                type="password"
-                required
-                value={senhaInput}
-                onChange={(e) => setSenhaInput(e.target.value)}
-                className="w-full px-3.5 py-2 sm:px-4 sm:py-3 border border-zinc-200 rounded-xl text-xs font-bold bg-zinc-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all duration-150"
-                placeholder="Sua senha de acesso"
-              />
+              <div className="relative w-full">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={senhaInput}
+                  onChange={(e) => setSenhaInput(e.target.value)}
+                  className="w-full pl-3.5 pr-10 py-2 sm:pl-4 sm:pr-12 sm:py-3 border border-zinc-200 rounded-xl text-xs font-bold bg-zinc-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all duration-150"
+                  placeholder="Sua senha de acesso"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-zinc-700 active:text-zinc-900 transition-colors focus:outline-none rounded-lg"
+                  title={showPassword ? "Ocultar senha" : "Exibir senha"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <button

@@ -1905,22 +1905,11 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                       ) : (
                         <>
                           <div className="flex items-start justify-between gap-3 w-full overflow-hidden">
-                            {currentItem.item.length > 65 && !isTextExpanded ? (
-                              <div className="overflow-hidden whitespace-nowrap w-full relative flex items-center py-1 flex-1 min-w-0">
-                                <div className="animate-marquee-container hover:pause" style={{ animationDuration: '24s' }}>
-                                  <span className={`font-bold sm:font-black text-zinc-900 tracking-tight select-none pr-12 ${step === 3 ? 'text-xs sm:text-lg md:text-xl' : 'text-sm sm:text-lg md:text-xl'}`}>
-                                    {currentItem.item}
-                                  </span>
-                                  <span className={`font-bold sm:font-black text-zinc-900 tracking-tight select-none pr-12 ${step === 3 ? 'text-xs sm:text-lg md:text-xl' : 'text-sm sm:text-lg md:text-xl'}`}>
-                                    {currentItem.item}
-                                  </span>
-                                </div>
-                              </div>
-                            ) : (
-                              <h5 className={`font-bold sm:font-black text-zinc-900 tracking-tight leading-snug sm:leading-relaxed break-words flex-1 ${step === 3 ? 'text-xs sm:text-lg md:text-xl' : 'text-sm sm:text-lg md:text-xl'}`}>
-                                {currentItem.item}
-                              </h5>
-                            )}
+                            <h5 className={`font-bold sm:font-black text-zinc-900 tracking-tight leading-snug sm:leading-relaxed break-words flex-1 ${step === 3 ? 'text-xs sm:text-lg md:text-xl' : 'text-sm sm:text-lg md:text-xl'}`}>
+                              {currentItem.item.length > 65 && !isTextExpanded
+                                ? `${currentItem.item.substring(0, 65)}...`
+                                : currentItem.item}
+                            </h5>
                             {usuarioLogado?.usuario?.toLowerCase() === 'carlos.silva@industriasnb.com.br' && (
                               <div className="flex items-center gap-1 shrink-0">
                                 <button
@@ -1956,12 +1945,12 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                               {isTextExpanded ? (
                                 <>
                                   <ChevronUp className="w-3 h-3" />
-                                  Modo Rolagem Horizontal
+                                  Recolher Texto
                                 </>
                               ) : (
                                 <>
                                   <ChevronDown className="w-3 h-3" />
-                                  Exibir Texto Inteiro Estático
+                                  Ver Texto Completo
                                 </>
                               )}
                             </button>
