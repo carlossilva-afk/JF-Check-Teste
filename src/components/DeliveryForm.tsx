@@ -1150,12 +1150,16 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                   return (
                     <div className="flex items-center gap-4 p-4 bg-amber-50/50 border-2 border-amber-500/20 rounded-2xl shadow-sm">
                       <div className="w-20 h-20 bg-white border border-amber-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-1 shadow-sm">
-                        {hasMiniatura || isC120 ? (
+                        {isC120 || hasMiniatura ? (
                           <img 
-                            src={maquinaCarregada.miniaturaBase64 || jfC120Img} 
+                            src={isC120 ? jfC120Img : (maquinaCarregada.miniaturaBase64 || jfC120Img)} 
                             alt={maquinaCarregada.modelo} 
                             className="w-full h-full object-contain rounded-lg"
                             referrerPolicy="no-referrer"
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = jfC120Img;
+                            }}
                           />
                         ) : (
                           <ForageHarvesterIcon className="w-10 h-10 text-zinc-400" />

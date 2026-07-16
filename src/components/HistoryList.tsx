@@ -176,12 +176,16 @@ Acesse para auditar: ${auditUrl}
                 <p><span className="font-bold text-zinc-900">Revenda:</span> {entrega.revenda.nome}</p>
               </div>
               <div className="w-20 h-20 bg-amber-50/50 border border-amber-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-1.5 shadow-sm">
-                {entrega.maquina.miniaturaBase64 || entrega.maquina.modelo.toLowerCase().includes('c120') ? (
+                {entrega.maquina.modelo.toLowerCase().includes('c120') || entrega.maquina.miniaturaBase64 ? (
                   <img 
-                    src={entrega.maquina.miniaturaBase64 || jfC120Img} 
+                    src={entrega.maquina.modelo.toLowerCase().includes('c120') ? jfC120Img : (entrega.maquina.miniaturaBase64 || jfC120Img)} 
                     alt={entrega.maquina.modelo} 
                     className="w-full h-full object-contain"
                     referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = jfC120Img;
+                    }}
                   />
                 ) : (
                   <ForageHarvesterIcon className="w-10 h-10 text-zinc-400" />
@@ -422,12 +426,16 @@ Acesse para auditar: ${auditUrl}
                       </div>
 
                       <div className="w-16 h-16 bg-amber-50/50 border border-amber-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-1 shadow-sm mt-1">
-                        {e.maquina.miniaturaBase64 || e.maquina.modelo.toLowerCase().includes('c120') ? (
+                        {e.maquina.modelo.toLowerCase().includes('c120') || e.maquina.miniaturaBase64 ? (
                           <img 
-                            src={e.maquina.miniaturaBase64 || jfC120Img} 
+                            src={e.maquina.modelo.toLowerCase().includes('c120') ? jfC120Img : (e.maquina.miniaturaBase64 || jfC120Img)} 
                             alt={e.maquina.modelo} 
                             className="w-full h-full object-contain"
                             referrerPolicy="no-referrer"
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = jfC120Img;
+                            }}
                           />
                         ) : (
                           <ForageHarvesterIcon className="w-8 h-8 text-zinc-400" />
