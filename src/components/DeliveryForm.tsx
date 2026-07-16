@@ -1119,7 +1119,7 @@ Acesse para auditar: ${entrega.qrCodeUrl}
 
               {(() => {
                 const maquinaCarregada = listaMaquinas.find(m => m.id === maquinaSelecionada);
-                if (maquinaCarregada && (maquinaCarregada.miniaturaBase64 || maquinaCarregada.modelo.toLowerCase().includes('c120'))) {
+                if (maquinaCarregada) {
                   return (
                     <div className="flex items-center gap-4 p-4 bg-amber-50/50 border-2 border-amber-500/20 rounded-2xl shadow-sm">
                       <div className="w-20 h-20 bg-white border border-amber-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-1 shadow-sm">

@@ -174,16 +174,14 @@ Acesse para auditar: ${auditUrl}
                 <p><span className="font-bold text-zinc-900">Técnico:</span> {entrega.tecnico.nome}</p>
                 <p><span className="font-bold text-zinc-900">Revenda:</span> {entrega.revenda.nome}</p>
               </div>
-              {(entrega.maquina.miniaturaBase64 || entrega.maquina.modelo.toLowerCase().includes('c120')) && (
-                <div className="w-20 h-20 bg-amber-50/50 border border-amber-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-1.5 shadow-sm">
-                  <img 
-                    src={entrega.maquina.miniaturaBase64 || jfC120Img} 
-                    alt={entrega.maquina.modelo} 
-                    className="w-full h-full object-contain"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-              )}
+              <div className="w-20 h-20 bg-amber-50/50 border border-amber-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-1.5 shadow-sm">
+                <img 
+                  src={entrega.maquina.miniaturaBase64 || jfC120Img} 
+                  alt={entrega.maquina.modelo} 
+                  className="w-full h-full object-contain"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
             </div>
           </div>
 
@@ -418,16 +416,14 @@ Acesse para auditar: ${auditUrl}
                         </div>
                       </div>
 
-                      {(e.maquina.miniaturaBase64 || e.maquina.modelo.toLowerCase().includes('c120')) && (
-                        <div className="w-16 h-16 bg-amber-50/50 border border-amber-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-1 shadow-sm mt-1">
-                          <img 
-                            src={e.maquina.miniaturaBase64 || jfC120Img} 
-                            alt={e.maquina.modelo} 
-                            className="w-full h-full object-contain"
-                            referrerPolicy="no-referrer"
-                          />
-                        </div>
-                      )}
+                      <div className="w-16 h-16 bg-amber-50/50 border border-amber-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-1 shadow-sm mt-1">
+                        <img 
+                          src={e.maquina.miniaturaBase64 || jfC120Img} 
+                          alt={e.maquina.modelo} 
+                          className="w-full h-full object-contain"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
                     </div>
                   </div>
 

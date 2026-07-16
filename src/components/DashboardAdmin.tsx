@@ -1159,22 +1159,12 @@ export default function DashboardAdmin({ entregas, usuarioLogado }: DashboardAdm
                       <div className="flex gap-3 items-center min-w-0">
                         {/* Miniatura do Equipamento */}
                         <div className="w-14 h-14 bg-white border border-zinc-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-1 shadow-sm">
-                          {maq.miniaturaBase64 ? (
-                            <img 
-                              src={maq.miniaturaBase64} 
-                              alt={maq.modelo} 
-                              className="w-full h-full object-cover rounded-lg"
-                            />
-                          ) : maq.modelo.toLowerCase().includes('c120') ? (
-                            <img 
-                              src={jfC120Img} 
-                              alt="Colhedora JF C120 AT" 
-                              className="w-full h-full object-contain"
-                              referrerPolicy="no-referrer"
-                            />
-                          ) : (
-                            <ForageHarvesterIcon className="w-8 h-8 text-zinc-400" />
-                          )}
+                          <img 
+                            src={maq.miniaturaBase64 || jfC120Img} 
+                            alt={maq.modelo} 
+                            className="w-full h-full object-contain rounded-lg"
+                            referrerPolicy="no-referrer"
+                          />
                         </div>
 
                         <div className="min-w-0">
