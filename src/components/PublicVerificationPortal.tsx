@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { EntregaTecnica } from '../types';
 import { getEntregas } from '../utils/db';
 import { gerarPDFEntrega } from '../utils/pdfGenerator';
+import jfLogo from '../assets/images/jf_logo.png';
 import { 
   CheckCircle2, AlertTriangle, FileDown, ShieldCheck, MapPin, 
   Clock, Tractor, User, Building2, Calendar, FileText, ArrowLeft, ExternalLink, Sparkles
@@ -93,10 +94,9 @@ export default function PublicVerificationPortal({ verifyId, onGoToLogin }: Publ
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full overflow-hidden bg-white shrink-0 flex items-center justify-center">
               <img 
-                src="https://lh3.googleusercontent.com/d/1_1AYI1j9md2diNRj_8RhdPEs9tM_vUmy" 
+                src={jfLogo} 
                 alt="Logo JF" 
                 className="w-full h-full object-cover" 
-                referrerPolicy="no-referrer"
               />
             </div>
             <div>

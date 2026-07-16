@@ -389,6 +389,29 @@ export function inicializarBancoDeDados() {
 }
 
 // Getters básicos
+export function fixGoogleDriveUrl(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  
+  // Se for o formato antigo lh3: https://lh3.googleusercontent.com/d/FILE_ID
+  const matchLh = url.match(/lh3\.googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+  if (matchLh && matchLh[1]) {
+    return `https://drive.google.com/uc?export=download&id=${matchLh[1]}`;
+  }
+  
+  // Se for link direto de visualização/edição do drive ou outro link do drive
+  if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
+    const matchD = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (matchD && matchD[1]) {
+      return `https://drive.google.com/uc?export=download&id=${matchD[1]}`;
+    }
+    const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (matchId && matchId[1]) {
+      return `https://drive.google.com/uc?export=download&id=${matchId[1]}`;
+    }
+  }
+  return url;
+}
+
 export function getClientes(): Cliente[] {
   inicializarBancoDeDados();
   return JSON.parse(localStorage.getItem('agro_clientes') || '[]');
@@ -396,7 +419,11 @@ export function getClientes(): Cliente[] {
 
 export function getMaquinas(): Maquina[] {
   inicializarBancoDeDados();
-  return JSON.parse(localStorage.getItem('agro_maquinas') || '[]');
+  const list: Maquina[] = JSON.parse(localStorage.getItem('agro_maquinas') || '[]');
+  return list.map(m => ({
+    ...m,
+    miniaturaBase64: fixGoogleDriveUrl(m.miniaturaBase64)
+  }));
 }
 
 export function getRevendas(): Revenda[] {
@@ -433,6 +460,10 @@ export function getEntregas(): EntregaTecnica[] {
       if (Array.isArray(parsed)) {
         return parsed.map(e => ({
           ...e,
+          maquina: {
+            ...e.maquina,
+            miniaturaBase64: fixGoogleDriveUrl(e.maquina.miniaturaBase64)
+          },
           checklist: Array.isArray(e.checklist) ? e.checklist.map(item => {
             const oficial = CHECKLIST_PADRAO.find(p => p.id === item.id);
             if (oficial) {
@@ -448,7 +479,15 @@ export function getEntregas(): EntregaTecnica[] {
       }
     }
   } catch (err) {}
-  return JSON.parse(localStorage.getItem('agro_entregas') || '[]');
+  
+  const fallbackList: EntregaTecnica[] = JSON.parse(localStorage.getItem('agro_entregas') || '[]');
+  return fallbackList.map(e => ({
+    ...e,
+    maquina: {
+      ...e.maquina,
+      miniaturaBase64: fixGoogleDriveUrl(e.maquina.miniaturaBase64)
+    }
+  }));
 }
 
 export function getLogs(): LogAuditoria[] {
@@ -701,7 +740,11 @@ export function obterKPIs(filtroDataInicio?: string, filtroDataFim?: string, fil
   
   if (tecnicoNomeLimitado) {
     const nomeLimitado = tecnicoNomeLimitado.toLowerCase();
-    filtradas = filtradas.filter(e => e.tecnico.nome.toLowerCase() === nomeLimitado);
+    if (nomeLimitado === 'u_revjf_shared') {
+      filtradas = filtradas.filter(e => e.tecnico.id === 'u_revjf' || e.tecnico.id === 'u_revjf_user');
+    } else {
+      filtradas = filtradas.filter(e => e.tecnico.nome.toLowerCase() === nomeLimitado);
+    }
   }
 
   if (filtroDataInicio) {
@@ -716,7 +759,9 @@ export function obterKPIs(filtroDataInicio?: string, filtroDataFim?: string, fil
   }
 
   const pendenciasFiltro = tecnicoNomeLimitado 
-    ? entregas.filter(e => e.status === 'pendente_sincronizacao' && e.tecnico.nome.toLowerCase() === tecnicoNomeLimitado.toLowerCase())
+    ? (tecnicoNomeLimitado.toLowerCase() === 'u_revjf_shared'
+        ? entregas.filter(e => e.status === 'pendente_sincronizacao' && (e.tecnico.id === 'u_revjf' || e.tecnico.id === 'u_revjf_user'))
+        : entregas.filter(e => e.status === 'pendente_sincronizacao' && e.tecnico.nome.toLowerCase() === tecnicoNomeLimitado.toLowerCase()))
     : entregas.filter(e => e.status === 'pendente_sincronizacao');
 
   const kpis: KPIStats = {

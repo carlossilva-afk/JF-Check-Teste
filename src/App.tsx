@@ -20,6 +20,7 @@ import {
   Eye, Settings, Compass, ShieldAlert, Sparkles, ArrowUp
 } from 'lucide-react';
 import { ForageHarvesterIcon } from './components/ForageHarvesterIcon';
+import jfLogo from './assets/images/jf_logo.png';
 
 export default function App() {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
@@ -243,15 +244,9 @@ export default function App() {
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(245,158,11,0.45)] hover:shadow-[0_0_15px_rgba(245,158,11,0.7)] transition-all duration-300">
                 <img 
-                  src="https://lh3.googleusercontent.com/d/1_1AYI1j9md2diNRj_8RhdPEs9tM_vUmy" 
+                  src={jfLogo} 
                   alt="Logo JF" 
                   className="w-full h-full object-cover rounded-full" 
-                  referrerPolicy="no-referrer"
-                  onError={(e) => {
-                    if (e.currentTarget.src !== "https://drive.google.com/thumbnail?id=1_1AYI1j9md2diNRj_8RhdPEs9tM_vUmy&sz=w300") {
-                      e.currentTarget.src = "https://drive.google.com/thumbnail?id=1_1AYI1j9md2diNRj_8RhdPEs9tM_vUmy&sz=w300";
-                    }
-                  }}
                 />
               </div>
               <div>

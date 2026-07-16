@@ -88,8 +88,8 @@ function converterLinkGoogleDrive(url: string): string {
     }
     
     if (fileId) {
-      // Retorna a URL de exibição direta oficial e ultra-rápida do Google Drive (lh3.googleusercontent.com)
-      return `https://lh3.googleusercontent.com/d/${fileId}`;
+      // Retorna a URL de exibição direta oficial e robusta do Google Drive (uc?export=download)
+      return `https://drive.google.com/uc?export=download&id=${fileId}`;
     }
   }
   
@@ -169,7 +169,11 @@ export default function DashboardAdmin({ entregas, usuarioLogado }: DashboardAdm
 
   // Calcula KPIs filtrados apenas para as entregas do próprio técnico
   const stats = useMemo(() => {
-    return obterKPIs(dataInicio, dataFim, numSerieQuery, usuarioLogado.nome);
+    const isTech = usuarioLogado.perfil !== 'administrador';
+    const limitName = isTech 
+      ? (usuarioLogado.id === 'u_revjf' || usuarioLogado.id === 'u_revjf_user' ? 'u_revjf_shared' : usuarioLogado.nome)
+      : undefined;
+    return obterKPIs(dataInicio, dataFim, numSerieQuery, limitName);
   }, [entregas, dataInicio, dataFim, numSerieQuery, usuarioLogado]);
 
   // Filtra as entregas correspondentes para exportação (apenas do próprio usuário)
@@ -177,7 +181,14 @@ export default function DashboardAdmin({ entregas, usuarioLogado }: DashboardAdm
     let filtradas = entregas.filter(e => e.assinaturas.tecnico && e.assinaturas.cliente);
     
     // Filtragem de conformidade de acesso
-    filtradas = filtradas.filter(e => e.tecnico.nome.toLowerCase() === usuarioLogado.nome.toLowerCase());
+    if (usuarioLogado.perfil !== 'administrador') {
+      if (usuarioLogado.id === 'u_revjf' || usuarioLogado.id === 'u_revjf_user') {
+        // Shared universal login: can see all deliveries created under this shared login ID
+        filtradas = filtradas.filter(e => e.tecnico.id === 'u_revjf' || e.tecnico.id === 'u_revjf_user');
+      } else {
+        filtradas = filtradas.filter(e => e.tecnico.nome.toLowerCase() === usuarioLogado.nome.toLowerCase());
+      }
+    }
 
     if (dataInicio) filtradas = filtradas.filter(e => e.data >= dataInicio);
     if (dataFim) filtradas = filtradas.filter(e => e.data <= dataFim);
@@ -750,7 +761,7 @@ export default function DashboardAdmin({ entregas, usuarioLogado }: DashboardAdm
                         </div>
                       )}
                       <p className="text-[9px] text-zinc-400 font-medium leading-relaxed">
-                        Dica: O link do Drive é convertido para visualização direta (<span className="font-mono text-zinc-500">lh3.googleusercontent.com/d/ID</span>) que exibe a imagem em sua resolução e qualidade originais, sem compressões ou perdas!
+                        Dica: O link do Drive é convertido para visualização direta (<span className="font-mono text-zinc-500">drive.google.com/uc?export=download&id=ID</span>) que exibe a imagem em sua resolução e qualidade originais, sem compressões ou perdas!
                       </p>
                     </div>
                   </div>

@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { Usuario } from '../types';
 import { getTecnicos } from '../utils/db';
 import { Shield, Lock, User, AlertCircle, HelpCircle, Mail, Eye, EyeOff } from 'lucide-react';
+import jfLogo from '../assets/images/jf_logo.png';
 
 interface LoginScreenProps {
   onLoginSuccess: (usuario: Usuario) => void;
@@ -84,15 +85,9 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           <div className="w-11 h-11 sm:w-20 sm:h-20 rounded-full flex items-center justify-center relative group shadow-[0_0_12px_rgba(245,158,11,0.4)] sm:shadow-[0_0_15px_rgba(245,158,11,0.45)] hover:shadow-[0_0_25px_rgba(245,158,11,0.7)] transition-all duration-300 shrink-0">
             <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full" />
             <img 
-              src="https://lh3.googleusercontent.com/d/1_1AYI1j9md2diNRj_8RhdPEs9tM_vUmy" 
+              src={jfLogo} 
               alt="Logo JF" 
               className="w-full h-full object-cover rounded-full" 
-              referrerPolicy="no-referrer"
-              onError={(e) => {
-                if (e.currentTarget.src !== "https://drive.google.com/thumbnail?id=1_1AYI1j9md2diNRj_8RhdPEs9tM_vUmy&sz=w300") {
-                   e.currentTarget.src = "https://drive.google.com/thumbnail?id=1_1AYI1j9md2diNRj_8RhdPEs9tM_vUmy&sz=w300";
-                }
-              }}
             />
           </div>
           

@@ -31,6 +31,7 @@ export default function EmailModal({ isOpen, onClose, subject, body, recipientNa
   if (!isOpen) return null;
 
   const mailtoUrl = `mailto:${recipientEmail}?subject=${encodeURIComponent(customSubject)}&body=${encodeURIComponent(customBody)}`;
+  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recipientEmail)}&su=${encodeURIComponent(customSubject)}&body=${encodeURIComponent(customBody)}`;
 
   const handleCopySubject = () => {
     navigator.clipboard.writeText(customSubject);
@@ -148,22 +149,35 @@ export default function EmailModal({ isOpen, onClose, subject, body, recipientNa
                 {/* Option 1: Open in default Client */}
                 <div className="bg-white border border-zinc-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between gap-4">
                   <div>
-                    <span className="text-[9px] uppercase font-bold tracking-wider text-sky-600 block">Opção A (Mais rápida)</span>
+                    <span className="text-[9px] uppercase font-bold tracking-wider text-rose-600 block">Opção A (Aplicativo Externo)</span>
                     <h4 className="font-black text-zinc-900 text-sm uppercase tracking-tight mt-1">Meu Aplicativo de E-mail</h4>
                     <p className="text-[11px] text-zinc-500 font-medium mt-1 leading-relaxed">
-                      Dispara um link seguro que abre diretamente o Outlook, Gmail ou app de e-mail padrão do seu celular/computador com tudo preenchido.
+                      Selecione abrir especificamente no Gmail para forçar o uso da sua conta Google, ou use o e-mail padrão do sistema.
                     </p>
                   </div>
-                  <a
-                    href={mailtoUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full py-3 bg-sky-500 hover:bg-sky-600 text-white font-black text-xs uppercase rounded-xl transition duration-150 flex items-center justify-center gap-2 border-b-4 border-sky-700 shadow-sm"
-                    id="btn-open-mailto-client"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Abrir no E-mail
-                  </a>
+                  <div className="flex flex-col gap-2">
+                    <a
+                      href={gmailUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs uppercase rounded-xl transition duration-150 flex items-center justify-center gap-2 border-b-4 border-rose-800 shadow-sm"
+                      id="btn-open-gmail-client"
+                    >
+                      <Mail className="w-4 h-4" />
+                      Abrir no Gmail (Exclusivo)
+                    </a>
+                    
+                    <a
+                      href={mailtoUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold text-[11px] uppercase rounded-xl transition duration-150 flex items-center justify-center gap-2 border border-zinc-300"
+                      id="btn-open-mailto-client"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      Outros Provedores (Padrão)
+                    </a>
+                  </div>
                 </div>
 
                 {/* Option 2: Simulated Direct Send */}

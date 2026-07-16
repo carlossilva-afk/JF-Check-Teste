@@ -24,6 +24,7 @@ import EmailModal from './EmailModal';
 import { gerarPDFEntrega } from '../utils/pdfGenerator';
 import ConfirmModal from './ConfirmModal';
 import jfC120Img from '../assets/images/jf_c120_at_1783939073974.jpg';
+import jfLogo from '../assets/images/jf_logo.png';
 
 interface DeliveryFormProps {
   key?: any;
@@ -193,7 +194,7 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
   // Dados Gerais
   const [clienteSelecionado, setClienteSelecionado] = useState<string>('novo');
   const [clienteForm, setClienteForm] = useState<Omit<Cliente, 'id'>>({
-    nome: '', documento: '', fazenda: '', cidade: '', estado: 'MT'
+    nome: '', documento: '', fazenda: '', cidade: '', estado: 'SP'
   });
 
   const [listaMaquinas, setListaMaquinas] = useState<Maquina[]>([]);
@@ -210,6 +211,15 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
     return '';
   });
   const [dataEntrega, setDataEntrega] = useState<string>(new Date().toISOString().slice(0, 10));
+  const [tecnicoNome, setTecnicoNome] = useState<string>(() => {
+    if (existingDraft?.tecnico?.nome) {
+      return existingDraft.tecnico.nome;
+    }
+    if (usuarioLogado.nome === 'Técnico Autorizado RevJF') {
+      return '';
+    }
+    return usuarioLogado.nome || '';
+  });
 
   // Fotos Gerais Exigidas
   const [fotosGerais, setFotosGerais] = useState<FotosGerais>({});
@@ -344,6 +354,7 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
       if (existingDraft.assinaturas.tecnico) setAssinaturaTecnico(existingDraft.assinaturas.tecnico);
       if (existingDraft.assinaturas.cliente) setAssinaturaCliente(existingDraft.assinaturas.cliente);
       if (existingDraft.revenda?.nome) setNomeRevenda(existingDraft.revenda.nome);
+      if (existingDraft.tecnico?.nome) setTecnicoNome(existingDraft.tecnico.nome);
       
       const savedTempo = existingDraft.tempoExecucaoSegundos || 0;
       setTempoPassado(savedTempo);
@@ -478,7 +489,7 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
         });
       }
     } else {
-      setClienteForm({ nome: '', documento: '', fazenda: '', cidade: '', estado: 'MT' });
+      setClienteForm({ nome: '', documento: '', fazenda: '', cidade: '', estado: 'SP' });
     }
   };
 
@@ -581,7 +592,8 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
     setEntregaIniciada(false);
     setTempoPassado(0);
     setClienteSelecionado('novo');
-    setClienteForm({ nome: '', documento: '', fazenda: '', cidade: '', estado: 'MT' });
+    setClienteForm({ nome: '', documento: '', fazenda: '', cidade: '', estado: 'SP' });
+    setTecnicoNome(usuarioLogado.nome === 'Técnico Autorizado RevJF' ? '' : (usuarioLogado.nome || ''));
     setMaquinaSelecionada('');
     setMaquinaForm({ modelo: 'Colhedora JF C120 AT', tipo: 'Colhedora', numeroSerie: '', fabricante: 'JF Máquinas' });
     setSalvarParaFuturo(false);
@@ -630,6 +642,8 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
   const validarPasso1 = () => {
     const cf = clienteForm;
     const mf = maquinaForm;
+    const nameParts = tecnicoNome.trim().split(/\s+/).filter(Boolean);
+    const hasNomeESobrenome = nameParts.length >= 2;
     return (
       cf.nome.trim() !== '' &&
       cf.documento.trim() !== '' &&
@@ -637,7 +651,8 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
       cf.cidade.trim() !== '' &&
       mf.modelo.trim() !== '' &&
       mf.numeroSerie.trim() !== '' &&
-      nomeRevenda.trim() !== ''
+      nomeRevenda.trim() !== '' &&
+      hasNomeESobrenome
     );
   };
 
@@ -724,7 +739,7 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
         miniaturaBase64: listaMaquinas.find(m => m.id === finalMaquinaId)?.miniaturaBase64
       },
       revenda: { id: 'custom', nome: nomeRevenda, cidade: clienteForm.cidade, estado: clienteForm.estado },
-      tecnico: { id: usuarioLogado.id, nome: usuarioLogado.nome },
+      tecnico: { id: usuarioLogado.id, nome: tecnicoNome.trim() || usuarioLogado.nome },
       data: dataEntrega,
       status: 'rascunho', // Salva local offline como rascunho
       checklist,
@@ -782,7 +797,7 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
         miniaturaBase64: listaMaquinas.find(m => m.id === finalMaquinaId)?.miniaturaBase64
       },
       revenda: { id: 'custom', nome: nomeRevenda, cidade: clienteForm.cidade, estado: clienteForm.estado },
-      tecnico: { id: usuarioLogado.id, nome: usuarioLogado.nome },
+      tecnico: { id: usuarioLogado.id, nome: tecnicoNome.trim() || usuarioLogado.nome },
       data: dataEntrega,
       status: 'sincronizado', // Online / Sincronizado ao finalizar
       checklist,
@@ -802,7 +817,7 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
           const lightweight = {
             id: finalId,
             cliente: { id: 'c_custom', ...clienteForm },
-            tecnico: { id: usuarioLogado.id, nome: usuarioLogado.nome },
+            tecnico: { id: usuarioLogado.id, nome: tecnicoNome.trim() || usuarioLogado.nome },
             revenda: { id: 'custom', nome: nomeRevenda, cidade: clienteForm.cidade, estado: clienteForm.estado },
             maquina: { 
               id: finalMaquinaId, 
@@ -1037,15 +1052,9 @@ Acesse para auditar: ${entrega.qrCodeUrl}
         <div className="flex items-center gap-2.5 w-full sm:w-auto">
           <div className="rounded-full shrink-0 overflow-hidden flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11">
             <img 
-              src="https://lh3.googleusercontent.com/d/1_1AYI1j9md2diNRj_8RhdPEs9tM_vUmy" 
+              src={jfLogo} 
               alt="Logo JF" 
               className="w-full h-full object-cover rounded-full" 
-              referrerPolicy="no-referrer"
-              onError={(e) => {
-                if (e.currentTarget.src !== "https://drive.google.com/thumbnail?id=1_1AYI1j9md2diNRj_8RhdPEs9tM_vUmy&sz=w300") {
-                  e.currentTarget.src = "https://drive.google.com/thumbnail?id=1_1AYI1j9md2diNRj_8RhdPEs9tM_vUmy&sz=w300";
-                }
-              }}
             />
           </div>
           <div>
@@ -1297,14 +1306,23 @@ Acesse para auditar: ${entrega.qrCodeUrl}
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-zinc-600">Técnico Responsável</label>
+                <label className="text-xs font-bold text-zinc-600">Técnico Responsável *</label>
                 <input
                   type="text"
-                  value={usuarioLogado.nome}
-                  disabled
-                  className="px-3 py-2 border border-zinc-200 rounded-lg text-sm bg-zinc-100 text-zinc-500 focus:outline-none cursor-not-allowed font-semibold"
-                  id="input-technician-readonly"
+                  placeholder="Seu nome e sobrenome"
+                  value={tecnicoNome}
+                  onChange={(e) => setTecnicoNome(e.target.value)}
+                  className={`px-3 py-2 border rounded-lg text-sm bg-zinc-50 focus:bg-white focus:outline-none focus:ring-1 ${
+                    tecnicoNome.trim() && tecnicoNome.trim().split(/\s+/).filter(Boolean).length < 2
+                      ? 'border-rose-500 focus:ring-rose-500 text-rose-900 bg-rose-50/20'
+                      : 'border-zinc-300 focus:ring-amber-500 text-zinc-800'
+                  }`}
+                  required
+                  id="input-technician"
                 />
+                {tecnicoNome.trim() && tecnicoNome.trim().split(/\s+/).filter(Boolean).length < 2 && (
+                  <span className="text-[10px] text-rose-600 font-semibold animate-pulse">Por favor, preencha seu nome e sobrenome.</span>
+                )}
               </div>
 
               <div className="flex flex-col gap-1.5">
