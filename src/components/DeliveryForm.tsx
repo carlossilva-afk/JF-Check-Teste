@@ -1480,13 +1480,6 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                 <div className="px-3.5 py-3 sm:px-5 sm:py-4 bg-zinc-900 text-white flex flex-col gap-2 sm:gap-3 border-b border-zinc-800">
                   <div className="flex flex-row items-center justify-between gap-1.5">
                     <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
-                      {/* Badge do total de itens: e.g. 02/25 */}
-                      <div className="px-1.5 py-1 sm:px-3.5 sm:py-1.5 bg-zinc-850 border border-amber-500 rounded sm:rounded-xl flex items-center justify-center shadow-md shrink-0">
-                        <span className="text-amber-400 font-mono text-[11px] sm:text-sm font-black tracking-wide">
-                          {String(currentChecklistItemIndex + 1).padStart(2, '0')}/{String(checklist.length).padStart(2, '0')}
-                        </span>
-                      </div>
-
                       {/* Título da Categoria */}
                       {editingCategory ? (
                         <div className="flex items-center gap-2 max-w-xs sm:max-w-md w-full shrink-0 sm:shrink">
