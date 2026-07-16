@@ -1031,11 +1031,11 @@ Acesse para auditar: ${entrega.qrCodeUrl}
   }
 
   return (
-    <div className={`flex flex-col ${step === 3 ? 'gap-2 sm:gap-4' : 'gap-6'}`} id="delivery-form-wizard">
+    <div className="flex flex-col gap-5 sm:gap-6" id="delivery-form-wizard">
       {/* Indicador de Passos */}
-      <div className={`bg-zinc-950 text-white rounded-2xl shadow-lg border-2 border-zinc-900 flex flex-col sm:flex-row items-center justify-between ${step === 3 ? 'p-3 sm:p-4 gap-3 sm:gap-1.5' : 'p-3 sm:p-4 gap-3'}`}>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className={`rounded-full shrink-0 overflow-hidden flex items-center justify-center ${step === 3 ? 'w-6 h-6 sm:w-11 sm:h-11' : 'w-9 h-9 sm:w-11 sm:h-11'}`}>
+      <div className="bg-zinc-950 text-white rounded-2xl shadow-lg border-2 border-zinc-900 flex flex-col sm:flex-row items-center justify-between p-3.5 sm:p-4 gap-3.5">
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
+          <div className="rounded-full shrink-0 overflow-hidden flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11">
             <img 
               src="https://lh3.googleusercontent.com/d/1_1AYI1j9md2diNRj_8RhdPEs9tM_vUmy" 
               alt="Logo JF" 
@@ -1049,11 +1049,11 @@ Acesse para auditar: ${entrega.qrCodeUrl}
             />
           </div>
           <div>
-            <h3 className={`font-black uppercase tracking-wider text-left ${step === 3 ? 'text-[10px] sm:text-base' : 'text-sm sm:text-base md:text-lg'}`}>Nova Entrega</h3>
+            <h3 className="font-black uppercase tracking-wider text-left text-sm sm:text-base md:text-lg">Nova Entrega</h3>
             <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
-              <span className="text-[9px] sm:text-xs text-amber-400 font-bold flex items-center gap-1 font-mono">
+              <span className="text-[10px] sm:text-xs text-amber-400 font-bold flex items-center gap-1 font-mono">
                 <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 animate-pulse" />
-                {entregaIniciada ? `${step === 3 ? 'TEMP' : 'TEMPO'}: ${Math.floor(tempoPassado / 60)}m ${tempoPassado % 60}s` : 'AGUARDANDO...'}
+                {entregaIniciada ? `TEMPO: ${Math.floor(tempoPassado / 60)}m ${tempoPassado % 60}s` : 'AGUARDANDO...'}
               </span>
               {entregaIniciada && (
                 <button
@@ -1080,17 +1080,17 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                   : step > s 
                     ? 'bg-zinc-800 text-amber-400 border-zinc-700' 
                     : 'bg-zinc-900 text-zinc-500 border-zinc-800'
-              } ${step === 3 ? 'w-5 h-5 sm:w-9 sm:h-9 text-[10px] sm:text-sm' : 'w-7 h-7 sm:w-9 sm:h-9 text-xs sm:text-sm'}`}>
+              } w-7 h-7 sm:w-9 sm:h-9 text-xs sm:text-sm`}>
                 {s}
               </div>
-              {s < 4 && <div className={`h-0.5 sm:h-1 ${step > s ? 'bg-amber-500' : 'bg-zinc-800'} ${step === 3 ? 'w-2 sm:w-8' : 'w-4 sm:w-8'}`} />}
+              {s < 4 && <div className={`h-0.5 sm:h-1 ${step > s ? 'bg-amber-500' : 'bg-zinc-800'} w-4 sm:w-8`} />}
             </div>
           ))}
         </div>
       </div>
 
       {/* CONTEÚDO DOS PASSOS */}
-      <div className={`bg-white border-2 border-zinc-200 rounded-2xl shadow-md ${step === 3 ? 'p-2 sm:p-6' : 'p-3 sm:p-6'} md:p-8`}>
+      <div className="bg-white border-2 border-zinc-200 rounded-2xl shadow-md p-4 sm:p-6 md:p-8">
         
         {/* PASSO 1: IDENTIFICAÇÃO (CLIENTE E MÁQUINA) */}
         {step === 1 && (
@@ -1459,12 +1459,12 @@ Acesse para auditar: ${entrega.qrCodeUrl}
               {/* Card do Item Ativo */}
               <div className="border-2 border-zinc-900 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg bg-white">
                 {/* Header do Card - Categoria e Progresso na Categoria */}
-                <div className="px-2 py-1.5 sm:px-5 sm:py-4 bg-zinc-900 text-white flex flex-col gap-1 sm:gap-3 border-b border-zinc-800">
+                <div className="px-3.5 py-3 sm:px-5 sm:py-4 bg-zinc-900 text-white flex flex-col gap-2 sm:gap-3 border-b border-zinc-800">
                   <div className="flex flex-row items-center justify-between gap-1.5">
                     <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
                       {/* Badge do total de itens: e.g. 02/25 */}
-                      <div className="px-1.5 py-0.5 sm:px-3.5 sm:py-1.5 bg-zinc-850 border border-amber-500 rounded sm:rounded-xl flex items-center justify-center shadow-md shrink-0">
-                        <span className="text-amber-400 font-mono text-[9px] sm:text-sm font-black tracking-wide">
+                      <div className="px-1.5 py-1 sm:px-3.5 sm:py-1.5 bg-zinc-850 border border-amber-500 rounded sm:rounded-xl flex items-center justify-center shadow-md shrink-0">
+                        <span className="text-amber-400 font-mono text-[11px] sm:text-sm font-black tracking-wide">
                           {String(currentChecklistItemIndex + 1).padStart(2, '0')}/{String(checklist.length).padStart(2, '0')}
                         </span>
                       </div>
@@ -1518,16 +1518,16 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                             {displayedCatText.length > 22 ? (
                               <div className="overflow-hidden whitespace-nowrap w-full relative flex items-center">
                                 <div className="animate-marquee-container">
-                                  <span className="font-black text-[10px] sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none pr-8">
+                                  <span className="font-black text-xs sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none pr-8">
                                     {displayedCatText}
                                   </span>
-                                  <span className="font-black text-[10px] sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none pr-8">
+                                  <span className="font-black text-xs sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none pr-8">
                                     {displayedCatText}
                                   </span>
                                 </div>
                               </div>
                             ) : (
-                              <span className="font-black text-[10px] sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none whitespace-nowrap">
+                              <span className="font-black text-xs sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none whitespace-nowrap">
                                 {displayedCatText}
                               </span>
                             )}
@@ -1552,7 +1552,7 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                     {/* Badge de progresso na categoria: e.g. 1/4 VERIFICADOS */}
                     <div className="flex items-center shrink-0">
                       <div className="px-1.5 py-0.5 bg-zinc-850 border border-amber-500 rounded sm:rounded-xl flex items-center justify-center shadow-md">
-                        <span className="text-amber-400 font-mono text-[8px] sm:text-xs font-black tracking-wide uppercase">
+                        <span className="text-amber-400 font-mono text-[10px] sm:text-xs font-black tracking-wide uppercase">
                           Item {String(indexInThisCategory + 1)} de {itemsInCategory.length}
                         </span>
                       </div>
@@ -1812,9 +1812,9 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                   )}
                 </div>
 
-                <div className={`flex flex-col ${step === 3 ? 'p-2 sm:p-6 gap-2 sm:gap-6' : 'p-3.5 sm:p-6 gap-3.5 sm:gap-6'}`}>
+                <div className="flex flex-col p-3.5 sm:p-6 gap-3.5 sm:gap-6">
                   {/* Título do Item */}
-                  <div className={`bg-zinc-50 border-2 border-zinc-900 rounded-xl sm:rounded-2xl flex flex-row items-center justify-between shadow-inner ${step === 3 ? 'p-2.5 sm:p-6 gap-3 sm:gap-6' : 'p-3 sm:p-6 gap-4 sm:gap-6'}`}>
+                  <div className="bg-zinc-50 border-2 border-zinc-900 rounded-xl sm:rounded-2xl flex flex-row items-center justify-between shadow-inner p-3.5 sm:p-6 gap-4 sm:gap-6">
                     <div className="flex-1 min-w-0 flex flex-col gap-1.5 sm:gap-2 text-left">
                       {usuarioLogado?.usuario?.toLowerCase() === 'carlos.silva@industriasnb.com.br' && editingItemId === currentItem.id ? (
                         <div className="flex flex-col gap-3 w-full">
@@ -1913,7 +1913,7 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                       ) : (
                         <>
                           <div className="flex items-start justify-between gap-3 w-full overflow-hidden">
-                            <h5 className={`font-bold sm:font-black text-zinc-900 tracking-tight leading-snug sm:leading-relaxed break-words flex-1 ${step === 3 ? 'text-xs sm:text-lg md:text-xl' : 'text-sm sm:text-lg md:text-xl'}`}>
+                            <h5 className="font-bold sm:font-black text-zinc-900 tracking-tight leading-snug sm:leading-relaxed break-words flex-1 text-base sm:text-lg md:text-xl">
                               {currentItem.item.length > 65 && !isTextExpanded
                                 ? `${currentItem.item.substring(0, 65)}...`
                                 : currentItem.item}
@@ -1948,7 +1948,7 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                             <button
                               type="button"
                               onClick={() => setIsTextExpanded(!isTextExpanded)}
-                              className={`self-start flex items-center gap-1 mt-1 font-black uppercase tracking-wider text-amber-600 hover:text-amber-700 bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/30 hover:border-amber-500/50 rounded-lg transition duration-150 shadow-sm ${step === 3 ? 'text-[8px] sm:text-xs px-2 py-0.5' : 'text-[9px] sm:text-xs px-2.5 py-1'}`}
+                              className="self-start flex items-center gap-1 mt-1 font-black uppercase tracking-wider text-amber-600 hover:text-amber-700 bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/30 hover:border-amber-500/50 rounded-lg transition duration-150 shadow-sm text-[10px] sm:text-xs px-2.5 py-1"
                             >
                               {isTextExpanded ? (
                                 <>
@@ -1976,14 +1976,14 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                           handleConformidadeChange(currentChecklistItemIndex, novoStatus);
                           setShowSkipWarning(false);
                         }}
-                        className={`${step === 3 ? 'w-11 h-11 sm:w-24 sm:h-24' : 'w-14 h-14 sm:w-24 sm:h-24'} rounded-full border-2 sm:border-4 transition-all duration-300 flex items-center justify-center shadow-md sm:shadow-lg cursor-pointer select-none shrink-0 ${
+                        className={`w-14 h-14 sm:w-24 sm:h-24 rounded-full border-2 sm:border-4 transition-all duration-300 flex items-center justify-center shadow-md sm:shadow-lg cursor-pointer select-none shrink-0 ${
                           isConforme
                             ? 'bg-emerald-600 border-emerald-700 text-white scale-105 sm:scale-110 shadow-emerald-200'
                             : 'bg-white border-zinc-300 text-zinc-300 hover:bg-zinc-100 hover:border-zinc-400 hover:text-zinc-500 hover:scale-105 active:scale-95'
                         }`}
                         title={isConforme ? "Desmarcar item" : "Marcar como verificado"}
                       >
-                        <Check className={`${step === 3 ? 'w-5.5 h-5.5 sm:w-12 sm:h-12' : 'w-7 h-7 sm:w-12 sm:h-12'} stroke-[4] transition-transform duration-300 ${isConforme ? 'scale-110' : 'scale-90 opacity-60'}`} />
+                        <Check className={`w-7 h-7 sm:w-12 sm:h-12 stroke-[4] transition-transform duration-300 ${isConforme ? 'scale-110' : 'scale-90 opacity-60'}`} />
                       </button>
                     </div>
                   </div>
@@ -2085,7 +2085,7 @@ Acesse para auditar: ${entrega.qrCodeUrl}
       </div>
 
       {/* BOTÕES DE NAVEGAÇÃO DO WIZARD */}
-      <div className={`flex items-center gap-1 sm:gap-4 bg-zinc-50 border-2 border-zinc-900 rounded-2xl shadow-md w-full box-border ${step === 3 ? 'p-1 sm:p-4' : 'p-1.5 sm:p-4'}`}>
+      <div className="flex items-center gap-2 sm:gap-4 bg-zinc-50 border-2 border-zinc-900 rounded-2xl shadow-md w-full box-border p-2 sm:p-4">
         <button
           type="button"
           onClick={() => {
