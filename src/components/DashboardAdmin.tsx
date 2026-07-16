@@ -1159,12 +1159,16 @@ export default function DashboardAdmin({ entregas, usuarioLogado }: DashboardAdm
                       <div className="flex gap-3 items-center min-w-0">
                         {/* Miniatura do Equipamento */}
                         <div className="w-14 h-14 bg-white border border-zinc-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-1 shadow-sm">
-                          <img 
-                            src={maq.miniaturaBase64 || jfC120Img} 
-                            alt={maq.modelo} 
-                            className="w-full h-full object-contain rounded-lg"
-                            referrerPolicy="no-referrer"
-                          />
+                          {maq.miniaturaBase64 || maq.modelo.toLowerCase().includes('c120') ? (
+                            <img 
+                              src={maq.miniaturaBase64 || jfC120Img} 
+                              alt={maq.modelo} 
+                              className="w-full h-full object-contain rounded-lg"
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            <ForageHarvesterIcon className="w-8 h-8 text-zinc-400" />
+                          )}
                         </div>
 
                         <div className="min-w-0">

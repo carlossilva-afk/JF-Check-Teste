@@ -13,6 +13,7 @@ import {
 import { gerarPDFEntrega } from '../utils/pdfGenerator';
 import EmailModal from './EmailModal';
 import jfC120Img from '../assets/images/jf_c120_at_1783939073974.jpg';
+import { ForageHarvesterIcon } from './ForageHarvesterIcon';
 
 interface HistoryListProps {
   onEditDraft: (entrega: EntregaTecnica) => void;
@@ -175,12 +176,16 @@ Acesse para auditar: ${auditUrl}
                 <p><span className="font-bold text-zinc-900">Revenda:</span> {entrega.revenda.nome}</p>
               </div>
               <div className="w-20 h-20 bg-amber-50/50 border border-amber-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-1.5 shadow-sm">
-                <img 
-                  src={entrega.maquina.miniaturaBase64 || jfC120Img} 
-                  alt={entrega.maquina.modelo} 
-                  className="w-full h-full object-contain"
-                  referrerPolicy="no-referrer"
-                />
+                {entrega.maquina.miniaturaBase64 || entrega.maquina.modelo.toLowerCase().includes('c120') ? (
+                  <img 
+                    src={entrega.maquina.miniaturaBase64 || jfC120Img} 
+                    alt={entrega.maquina.modelo} 
+                    className="w-full h-full object-contain"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <ForageHarvesterIcon className="w-10 h-10 text-zinc-400" />
+                )}
               </div>
             </div>
           </div>
@@ -417,12 +422,16 @@ Acesse para auditar: ${auditUrl}
                       </div>
 
                       <div className="w-16 h-16 bg-amber-50/50 border border-amber-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-1 shadow-sm mt-1">
-                        <img 
-                          src={e.maquina.miniaturaBase64 || jfC120Img} 
-                          alt={e.maquina.modelo} 
-                          className="w-full h-full object-contain"
-                          referrerPolicy="no-referrer"
-                        />
+                        {e.maquina.miniaturaBase64 || e.maquina.modelo.toLowerCase().includes('c120') ? (
+                          <img 
+                            src={e.maquina.miniaturaBase64 || jfC120Img} 
+                            alt={e.maquina.modelo} 
+                            className="w-full h-full object-contain"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <ForageHarvesterIcon className="w-8 h-8 text-zinc-400" />
+                        )}
                       </div>
                     </div>
                   </div>

@@ -132,4 +132,14 @@
   animation-play-state: paused;
 }
 
+/* Prevent zoom behavior (pinch-to-zoom and double-tap zoom) on mobile browsers */
+html, body {
+  touch-action: manipulation;
+}
+
+input, select, textarea, button, a {
+  touch-action: manipulation;
+}
+
+
 

@@ -1120,22 +1120,30 @@ Acesse para auditar: ${entrega.qrCodeUrl}
               {(() => {
                 const maquinaCarregada = listaMaquinas.find(m => m.id === maquinaSelecionada);
                 if (maquinaCarregada) {
+                  const isC120 = maquinaCarregada.modelo.toLowerCase().includes('c120');
+                  const hasMiniatura = !!maquinaCarregada.miniaturaBase64;
                   return (
                     <div className="flex items-center gap-4 p-4 bg-amber-50/50 border-2 border-amber-500/20 rounded-2xl shadow-sm">
                       <div className="w-20 h-20 bg-white border border-amber-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-1 shadow-sm">
-                        <img 
-                          src={maquinaCarregada.miniaturaBase64 || jfC120Img} 
-                          alt={maquinaCarregada.modelo} 
-                          className="w-full h-full object-contain rounded-lg"
-                          referrerPolicy="no-referrer"
-                        />
+                        {hasMiniatura || isC120 ? (
+                          <img 
+                            src={maquinaCarregada.miniaturaBase64 || jfC120Img} 
+                            alt={maquinaCarregada.modelo} 
+                            className="w-full h-full object-contain rounded-lg"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <ForageHarvesterIcon className="w-10 h-10 text-zinc-400" />
+                        )}
                       </div>
                       <div className="flex-1">
                         <h5 className="text-sm font-black text-amber-950 uppercase tracking-tight">{maquinaCarregada.modelo}</h5>
                         <p className="text-xs text-amber-800 font-medium mt-1">
-                          {maquinaCarregada.miniaturaBase64 
+                          {hasMiniatura 
                             ? `Equipamento corporativo customizado cadastrado por admin selecionado para esta entrega técnica.` 
-                            : `Equipamento oficial JF Máquinas selecionado para esta entrega técnica.`}
+                            : isC120 
+                              ? `Equipamento oficial JF Máquinas selecionado para esta entrega técnica.`
+                              : `Modelo padrão cadastrado selecionado para esta entrega técnica.`}
                         </p>
                       </div>
                     </div>
