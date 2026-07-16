@@ -174,10 +174,26 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
      setShowAddCategoryInput(false);
      setNewCategoryName('');
      setNewCategoryFirstTopic('');
+     
+     // Limpa qualquer timeout de auto-avanço pendente ao mudar de item manualmente
+     if (autoAdvanceTimeoutRef.current) {
+       clearTimeout(autoAdvanceTimeoutRef.current);
+       autoAdvanceTimeoutRef.current = null;
+     }
    }, [currentChecklistItemIndex]);
 
   // Controle de Tempo de Execução
   const startTimeRef = useRef<number>(Date.now());
+  const autoAdvanceTimeoutRef = useRef<any>(null);
+
+  // Limpa o timeout ao desmontar o componente
+  useEffect(() => {
+    return () => {
+      if (autoAdvanceTimeoutRef.current) {
+        clearTimeout(autoAdvanceTimeoutRef.current);
+      }
+    };
+  }, []);
   const [tempoPassado, setTempoPassado] = useState(0);
   const [entregaIniciada, setEntregaIniciada] = useState<boolean>(() => {
     return !!existingDraft;
@@ -1986,6 +2002,34 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                           const novoStatus = isConforme ? null : 'conforme';
                           handleConformidadeChange(currentChecklistItemIndex, novoStatus);
                           setShowSkipWarning(false);
+
+                          if (novoStatus === 'conforme') {
+                            // Cancela qualquer timeout anterior
+                            if (autoAdvanceTimeoutRef.current) {
+                              clearTimeout(autoAdvanceTimeoutRef.current);
+                            }
+                            // Inicia o timer para avançar automaticamente após 450ms
+                            autoAdvanceTimeoutRef.current = setTimeout(() => {
+                              setCurrentChecklistItemIndex(prev => {
+                                if (prev === currentChecklistItemIndex) {
+                                  if (prev < checklist.length - 1) {
+                                    return prev + 1;
+                                  } else {
+                                    // Se for o último item, vai para o Passo 4 (Assinatura)
+                                    setStep(4);
+                                    return prev;
+                                  }
+                                }
+                                return prev;
+                              });
+                            }, 450);
+                          } else {
+                            // Se desmarcou, cancela qualquer avanço pendente
+                            if (autoAdvanceTimeoutRef.current) {
+                              clearTimeout(autoAdvanceTimeoutRef.current);
+                              autoAdvanceTimeoutRef.current = null;
+                            }
+                          }
                         }}
                         className={`w-14 h-14 sm:w-24 sm:h-24 rounded-full border-2 sm:border-4 transition-all duration-300 flex items-center justify-center shadow-md sm:shadow-lg cursor-pointer select-none shrink-0 ${
                           isConforme
