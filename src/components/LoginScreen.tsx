@@ -7,7 +7,8 @@ import React, { useState } from 'react';
 import { Usuario } from '../types';
 import { getTecnicos } from '../utils/db';
 import { Shield, Lock, User, AlertCircle, HelpCircle, Mail, Eye, EyeOff } from 'lucide-react';
-import jfLogo from '../assets/images/jf_logo.png';
+
+const jfLogo = 'https://www.jfmaquinas.com/lib/img/logo-jf-maquinas.png';
 
 interface LoginScreenProps {
   onLoginSuccess: (usuario: Usuario) => void;

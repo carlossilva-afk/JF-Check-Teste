@@ -20,7 +20,8 @@ import {
   Eye, Settings, Compass, ShieldAlert, Sparkles, ArrowUp
 } from 'lucide-react';
 import { ForageHarvesterIcon } from './components/ForageHarvesterIcon';
-import jfLogo from './assets/images/jf_logo.png';
+
+const jfLogo = 'https://www.jfmaquinas.com/lib/img/logo-jf-maquinas.png';
 
 export default function App() {
   const [usuario, setUsuario] = useState<Usuario | null>(null);

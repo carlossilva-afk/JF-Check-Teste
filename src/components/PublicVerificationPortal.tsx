@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { EntregaTecnica } from '../types';
 import { getEntregas } from '../utils/db';
 import { gerarPDFEntrega } from '../utils/pdfGenerator';
-import jfLogo from '../assets/images/jf_logo.png';
+
+const jfLogo = 'https://www.jfmaquinas.com/lib/img/logo-jf-maquinas.png';
 import { 
   CheckCircle2, AlertTriangle, FileDown, ShieldCheck, MapPin, 
   Clock, Tractor, User, Building2, Calendar, FileText, ArrowLeft, ExternalLink, Sparkles

@@ -24,7 +24,8 @@ import EmailModal from './EmailModal';
 import { gerarPDFEntrega } from '../utils/pdfGenerator';
 import ConfirmModal from './ConfirmModal';
 import jfC120Img from '../assets/images/jf_c120_at_1783939073974.jpg';
-import jfLogo from '../assets/images/jf_logo.png';
+
+const jfLogo = 'https://www.jfmaquinas.com/lib/img/logo-jf-maquinas.png';
 
 interface DeliveryFormProps {
   key?: any;
@@ -1467,6 +1468,10 @@ Acesse para auditar: ${entrega.qrCodeUrl}
           
           const isConforme = currentItem.conforme === 'conforme';
 
+          const uniqueCategories = Array.from(new Set(checklist.map(item => item.categoria)));
+          const currentCategoryIndex = uniqueCategories.indexOf(currentItem.categoria);
+          const isAlternativeColor = currentCategoryIndex % 2 === 1;
+
           return (
             <div className="flex flex-col gap-2 sm:gap-6" id="wizard-step-3">
               <div className="hidden sm:block">
@@ -1497,7 +1502,11 @@ Acesse para auditar: ${entrega.qrCodeUrl}
               {/* Card do Item Ativo */}
               <div className="border-2 border-zinc-900 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg bg-white">
                 {/* Header do Card - Categoria e Progresso na Categoria */}
-                <div className="px-3.5 py-3 sm:px-5 sm:py-4 bg-zinc-900 text-white flex flex-col gap-2 sm:gap-3 border-b border-zinc-800">
+                <div className={`px-3.5 py-3 sm:px-5 sm:py-4 transition-colors duration-200 flex flex-col gap-2 sm:gap-3 border-b ${
+                  isAlternativeColor 
+                    ? 'bg-[#FAB81C] text-zinc-950 border-amber-600' 
+                    : 'bg-zinc-900 text-white border-zinc-800'
+                }`}>
                   <div className="flex flex-row items-center justify-between gap-1.5">
                     <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
                       {/* Título da Categoria */}
@@ -1549,16 +1558,16 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                             {displayedCatText.length > 22 ? (
                               <div className="overflow-hidden whitespace-nowrap w-full relative flex items-center">
                                 <div className="animate-marquee-container">
-                                  <span className="font-black text-xs sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none pr-8">
+                                  <span className={`font-black text-xs sm:text-base md:text-lg uppercase tracking-wider select-none pr-8 ${isAlternativeColor ? 'text-zinc-950' : 'text-sky-400'}`}>
                                     {displayedCatText}
                                   </span>
-                                  <span className="font-black text-xs sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none pr-8">
+                                  <span className={`font-black text-xs sm:text-base md:text-lg uppercase tracking-wider select-none pr-8 ${isAlternativeColor ? 'text-zinc-950' : 'text-sky-400'}`}>
                                     {displayedCatText}
                                   </span>
                                 </div>
                               </div>
                             ) : (
-                              <span className="font-black text-xs sm:text-base md:text-lg uppercase tracking-wider text-sky-400 select-none whitespace-nowrap">
+                              <span className={`font-black text-xs sm:text-base md:text-lg uppercase tracking-wider select-none whitespace-nowrap ${isAlternativeColor ? 'text-zinc-950' : 'text-sky-400'}`}>
                                 {displayedCatText}
                               </span>
                             )}
@@ -1569,7 +1578,11 @@ Acesse para auditar: ${entrega.qrCodeUrl}
                                   setEditingCategory(true);
                                   setEditingCategoryText(currentItem.categoria);
                                 }}
-                                className="p-0.5 text-zinc-400 hover:text-amber-400 hover:bg-zinc-800 rounded transition shrink-0"
+                                className={`p-0.5 rounded transition shrink-0 ${
+                                  isAlternativeColor 
+                                    ? 'text-zinc-800 hover:text-black hover:bg-amber-600/25' 
+                                    : 'text-zinc-400 hover:text-amber-400 hover:bg-zinc-800'
+                                }`}
                                 title="Editar nome da categoria/bloco"
                               >
                                 <Pencil className="w-3.5 h-3.5" />
@@ -1582,7 +1595,11 @@ Acesse para auditar: ${entrega.qrCodeUrl}
 
                     {/* Badge de progresso na categoria: e.g. 1/4 VERIFICADOS */}
                     <div className="flex items-center shrink-0">
-                      <div className="px-1.5 py-0.5 bg-zinc-850 border border-amber-500 rounded sm:rounded-xl flex items-center justify-center shadow-md">
+                      <div className={`px-1.5 py-0.5 rounded sm:rounded-xl flex items-center justify-center shadow-md border ${
+                        isAlternativeColor 
+                          ? 'bg-zinc-950 border-zinc-950' 
+                          : 'bg-zinc-850 border-amber-500'
+                      }`}>
                         <span className="text-amber-400 font-mono text-[10px] sm:text-xs font-black tracking-wide uppercase">
                           Item {String(indexInThisCategory + 1)} de {itemsInCategory.length}
                         </span>
@@ -1592,7 +1609,7 @@ Acesse para auditar: ${entrega.qrCodeUrl}
 
                   {/* Controles Administrativos de Bloco (Apenas para o Carlos) */}
                   {usuarioLogado?.usuario?.toLowerCase() === 'carlos.silva@industriasnb.com.br' && (
-                    <div className="mt-2 pt-3 border-t border-zinc-800 flex flex-col gap-2.5">
+                    <div className={`mt-2 pt-3 border-t flex flex-col gap-2.5 ${isAlternativeColor ? 'border-amber-600/40' : 'border-zinc-800'}`}>
                       <div className="flex items-center gap-2 flex-wrap">
                         <button
                           type="button"
