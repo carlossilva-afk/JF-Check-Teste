@@ -14,6 +14,7 @@ import { gerarPDFEntrega } from '../utils/pdfGenerator';
 import EmailModal from './EmailModal';
 import jfC120Img from '../assets/images/jf_c120_at_1783939073974.jpg';
 import { ForageHarvesterIcon } from './ForageHarvesterIcon';
+import { compressEntrega } from '../utils/compression';
 
 interface HistoryListProps {
   onEditDraft: (entrega: EntregaTecnica) => void;
@@ -35,30 +36,17 @@ export default function HistoryList({ onEditDraft, onSyncTrigger, syncing, entre
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   const getShareMessage = (entrega: EntregaTecnica) => {
-    let auditUrl = entrega.qrCodeUrl || `${window.location.origin}?verify=${entrega.id}`;
-    if (auditUrl && !auditUrl.includes('&data=')) {
+    // Se a entrega já está sincronizada ou já possui um link curto, utiliza ele diretamente
+    let auditUrl = entrega.qrCodeUrl || `${window.location.origin}${window.location.pathname || ''}?verify=${entrega.id}`;
+    
+    // Fallback apenas se estiver pendente de sincronização (offline) e não tiver dados de compactação no link
+    if (entrega.status === 'pendente_sincronizacao' && !auditUrl.includes('&data=')) {
       try {
-        const lightweight = {
-          id: entrega.id,
-          cliente: entrega.cliente,
-          tecnico: { nome: entrega.tecnico.nome },
-          revenda: { nome: entrega.revenda.nome },
-          maquina: { modelo: entrega.maquina.modelo, numeroSerie: entrega.maquina.numeroSerie },
-          data: entrega.data,
-          status: entrega.status,
-          checklist: entrega.checklist,
-          fotosGerais: [],
-          assinaturas: { tecnico: "", cliente: "" },
-          localizacao: entrega.localizacao,
-          tempoExecucaoSegundos: entrega.tempoExecucaoSegundos,
-          dataCriacao: entrega.dataCriacao,
-          dataFinalizacao: entrega.dataFinalizacao,
-          observacoesGerais: entrega.observacoesGerais
-        };
-        const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(lightweight))));
-        auditUrl = `${window.location.origin}${window.location.pathname}?verify=${entrega.id}&data=${b64}`;
+        const compressed = compressEntrega(entrega);
+        const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(compressed))));
+        auditUrl = `${window.location.origin}${window.location.pathname || ''}?verify=${entrega.id}&data=${b64}`;
       } catch (err) {
-        console.error(err);
+        console.error("Erro na compactação de fallback:", err);
       }
     }
 
@@ -79,7 +67,7 @@ Longitude: ${entrega.localizacao.longitude ? entrega.localizacao.longitude.toFix
 🔐 *Verificação de Integridade Digital:*
 Acesse para auditar: ${auditUrl}
 
-*JF Máquinas - Soluções Tecnológicas para Agronegócio* ⚡️`;
+*JF Máquinas - A solução para o produtor* ⚡️`;
   };
 
   const renderDetailsCard = (entrega: EntregaTecnica, isMobile = false) => {

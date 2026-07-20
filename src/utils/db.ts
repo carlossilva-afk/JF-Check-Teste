@@ -4,6 +4,8 @@
  */
 
 import { Cliente, Maquina, Revenda, Usuario, EntregaTecnica, ItemChecklist, KPIStats } from '../types';
+import { compressEntrega } from './compression';
+import { salvarEntregaCompartilhada } from './firebase';
 
 /// Checklist padrão
 export const CHECKLIST_PADRAO: Omit<ItemChecklist, 'conforme' | 'observacao'>[] = [
@@ -710,25 +712,37 @@ export function excluirEntrega(id: string, logado: string) {
 }
 
 // Forçar sincronismo offline -> online
-export function sincronizarEntregasLocais(logado: string): Promise<number> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const entregas = getEntregas();
-      let count = 0;
-      const novasEntregas = entregas.map(e => {
-        if (e.status === 'pendente_sincronizacao') {
-          count++;
-          return { ...e, status: 'sincronizado' as const };
-        }
-        return e;
-      });
-      localStorage.setItem('agro_entregas', JSON.stringify(novasEntregas));
-      if (count > 0) {
-        registrarLog(logado, 'SINCRONIZAÇÃO', `Sincronizou ${count} entrega(s) técnica(s) pendente(s) com a nuvem.`);
+export async function sincronizarEntregasLocais(logado: string): Promise<number> {
+  const entregas = getEntregas();
+  let count = 0;
+  
+  const novasEntregas = await Promise.all(entregas.map(async (e) => {
+    if (e.status === 'pendente_sincronizacao') {
+      count++;
+      const updated = { ...e, status: 'sincronizado' as const };
+      
+      // Quando sincroniza com a nuvem, atualiza o QR Code URL para o link curto
+      // e envia o checklist para o Firestore
+      try {
+        const compressed = compressEntrega(updated);
+        updated.qrCodeUrl = `${window.location.origin}${window.location.pathname}?verify=${e.id}`;
+        await salvarEntregaCompartilhada(e.id, compressed);
+      } catch (err) {
+        console.error("Erro ao sincronizar com o Firebase Firestore:", err);
       }
-      resolve(count);
-    }, 1500); // Simulação de latência de rede
-  });
+      
+      return updated;
+    }
+    return e;
+  }));
+
+  localStorage.setItem('agro_entregas', JSON.stringify(novasEntregas));
+  
+  if (count > 0) {
+    registrarLog(logado, 'SINCRONIZAÇÃO', `Sincronizou ${count} entrega(s) técnica(s) pendente(s) com a nuvem.`);
+  }
+  
+  return count;
 }
 
 // Cálculo de KPIs com suporte a filtros de data e número de série

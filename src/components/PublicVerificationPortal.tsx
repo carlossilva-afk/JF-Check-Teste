@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { EntregaTecnica } from '../types';
 import { getEntregas } from '../utils/db';
 import { gerarPDFEntrega } from '../utils/pdfGenerator';
+import { decompressEntrega } from '../utils/compression';
+import { obterEntregaCompartilhada } from '../utils/firebase';
 
 const jfLogo = 'https://www.jfmaquinas.com/lib/img/logo-jf-maquinas.png';
 import { 
@@ -19,16 +21,17 @@ export default function PublicVerificationPortal({ verifyId, onGoToLogin }: Publ
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simula carregamento seguro e busca o laudo
-    const timer = setTimeout(() => {
+    async function loadEntrega() {
       const urlParams = new URLSearchParams(window.location.search);
       const urlData = urlParams.get('data');
       
+      // 1. Tenta carregar do parâmetro de URL (base64) para retrocompatibilidade
       if (urlData) {
         try {
           const decoded = JSON.parse(decodeURIComponent(escape(atob(urlData))));
-          if (decoded && decoded.id === verifyId) {
-            setEntrega(decoded);
+          const decompressed = decompressEntrega(decoded);
+          if (decompressed && decompressed.id === verifyId) {
+            setEntrega(decompressed);
             setLoading(false);
             return;
           }
@@ -37,13 +40,29 @@ export default function PublicVerificationPortal({ verifyId, onGoToLogin }: Publ
         }
       }
 
+      // 2. Tenta carregar do Firestore (nuvem altamente comprimida)
+      try {
+        const cloudCompressed = await obterEntregaCompartilhada(verifyId);
+        if (cloudCompressed) {
+          const decompressed = decompressEntrega(cloudCompressed);
+          if (decompressed) {
+            setEntrega(decompressed);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao carregar do Firebase Firestore:", err);
+      }
+
+      // 3. Fallback: tenta carregar do LocalStorage local (se acessado no mesmo dispositivo do técnico)
       const allEntregas = getEntregas();
       const found = allEntregas.find(e => e.id === verifyId);
       setEntrega(found || null);
       setLoading(false);
-    }, 800);
+    }
 
-    return () => clearTimeout(timer);
+    loadEntrega();
   }, [verifyId]);
 
   const handleDownloadPDF = () => {
@@ -127,13 +146,14 @@ export default function PublicVerificationPortal({ verifyId, onGoToLogin }: Publ
               <AlertTriangle className="w-8 h-8" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-red-400 uppercase tracking-tight">Código de Validação Inexistente</h2>
+              <h2 className="text-lg font-black text-red-400 uppercase tracking-tight">Código de Validação Inexistente ou Expirado</h2>
               <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
-                Não conseguimos localizar nenhum Check List - Entrega Técnica assinado correspondente a este identificador no dispositivo de auditoria local. 
+                Não conseguimos localizar nenhum Check List correspondente a este identificador ou o link expirou (limite de 3 dias).
               </p>
               <div className="mt-4 p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-left text-[11px] text-zinc-400 space-y-1">
                 <p className="font-bold text-zinc-300">Causas prováveis:</p>
-                <p>• O termo de entrega técnica ainda está em modo offline no celular do técnico.</p>
+                <p>• O termo de entrega técnica já passou do prazo limite de 3 dias e foi deletado da nuvem por segurança.</p>
+                <p>• O termo de entrega técnica ainda está pendente de sincronização offline no celular do técnico.</p>
                 <p>• O identificador <code className="text-amber-500 font-mono font-bold">{verifyId}</code> está incorreto.</p>
               </div>
             </div>

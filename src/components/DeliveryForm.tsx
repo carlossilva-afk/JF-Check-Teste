@@ -24,6 +24,8 @@ import EmailModal from './EmailModal';
 import { gerarPDFEntrega } from '../utils/pdfGenerator';
 import ConfirmModal from './ConfirmModal';
 import jfC120Img from '../assets/images/jf_c120_at_1783939073974.jpg';
+import { compressEntrega } from '../utils/compression';
+import { salvarEntregaCompartilhada } from '../utils/firebase';
 
 const jfLogo = 'https://www.jfmaquinas.com/lib/img/logo-jf-maquinas.png';
 
@@ -778,7 +780,7 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
     onFinalized();
   };
 
-  const handleFinalizarEGerarCheckList = () => {
+  const handleFinalizarEGerarCheckList = async () => {
     if (!assinaturaTecnico || !assinaturaCliente) {
       alert("É obrigatório que o Técnico e o Cliente assinem o termo para emissão do Check List - Entrega Técnica.");
       return;
@@ -829,43 +831,30 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
       tempoExecucaoSegundos: tempoPassado,
       dataCriacao: existingDraft?.dataCriacao || new Date().toISOString(),
       dataFinalizacao: new Date().toISOString(),
-      qrCodeUrl: (() => {
-        try {
-          const lightweight = {
-            id: finalId,
-            cliente: { id: 'c_custom', ...clienteForm },
-            tecnico: { id: usuarioLogado.id, nome: tecnicoNome.trim() || usuarioLogado.nome },
-            revenda: { id: 'custom', nome: nomeRevenda, cidade: clienteForm.cidade, estado: clienteForm.estado },
-            maquina: { 
-              id: finalMaquinaId, 
-              ...maquinaForm,
-              miniaturaBase64: listaMaquinas.find(m => m.id === finalMaquinaId)?.miniaturaBase64
-            },
-            data: dataEntrega,
-            status: 'sincronizado',
-            checklist,
-            fotosGerais: [],
-            assinaturas: { tecnico: "", cliente: "" },
-            localizacao: {
-              latitude: localizacao.latitude,
-              longitude: localizacao.longitude,
-              precisao: localizacao.precisao,
-              dataHora: new Date().toISOString()
-            },
-            tempoExecucaoSegundos: tempoPassado,
-            dataCriacao: existingDraft?.dataCriacao || new Date().toISOString(),
-            dataFinalizacao: new Date().toISOString(),
-            observacoesGerais
-          };
-          const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(lightweight))));
-          return `${window.location.origin}${window.location.pathname}?verify=${finalId}&data=${b64}`;
-        } catch (err) {
-          console.error(err);
-          return `${window.location.origin}?verify=${finalId}`;
-        }
-      })(),
-      observacoesGerais
+      observacoesGerais,
+      qrCodeUrl: ''
     };
+
+    // Gera o qrCodeUrl comprimido (salvando no Firebase Firestore para manter o link curto)
+    try {
+      const compressed = compressEntrega(novaEntrega);
+      // Define o link curto ultra-elegante de uma linha
+      novaEntrega.qrCodeUrl = `${window.location.origin}${window.location.pathname}?verify=${finalId}`;
+      
+      // Tenta salvar no Firebase Firestore
+      await salvarEntregaCompartilhada(finalId, compressed);
+    } catch (err) {
+      console.error("Erro ao salvar no Firebase Firestore, usando fallback offline:", err);
+      // Fallback offline: se falhar (ex: sem internet), usa o link base64 para o QR code ainda funcionar offline!
+      novaEntrega.status = 'pendente_sincronizacao';
+      try {
+        const compressed = compressEntrega(novaEntrega);
+        const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(compressed))));
+        novaEntrega.qrCodeUrl = `${window.location.origin}${window.location.pathname}?verify=${finalId}&data=${b64}`;
+      } catch (innerErr) {
+        novaEntrega.qrCodeUrl = `${window.location.origin}?verify=${finalId}`;
+      }
+    }
 
     // Salva no banco local
     salvarEntrega(novaEntrega, usuarioLogado.nome);
@@ -899,7 +888,7 @@ Longitude: ${entrega.localizacao.longitude ? entrega.localizacao.longitude.toFix
 🔐 *Verificação de Integridade Digital:*
 Acesse para auditar: ${entrega.qrCodeUrl}
 
-*JF Máquinas - Soluções Tecnológicas para Agronegócio* ⚡️`;
+*JF Máquinas - A solução para o produtor* ⚡️`;
   };
 
   if (finalizedEntrega) {

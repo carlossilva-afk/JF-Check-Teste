@@ -198,7 +198,7 @@ export function gerarPDFEntrega(entrega: EntregaTecnica): jsPDF {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(grayText[0], grayText[1], grayText[2]);
-  doc.text('Soluções Tecnológicas para Agronegócio', 15, 33);
+  doc.text('A solução para o produtor', 15, 33);
 
   // Data de Emissão Verdadeira (Incluindo Horário)
   const dataEmissaoObj = new Date(entrega.dataFinalizacao || entrega.dataCriacao || new Date());
