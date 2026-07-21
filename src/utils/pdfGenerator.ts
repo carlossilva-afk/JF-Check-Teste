@@ -90,7 +90,40 @@ function safeAddImage(doc: jsPDF, base64: string | undefined, format: string, x:
     if (!cleanBase.startsWith('data:')) {
       cleanBase = `data:image/${format.toLowerCase()};base64,${cleanBase}`;
     }
-    doc.addImage(cleanBase, format, x, y, w, h);
+
+    // Calcula dimensões reais para preservar a proporção e evitar distorção
+    let renderX = x;
+    let renderY = y;
+    let renderW = w;
+    let renderH = h;
+
+    try {
+      const imgProps = doc.getImageProperties(cleanBase);
+      if (imgProps && imgProps.width && imgProps.height) {
+        const originalWidth = imgProps.width;
+        const originalHeight = imgProps.height;
+        const aspectRatio = originalWidth / originalHeight;
+
+        // Tenta preencher a altura máxima do box sem estourar a largura máxima
+        const potentialWidth = h * aspectRatio;
+        if (potentialWidth <= w) {
+          renderW = potentialWidth;
+          renderH = h;
+          // Centraliza horizontalmente
+          renderX = x + (w - renderW) / 2;
+        } else {
+          // Se estourar a largura máxima, ajusta preenchendo a largura máxima do box
+          renderW = w;
+          renderH = w / aspectRatio;
+          // Centraliza verticalmente
+          renderY = y + (h - renderH) / 2;
+        }
+      }
+    } catch (propsError) {
+      console.warn("Não foi possível obter propriedades da imagem, usando tamanho padrão:", propsError);
+    }
+
+    doc.addImage(cleanBase, format, renderX, renderY, renderW, renderH);
     return true;
   } catch (error) {
     console.warn("Falha ao adicionar imagem ao PDF:", error);
@@ -517,7 +550,7 @@ export function gerarPDFEntrega(entrega: EntregaTecnica): jsPDF {
   currentY += 4;
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(grayText[0], grayText[1], grayText[2]);
-  doc.text('Técnico Homologado / CPF: ***.***.***-**', 15, currentY);
+  doc.text('Técnico Homologado', 15, currentY);
   doc.text(`Cliente Recebedor / Doc: ${entrega.cliente.documento}`, 110, currentY);
 
   // Rodapé final de segurança

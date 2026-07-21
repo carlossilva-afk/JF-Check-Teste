@@ -148,6 +148,7 @@ function formatChassi(value: string): string {
 
 export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft, onStatusChange, activeTab, step, setStep }: DeliveryFormProps) {
   // Estados de navegação do Checklist Passo 3
+  const [entregaId] = useState<string>(() => existingDraft?.id || gerarIdEntrega());
   const [currentChecklistItemIndex, setCurrentChecklistItemIndex] = useState(0);
   const [showSkipWarning, setShowSkipWarning] = useState(false);
   const [ignoredItemIds, setIgnoredItemIds] = useState<string[]>([]);
@@ -750,7 +751,7 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
     }
 
     const novaEntrega: EntregaTecnica = {
-      id: existingDraft?.id || gerarIdEntrega(),
+      id: entregaId,
       cliente: { id: 'c_custom', ...clienteForm },
       maquina: { 
         id: finalMaquinaId, 
@@ -806,7 +807,7 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
       }
     }
 
-    const finalId = existingDraft?.id || gerarIdEntrega();
+    const finalId = entregaId;
     const novaEntrega: EntregaTecnica = {
       id: finalId,
       cliente: { id: 'c_custom', ...clienteForm },
@@ -1064,11 +1065,16 @@ Acesse para auditar: ${entrega.qrCodeUrl}
             />
           </div>
           <div>
-            <h3 className="font-black uppercase tracking-wider text-left text-sm sm:text-base md:text-lg">Nova Entrega</h3>
-            <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+            <h3 className="font-black uppercase tracking-wider text-left text-sm sm:text-base md:text-lg">
+              {existingDraft ? 'Editando Rascunho' : 'Nova Entrega'}
+            </h3>
+            <div className="flex flex-wrap items-center gap-2 mt-0.5">
               <span className="text-[10px] sm:text-xs text-amber-400 font-bold flex items-center gap-1 font-mono">
                 <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 animate-pulse" />
                 {entregaIniciada ? `TEMPO: ${Math.floor(tempoPassado / 60)}m ${tempoPassado % 60}s` : 'AGUARDANDO...'}
+              </span>
+              <span className="text-[10px] sm:text-xs text-zinc-300 font-black tracking-wider uppercase bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded font-mono">
+                Termo: <span className="text-amber-400">{entregaId}</span>
               </span>
               {entregaIniciada && (
                 <button

@@ -815,7 +815,10 @@ export function gerarIdEntrega(): string {
   const ano = new Date().getFullYear();
   const totalDesteAno = entregas.filter(e => e.id.startsWith(`ET-${ano}`)).length;
   const seq = String(totalDesteAno + 1).padStart(4, '0');
-  return `ET-${ano}-${seq}`;
+  // Adiciona um sufixo aleatório de 4 caracteres alfanuméricos em maiúsculo para garantir unicidade absoluta
+  // mesmo se vários técnicos com a mesma conta criarem entregas simultaneamente ou offline
+  const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `ET-${ano}-${seq}-${rand}`;
 }
 
 export function registrarUsuario(novoUsuario: Usuario): void {
