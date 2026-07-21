@@ -42,7 +42,7 @@ export default function HistoryList({ onEditDraft, onSyncTrigger, syncing, entre
     // Fallback apenas se estiver pendente de sincronização (offline) e não tiver dados de compactação no link
     if (entrega.status === 'pendente_sincronizacao' && !auditUrl.includes('&data=')) {
       try {
-        const compressed = compressEntrega(entrega);
+        const compressed = compressEntrega(entrega, false);
         const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(compressed))));
         auditUrl = `${window.location.origin}${window.location.pathname || ''}?verify=${entrega.id}&data=${b64}`;
       } catch (err) {

@@ -10,7 +10,7 @@ import { EntregaTecnica, ItemChecklist } from '../types';
  * Compresses an EntregaTecnica object into a highly compact representation (v2)
  * to keep the shared QR code URLs as short and clean as possible.
  */
-export function compressEntrega(entrega: any): any {
+export function compressEntrega(entrega: any, includeSignatures: boolean = true): any {
   if (!entrega) return null;
 
   // 1. Map conforme status to a single char
@@ -69,6 +69,13 @@ export function compressEntrega(entrega: any): any {
     st: entrega.status,
     cs, // string of compliance e.g. "cccccccccccaaacccc..."
   };
+
+  if (includeSignatures && entrega.assinaturas) {
+    comp.ass = [
+      entrega.assinaturas.tecnico || '',
+      entrega.assinaturas.cliente || ''
+    ];
+  }
 
   if (Object.keys(obsMap).length > 0) {
     comp.co = obsMap; // e.g. { "5": "Ajustado", "12": "Falta pino" }
@@ -246,7 +253,10 @@ export function decompressEntrega(comp: any): EntregaTecnica {
     status: comp.st || 'sincronizado',
     checklist: decompressedChecklist,
     fotosGerais: {},
-    assinaturas: { tecnico: "", cliente: "" },
+    assinaturas: {
+      tecnico: (comp.ass && comp.ass[0]) || "",
+      cliente: (comp.ass && comp.ass[1]) || ""
+    },
     localizacao: {
       latitude: locArr[0] || null,
       longitude: locArr[1] || null,

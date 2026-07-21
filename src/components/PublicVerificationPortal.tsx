@@ -298,18 +298,14 @@ export default function PublicVerificationPortal({ verifyId, onGoToLogin }: Publ
                 Resumo de Inspeção Técnica
               </h3>
               
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+              <div className="grid grid-cols-3 gap-4 text-center">
                 <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-2xl">
                   <span className="text-[20px] font-black text-emerald-400 block">{entrega.checklist.filter(i => i.conforme === 'conforme').length}</span>
                   <span className="text-[9px] text-zinc-500 uppercase font-black">Conformes</span>
                 </div>
                 <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-2xl">
-                  <span className="text-[20px] font-black text-amber-500 block">{entrega.checklist.filter(i => i.conforme === 'nao_se_aplica').length}</span>
+                  <span className="text-[20px] font-black text-amber-500 block">{entrega.checklist.filter(i => !i.conforme || i.conforme === 'nao_se_aplica').length}</span>
                   <span className="text-[9px] text-zinc-500 uppercase font-black">Não se Aplica</span>
-                </div>
-                <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-2xl">
-                  <span className="text-[20px] font-black text-red-400 block">{entrega.checklist.filter(i => i.conforme === 'nao_conforme').length}</span>
-                  <span className="text-[9px] text-zinc-500 uppercase font-black">Não Conformes</span>
                 </div>
                 <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-2xl">
                   <span className="text-[20px] font-black text-zinc-400 block">{entrega.checklist.length}</span>
