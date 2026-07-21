@@ -849,7 +849,7 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
       // Fallback offline: se falhar (ex: sem internet), usa o link base64 para o QR code ainda funcionar offline!
       novaEntrega.status = 'pendente_sincronizacao';
       try {
-        const compressed = compressEntrega(novaEntrega, false);
+        const compressed = compressEntrega(novaEntrega, false, false);
         const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(compressed))));
         novaEntrega.qrCodeUrl = `${window.location.origin}${window.location.pathname}?verify=${finalId}&data=${b64}`;
       } catch (innerErr) {

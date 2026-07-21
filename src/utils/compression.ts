@@ -10,7 +10,7 @@ import { EntregaTecnica, ItemChecklist } from '../types';
  * Compresses an EntregaTecnica object into a highly compact representation (v2)
  * to keep the shared QR code URLs as short and clean as possible.
  */
-export function compressEntrega(entrega: any, includeSignatures: boolean = true): any {
+export function compressEntrega(entrega: any, includeSignatures: boolean = true, includePhotos: boolean = true): any {
   if (!entrega) return null;
 
   // 1. Map conforme status to a single char
@@ -75,6 +75,13 @@ export function compressEntrega(entrega: any, includeSignatures: boolean = true)
       entrega.assinaturas.tecnico || '',
       entrega.assinaturas.cliente || ''
     ];
+  }
+
+  if (includePhotos && entrega.fotosGerais) {
+    comp.ft = {
+      m: entrega.fotosGerais.maquinaCompleta || '',
+      s: entrega.fotosGerais.numeroSerie || ''
+    };
   }
 
   if (Object.keys(obsMap).length > 0) {
@@ -222,6 +229,12 @@ export function decompressEntrega(comp: any): EntregaTecnica {
   const maqArr = comp.maq || [];
   const locArr = comp.loc || [];
 
+  const ftObj = comp.ft || {};
+  const fotosGerais = {
+    maquinaCompleta: ftObj.m || undefined,
+    numeroSerie: ftObj.s || undefined
+  };
+
   return {
     id: comp.id,
     cliente: {
@@ -252,7 +265,7 @@ export function decompressEntrega(comp: any): EntregaTecnica {
     data: comp.dat,
     status: comp.st || 'sincronizado',
     checklist: decompressedChecklist,
-    fotosGerais: {},
+    fotosGerais,
     assinaturas: {
       tecnico: (comp.ass && comp.ass[0]) || "",
       cliente: (comp.ass && comp.ass[1]) || ""
