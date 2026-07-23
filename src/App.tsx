@@ -17,7 +17,7 @@ import PublicVerificationPortal from './components/PublicVerificationPortal';
 import ConfirmModal from './components/ConfirmModal';
 import { 
   Tractor, LogOut, Wifi, WifiOff, FileText, PlusCircle, LayoutDashboard, 
-  Eye, Settings, Compass, ShieldAlert, Sparkles, ArrowUp
+  Eye, Settings, Compass, ShieldAlert, Sparkles, ArrowUp, X
 } from 'lucide-react';
 import { ForageHarvesterIcon } from './components/ForageHarvesterIcon';
 
@@ -59,13 +59,37 @@ export default function App() {
     window.history.pushState({ tab: activeTab, step: formStep }, '');
   }, [activeTab, formStep, usuario]);
 
+  // Controle de Entrega Técnica Ativa em Andamento
+  const [entregaEmAndamento, setEntregaEmAndamento] = useState(false);
+  const [formKey, setFormKey] = useState(0);
+  const [pendingDraftToEdit, setPendingDraftToEdit] = useState<EntregaTecnica | null>(null);
+  const [pendingNewDeliveryConfirm, setPendingNewDeliveryConfirm] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showBackPromptModal, setShowBackPromptModal] = useState(false);
+
+  const saveDraftTriggerRef = useRef<(() => void) | null>(null);
+  const entregaEmAndamentoRef = useRef(entregaEmAndamento);
+
+  useEffect(() => {
+    entregaEmAndamentoRef.current = entregaEmAndamento;
+  }, [entregaEmAndamento]);
+
   // Listener para captura do evento de voltar do celular (popstate)
   useEffect(() => {
     if (!usuario) return;
 
     const handlePopState = (event: PopStateEvent) => {
       const state = event.state;
-      if (state && typeof state === 'object' && 'tab' in state) {
+      
+      // Se houver entrega técnica em andamento ao acionar a função voltar do celular
+      if (entregaEmAndamentoRef.current) {
+        isNavigatingFromPopstate.current = true;
+        window.history.pushState({ tab: activeTabRef.current, step: formStepRef.current }, '');
+        setTimeout(() => {
+          isNavigatingFromPopstate.current = false;
+        }, 50);
+        setShowBackPromptModal(true);
+      } else if (state && typeof state === 'object' && 'tab' in state) {
         isNavigatingFromPopstate.current = true;
         setActiveTab(state.tab);
         if ('step' in state && state.step !== undefined) {
@@ -87,13 +111,6 @@ export default function App() {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [usuario]);
-  
-  // Controle de Entrega Técnica Ativa em Andamento
-  const [entregaEmAndamento, setEntregaEmAndamento] = useState(false);
-  const [formKey, setFormKey] = useState(0);
-  const [pendingDraftToEdit, setPendingDraftToEdit] = useState<EntregaTecnica | null>(null);
-  const [pendingNewDeliveryConfirm, setPendingNewDeliveryConfirm] = useState(false);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // Lista reativa de entregas carregadas do LocalStorage
   const [entregas, setEntregas] = useState<EntregaTecnica[]>([]);
@@ -457,6 +474,7 @@ export default function App() {
             activeTab={activeTab}
             step={formStep}
             setStep={setFormStep}
+            saveDraftTriggerRef={saveDraftTriggerRef}
           />
         </div>
 
@@ -566,6 +584,94 @@ export default function App() {
         title="Sair do Aplicativo"
         message="Você possui uma entrega técnica ativa em andamento. Se você sair agora, todos os dados não finalizados e fotos serão perdidos definitivamente. Deseja sair mesmo assim?"
       />
+
+      {/* Modal ao acionar Botão Voltar do celular/navegador */}
+      {showBackPromptModal && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in" id="back-prompt-modal-overlay">
+          <div className="bg-white border-2 border-zinc-900 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-scale-up">
+            {/* Header */}
+            <div className="p-5 text-white flex items-center justify-between border-b-2 bg-zinc-950 border-amber-500">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500 text-zinc-950 flex items-center justify-center shadow-lg font-black shrink-0">
+                  <ShieldAlert className="w-6 h-6" />
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase tracking-widest block opacity-80 font-black text-amber-400">Aviso de Navegação</span>
+                  <h3 className="text-sm sm:text-base font-black uppercase tracking-tight text-white">Salvar como Rascunho?</h3>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowBackPromptModal(false)}
+                className="p-1.5 bg-black/20 hover:bg-black/40 text-white rounded-lg transition"
+                title="Fechar"
+                id="btn-close-back-prompt"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 bg-zinc-50 space-y-4">
+              <p className="text-sm text-zinc-800 font-bold leading-relaxed">
+                Você acionou a função de voltar do celular.
+              </p>
+              <p className="text-xs text-zinc-600 font-medium leading-relaxed">
+                Deseja salvar o progresso atual desta entrega técnica como rascunho antes de sair?
+              </p>
+              
+              <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-xl text-xs flex gap-2.5 text-amber-900 font-medium">
+                <span className="font-bold text-amber-950 uppercase text-[10px] tracking-wide shrink-0">Dica:</span>
+                <p>O rascunho ficará disponível na aba Histórico para ser continuado a qualquer momento.</p>
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="p-4 bg-white border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-end gap-2 sm:gap-3">
+              <button
+                onClick={() => setShowBackPromptModal(false)}
+                className="w-full sm:w-auto px-4 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-black uppercase rounded-xl transition border border-zinc-200 order-3 sm:order-1"
+                id="btn-cancel-back-prompt"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  setShowBackPromptModal(false);
+                  setExistingDraft(null);
+                  setEntregaEmAndamento(false);
+                  setFormStep(1);
+                  setFormKey(prev => prev + 1);
+                  refreshData();
+                  setActiveTab('history');
+                }}
+                className="w-full sm:w-auto px-4 py-2.5 bg-rose-100 hover:bg-rose-200 text-rose-800 text-xs font-black uppercase rounded-xl transition border border-rose-300 order-2"
+                id="btn-discard-back-prompt"
+              >
+                Sair sem Salvar
+              </button>
+              <button
+                onClick={() => {
+                  setShowBackPromptModal(false);
+                  if (saveDraftTriggerRef.current) {
+                    saveDraftTriggerRef.current();
+                  } else {
+                    setExistingDraft(null);
+                    setEntregaEmAndamento(false);
+                    setFormStep(1);
+                    setFormKey(prev => prev + 1);
+                    refreshData();
+                    setActiveTab('history');
+                  }
+                }}
+                className="w-full sm:w-auto px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-black uppercase rounded-xl transition shadow-md border-b-4 border-amber-700 order-1 sm:order-3 font-mono"
+                id="btn-save-draft-back-prompt"
+              >
+                Salvar Rascunho e Sair
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

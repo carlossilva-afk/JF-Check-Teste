@@ -38,6 +38,7 @@ interface DeliveryFormProps {
   activeTab?: string;
   step: number;
   setStep: React.Dispatch<React.SetStateAction<number>>;
+  saveDraftTriggerRef?: React.MutableRefObject<(() => void) | null>;
 }
 
 // Compressão resiliente e de alta fidelidade de imagens em canvas para poupar local storage mantendo máxima nitidez
@@ -146,7 +147,7 @@ function formatChassi(value: string): string {
   return prefix;
 }
 
-export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft, onStatusChange, activeTab, step, setStep }: DeliveryFormProps) {
+export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft, onStatusChange, activeTab, step, setStep, saveDraftTriggerRef }: DeliveryFormProps) {
   // Estados de navegação do Checklist Passo 3
   const [entregaId] = useState<string>(() => existingDraft?.id || gerarIdEntrega());
   const [currentChecklistItemIndex, setCurrentChecklistItemIndex] = useState(0);
@@ -796,6 +797,17 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
     onFinalized();
   };
 
+  useEffect(() => {
+    if (saveDraftTriggerRef) {
+      saveDraftTriggerRef.current = handleSalvarComoRascunho;
+    }
+    return () => {
+      if (saveDraftTriggerRef) {
+        saveDraftTriggerRef.current = null;
+      }
+    };
+  }, [saveDraftTriggerRef, handleSalvarComoRascunho]);
+
   const handleFinalizarEGerarCheckList = async () => {
     if (!assinaturaTecnico || !assinaturaCliente) {
       alert("É obrigatório que o Técnico e o Cliente assinem o termo para emissão do Check List - Entrega Técnica.");
@@ -1109,15 +1121,21 @@ JF Máquinas - A solução para o produtor`;
         <div className="flex items-center justify-center gap-1 sm:gap-2 w-full sm:w-auto pt-2.5 sm:pt-0 border-t border-zinc-900 sm:border-0">
           {[1, 2, 3, 4].map((s) => (
             <div key={s} className="flex items-center">
-              <div className={`rounded-full flex items-center justify-center font-black transition duration-150 border-2 ${
-                step === s 
-                  ? 'bg-amber-500 text-zinc-950 border-amber-400 shadow-lg ring-2 sm:ring-4 ring-amber-500/30' 
-                  : step > s 
-                    ? 'bg-zinc-800 text-amber-400 border-zinc-700' 
-                    : 'bg-zinc-900 text-zinc-500 border-zinc-800'
-              } w-7 h-7 sm:w-9 sm:h-9 text-xs sm:text-sm`}>
+              <button
+                type="button"
+                onClick={() => setStep(s)}
+                title={`Ir para o Passo ${['', 'A', 'B', 'C', 'D'][s]}`}
+                className={`rounded-full flex items-center justify-center font-black transition-all duration-150 border-2 cursor-pointer hover:scale-105 active:scale-95 ${
+                  step === s 
+                    ? 'bg-amber-500 text-zinc-950 border-amber-400 shadow-lg ring-2 sm:ring-4 ring-amber-500/30' 
+                    : step > s 
+                      ? 'bg-zinc-800 text-amber-400 border-zinc-700 hover:border-amber-400 hover:text-amber-300' 
+                      : 'bg-zinc-900 text-zinc-500 border-zinc-800 hover:border-zinc-600 hover:text-zinc-300'
+                } w-7 h-7 sm:w-9 sm:h-9 text-xs sm:text-sm`}
+                id={`btn-step-nav-${['', 'a', 'b', 'c', 'd'][s]}`}
+              >
                 {['', 'A', 'B', 'C', 'D'][s]}
-              </div>
+              </button>
               {s < 4 && <div className={`h-0.5 sm:h-1 ${step > s ? 'bg-amber-500' : 'bg-zinc-800'} w-4 sm:w-8`} />}
             </div>
           ))}
