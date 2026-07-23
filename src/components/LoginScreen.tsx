@@ -144,7 +144,7 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             </h2>
             <p className="hidden sm:block text-xs text-zinc-500 font-medium px-4 leading-relaxed">
               {loginTab === 'admin' 
-                ? 'Painel de controle para gerenciar checklists, máquinas, logs e configurações mestre.' 
+                ? 'Área de uso exclusivo da JF Máquinas' 
                 : 'Realize checklists, registre entregas técnicas e tenha total controle de rastreabilidade.'}
             </p>
           </div>

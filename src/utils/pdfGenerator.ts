@@ -489,13 +489,16 @@ export function gerarPDFEntrega(entrega: EntregaTecnica): jsPDF {
   // Foto 1: Máquina Completa
   doc.setFontSize(8);
   doc.setTextColor(grayText[0], grayText[1], grayText[2]);
+  const photoPad = 1;
+  safeAddImage(doc, entrega.fotosGerais.maquinaCompleta, 'JPEG', 15 + photoPad, currentY + photoPad, photoW - (photoPad * 2), photoH - (photoPad * 2));
+  doc.setDrawColor(brandGray[0], brandGray[1], brandGray[2]);
+  doc.setLineWidth(0.5);
   doc.rect(15, currentY, photoW, photoH);
-  safeAddImage(doc, entrega.fotosGerais.maquinaCompleta, 'JPEG', 15, currentY, photoW, photoH);
   doc.text('Foto 1: Máquina Agrícola Completa', 15, currentY + photoH + 4);
 
   // Foto 2: Número de Série
+  safeAddImage(doc, entrega.fotosGerais.numeroSerie, 'JPEG', 110 + photoPad, currentY + photoPad, photoW - (photoPad * 2), photoH - (photoPad * 2));
   doc.rect(110, currentY, photoW, photoH);
-  safeAddImage(doc, entrega.fotosGerais.numeroSerie, 'JPEG', 110, currentY, photoW, photoH);
   doc.text('Foto 2: Placa do Número de Série', 110, currentY + photoH + 4);
 
   currentY += photoH + 10;
@@ -528,14 +531,17 @@ export function gerarPDFEntrega(entrega: EntregaTecnica): jsPDF {
   const sigW = 82;
   const sigH = 30;
 
-  // Moldura Assinatura Técnico
+  const sigPad = 1.5;
+
+  // Moldura Assinatura Técnico: adiciona a imagem recuada e desenha a moldura por cima
+  safeAddImage(doc, entrega.assinaturas.tecnico, 'PNG', 15 + sigPad, currentY + sigPad, sigW - (sigPad * 2), sigH - (sigPad * 2));
   doc.setDrawColor(brandGray[0], brandGray[1], brandGray[2]);
+  doc.setLineWidth(0.5);
   doc.rect(15, currentY, sigW, sigH);
-  safeAddImage(doc, entrega.assinaturas.tecnico, 'PNG', 15, currentY, sigW, sigH);
   
-  // Moldura Assinatura Cliente
+  // Moldura Assinatura Cliente: adiciona a imagem recuada e desenha a moldura por cima
+  safeAddImage(doc, entrega.assinaturas.cliente, 'PNG', 110 + sigPad, currentY + sigPad, sigW - (sigPad * 2), sigH - (sigPad * 2));
   doc.rect(110, currentY, sigW, sigH);
-  safeAddImage(doc, entrega.assinaturas.cliente, 'PNG', 110, currentY, sigW, sigH);
 
   currentY += sigH + 4;
   doc.setFontSize(8);

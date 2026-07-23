@@ -54,7 +54,7 @@ export default function HistoryList({ onEditDraft, onSyncTrigger, syncing, entre
       ? `${auditUrl}&download=true` 
       : `${auditUrl}?download=true`;
 
-    return `JF CHECK - TERMO DE ENTREGA TÉCNICA E GARANTIA 🌾🚜
+    return `JF CHECK - CHECK LIST DE ENTREGA TÉCNICA 🌾🚜
 --------------------------------------------------
 Nº do Termo: ${entrega.id}
 Cliente: ${entrega.cliente.nome}
@@ -68,10 +68,10 @@ Data de Emissão: ${new Date(entrega.dataFinalizacao || entrega.dataCriacao).toL
 Latitude: ${entrega.localizacao.latitude ? entrega.localizacao.latitude.toFixed(6) : 'N/A'}
 Longitude: ${entrega.localizacao.longitude ? entrega.localizacao.longitude.toFixed(6) : 'N/A'}
 
-🔐 Link de Acesso ao Relatório e Download Direto do PDF (Firebase):
+🔐 Link de Acesso ao download do PDF:
 Acesse para visualizar e baixar o PDF: ${downloadUrl}
 
-⚠️ ALERTA DE DOWNLOAD: O arquivo e o link de acesso ficam salvos no Firebase por no máximo 3 DIAS. Faça o download do arquivo em PDF em até 3 dias!
+⚠️ ALERTA DE DOWNLOAD: Este CHECK LIST fica salvo por no máximo 3 dias a contar do envio. Por segurança, utilize o botão abaixo para baixar a via original do PDF para seu dispositivo.
 
 JF Máquinas - A solução para o produtor ⚡️`;
   };
