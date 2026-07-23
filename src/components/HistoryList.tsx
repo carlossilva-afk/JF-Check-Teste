@@ -68,12 +68,12 @@ Data de Emissão: ${new Date(entrega.dataFinalizacao || entrega.dataCriacao).toL
 Latitude: ${entrega.localizacao.latitude ? entrega.localizacao.latitude.toFixed(6) : 'N/A'}
 Longitude: ${entrega.localizacao.longitude ? entrega.localizacao.longitude.toFixed(6) : 'N/A'}
 
+⚠️ ALERTA DE DOWNLOAD: Este CHECK LIST fica salvo por no máximo 3 dias a contar do envio. Por segurança, utilize o botão abaixo para baixar a via original do PDF para seu dispositivo.
+
 🔐 Link de Acesso ao download do PDF:
 Acesse para visualizar e baixar o PDF: ${downloadUrl}
 
-⚠️ ALERTA DE DOWNLOAD: Este CHECK LIST fica salvo por no máximo 3 dias a contar do envio. Por segurança, utilize o botão abaixo para baixar a via original do PDF para seu dispositivo.
-
-JF Máquinas - A solução para o produtor ⚡️`;
+JF Máquinas - A solução para o produtor`;
   };
 
   const renderDetailsCard = (entrega: EntregaTecnica, isMobile = false) => {
