@@ -16,7 +16,7 @@ import {
   Tractor, User, FileText, CheckCircle2, ChevronRight, ChevronLeft, 
   Camera, MapPin, Sparkles, Clock, Info, Check, X, AlertTriangle, Eye, Video,
   Share2, Send, Mail, FileDown, ExternalLink, Copy, ArrowRight, MessageSquare,
-  AlertCircle, ChevronDown, ChevronUp, Pencil, Plus, Trash2
+  AlertCircle, ChevronDown, ChevronUp, Pencil, Plus, Trash2, Loader2
 } from 'lucide-react';
 import { ForageHarvesterIcon } from './ForageHarvesterIcon';
 import SignatureCanvas from './SignatureCanvas';
@@ -148,6 +148,10 @@ function formatChassi(value: string): string {
 }
 
 export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft, onStatusChange, activeTab, step, setStep, saveDraftTriggerRef }: DeliveryFormProps) {
+  // Estado de carregamento ao finalizar entrega técnica
+  const [isFinalizing, setIsFinalizing] = useState(false);
+  const [finalizingStatus, setFinalizingStatus] = useState<string>('');
+
   // Estados de navegação do Checklist Passo 3
   const [entregaId] = useState<string>(() => existingDraft?.id || gerarIdEntrega());
   const [currentChecklistItemIndex, setCurrentChecklistItemIndex] = useState(0);
@@ -814,101 +818,122 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
       return;
     }
 
-    let finalMaquinaId = maquinaSelecionada;
-    if (maquinaSelecionada === 'novo') {
-      if (salvarParaFuturo) {
-        const novaMaqId = `m_${Date.now()}`;
-        const novaMaq: Maquina = {
-          id: novaMaqId,
-          modelo: maquinaForm.modelo,
-          tipo: maquinaForm.tipo,
-          numeroSerie: maquinaForm.numeroSerie,
-          fabricante: maquinaForm.fabricante
-        };
-        cadastrarMaquina(novaMaq, usuarioLogado.nome);
-        finalMaquinaId = novaMaqId;
-        setListaMaquinas(getMaquinas());
-        setMaquinaSelecionada(novaMaqId);
-      } else {
-        finalMaquinaId = 'm_custom';
-      }
-    }
+    setIsFinalizing(true);
+    setFinalizingStatus("Processando dados e registrando entrega...");
 
-    const finalId = entregaId;
-    const novaEntrega: EntregaTecnica = {
-      id: finalId,
-      cliente: { id: 'c_custom', ...clienteForm },
-      maquina: { 
-        id: finalMaquinaId, 
-        ...maquinaForm,
-        miniaturaBase64: listaMaquinas.find(m => m.id === finalMaquinaId)?.miniaturaBase64
-      },
-      revenda: { id: 'custom', nome: nomeRevenda, cidade: clienteForm.cidade, estado: clienteForm.estado },
-      tecnico: { id: usuarioLogado.id, nome: tecnicoNome.trim() || usuarioLogado.nome },
-      data: dataEntrega,
-      status: 'sincronizado', // Online / Sincronizado ao finalizar
-      checklist,
-      fotosGerais,
-      assinaturas: { tecnico: assinaturaTecnico, cliente: assinaturaCliente },
-      localizacao: {
-        latitude: localizacao.latitude,
-        longitude: localizacao.longitude,
-        precisao: localizacao.precisao,
-        dataHora: new Date().toISOString()
-      },
-      tempoExecucaoSegundos: tempoPassado,
-      dataCriacao: existingDraft?.dataCriacao || new Date().toISOString(),
-      dataFinalizacao: new Date().toISOString(),
-      observacoesGerais,
-      qrCodeUrl: ''
-    };
+    // Pequena pausa para permitir renderização imediata do modal de carregamento
+    await new Promise(resolve => setTimeout(resolve, 80));
 
-    // Gera o qrCodeUrl comprimido (salvando no Firebase Firestore para manter o link curto)
     try {
-      const compressed = compressEntrega(novaEntrega);
-      // Define o link curto ultra-elegante de uma linha
-      novaEntrega.qrCodeUrl = `${window.location.origin}${window.location.pathname}?verify=${finalId}`;
-      
-      // Tenta salvar no Firebase Firestore
-      await salvarEntregaCompartilhada(finalId, compressed);
-    } catch (err) {
-      console.error("Erro ao salvar no Firebase Firestore, usando fallback offline:", err);
-      // Fallback offline: se falhar (ex: sem internet), usa o link base64 para o QR code ainda funcionar offline!
-      novaEntrega.status = 'pendente_sincronizacao';
+      let finalMaquinaId = maquinaSelecionada;
+      if (maquinaSelecionada === 'novo') {
+        if (salvarParaFuturo) {
+          const novaMaqId = `m_${Date.now()}`;
+          const novaMaq: Maquina = {
+            id: novaMaqId,
+            modelo: maquinaForm.modelo,
+            tipo: maquinaForm.tipo,
+            numeroSerie: maquinaForm.numeroSerie,
+            fabricante: maquinaForm.fabricante
+          };
+          cadastrarMaquina(novaMaq, usuarioLogado.nome);
+          finalMaquinaId = novaMaqId;
+          setListaMaquinas(getMaquinas());
+          setMaquinaSelecionada(novaMaqId);
+        } else {
+          finalMaquinaId = 'm_custom';
+        }
+      }
+
+      const finalId = entregaId;
+      const novaEntrega: EntregaTecnica = {
+        id: finalId,
+        cliente: { id: 'c_custom', ...clienteForm },
+        maquina: { 
+          id: finalMaquinaId, 
+          ...maquinaForm,
+          miniaturaBase64: listaMaquinas.find(m => m.id === finalMaquinaId)?.miniaturaBase64
+        },
+        revenda: { id: 'custom', nome: nomeRevenda, cidade: clienteForm.cidade, estado: clienteForm.estado },
+        tecnico: { id: usuarioLogado.id, nome: tecnicoNome.trim() || usuarioLogado.nome },
+        data: dataEntrega,
+        status: 'sincronizado', // Online / Sincronizado ao finalizar
+        checklist,
+        fotosGerais,
+        assinaturas: { tecnico: assinaturaTecnico, cliente: assinaturaCliente },
+        localizacao: {
+          latitude: localizacao.latitude,
+          longitude: localizacao.longitude,
+          precisao: localizacao.precisao,
+          dataHora: new Date().toISOString()
+        },
+        tempoExecucaoSegundos: tempoPassado,
+        dataCriacao: existingDraft?.dataCriacao || new Date().toISOString(),
+        dataFinalizacao: new Date().toISOString(),
+        observacoesGerais,
+        qrCodeUrl: ''
+      };
+
+      setFinalizingStatus("Sincronizando registros e gerando QR Code...");
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Gera o qrCodeUrl comprimido (salvando no Firebase Firestore para manter o link curto)
       try {
-        const compressed = compressEntrega(novaEntrega, false, false);
-        const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(compressed))));
-        novaEntrega.qrCodeUrl = `${window.location.origin}${window.location.pathname}?verify=${finalId}&data=${b64}`;
-      } catch (innerErr) {
-        novaEntrega.qrCodeUrl = `${window.location.origin}?verify=${finalId}`;
+        const compressed = compressEntrega(novaEntrega);
+        novaEntrega.qrCodeUrl = `${window.location.origin}${window.location.pathname}?verify=${finalId}`;
+        await salvarEntregaCompartilhada(finalId, compressed);
+      } catch (err) {
+        console.error("Erro ao salvar no Firebase Firestore, usando fallback offline:", err);
+        novaEntrega.status = 'pendente_sincronizacao';
+        try {
+          const compressed = compressEntrega(novaEntrega, false, false);
+          const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(compressed))));
+          novaEntrega.qrCodeUrl = `${window.location.origin}${window.location.pathname}?verify=${finalId}&data=${b64}`;
+        } catch (innerErr) {
+          novaEntrega.qrCodeUrl = `${window.location.origin}?verify=${finalId}`;
+        }
       }
-    }
 
-    // Salva no banco local
-    salvarEntrega(novaEntrega, usuarioLogado.nome);
+      // Salva no banco local
+      salvarEntrega(novaEntrega, usuarioLogado.nome);
 
-    // Dispara geração do PDF
-    try {
-      const doc = gerarPDFEntrega(novaEntrega);
-      doc.save(`Check_List_Entrega_Tecnica_${finalId}.pdf`);
+      setFinalizingStatus("Gerando relatório PDF e otimizando fotos...");
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Dispara geração do PDF
+      try {
+        const doc = gerarPDFEntrega(novaEntrega);
+        doc.save(`Check_List_Entrega_Tecnica_${finalId}.pdf`);
+      } catch (err) {
+        console.error("Erro ao gerar PDF:", err);
+      }
+      
+      setFinalizingStatus("Preparando envio de e-mail...");
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Dispara o e-mail automático imediatamente para o destinatário padrão
+      const shareMessageText = getShareMessage(novaEntrega);
+      const recipientEmail = 'carlos.silva@industriasnb.com.br';
+      const emailSubject = `[JF CHECK] Termo de Entrega Técnica Emitido - ${finalId}`;
+      const mailtoUrl = `mailto:${recipientEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(shareMessageText)}`;
+      
+      try {
+        window.location.href = mailtoUrl;
+      } catch (err) {
+        console.error("Erro ao disparar cliente de e-mail:", err);
+      }
+
+      setFinalizingStatus("Finalizado com sucesso!");
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      // Finaliza o checklist e retorna diretamente ao histórico sem passar pela página intermediária
+      onFinalized();
     } catch (err) {
-      console.error(err);
+      console.error("Erro na finalização:", err);
+      alert("Ocorreu um erro ao finalizar. Por favor tente novamente.");
+    } finally {
+      setIsFinalizing(false);
     }
-    
-    // Dispara o e-mail automático imediatamente para o destinatário padrão
-    const shareMessageText = getShareMessage(novaEntrega);
-    const recipientEmail = 'carlos.silva@industriasnb.com.br';
-    const emailSubject = `[JF CHECK] Termo de Entrega Técnica Emitido - ${finalId}`;
-    const mailtoUrl = `mailto:${recipientEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(shareMessageText)}`;
-    
-    try {
-      window.location.href = mailtoUrl;
-    } catch (err) {
-      console.error("Erro ao disparar cliente de e-mail:", err);
-    }
-
-    // Finaliza o checklist e retorna diretamente ao histórico sem passar pela página intermediária
-    onFinalized();
   };
 
   const getShareMessage = (entrega: EntregaTecnica) => {
@@ -2252,15 +2277,50 @@ JF Máquinas - A solução para o produtor`;
           <button
             type="button"
             onClick={handleFinalizarEGerarCheckList}
-            disabled={!assinaturaTecnico || !assinaturaCliente}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-1 h-10 sm:h-11 px-1.5 sm:px-7 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-not-allowed text-zinc-950 font-black text-[9px] sm:text-sm uppercase tracking-wider rounded-xl transition shadow-lg select-none whitespace-nowrap"
+            disabled={!assinaturaTecnico || !assinaturaCliente || isFinalizing}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 h-10 sm:h-11 px-1.5 sm:px-7 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-not-allowed text-zinc-950 font-black text-[9px] sm:text-sm uppercase tracking-wider rounded-xl transition shadow-lg select-none whitespace-nowrap"
             id="btn-wizard-finalize"
           >
-            <span>Finalizar</span>
-            <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+            {isFinalizing ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin shrink-0 text-zinc-950" />
+                <span>Finalizando...</span>
+              </>
+            ) : (
+              <>
+                <span>Finalizar</span>
+                <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+              </>
+            )}
           </button>
         )}
       </div>
+
+      {/* Indicador Visual de Carregamento em Modal / Overlay ao Finalizar */}
+      {isFinalizing && (
+        <div className="fixed inset-0 bg-zinc-950/80 backdrop-blur-md flex flex-col items-center justify-center p-6 z-[100] animate-fade-in text-white text-center">
+          <div className="bg-zinc-900 border-2 border-amber-500 rounded-3xl p-8 max-w-sm w-full shadow-2xl flex flex-col items-center space-y-5 animate-scale-up">
+            <div className="relative flex items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
+                <Loader2 className="w-9 h-9 text-amber-500 animate-spin" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full animate-ping" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black uppercase text-amber-400 tracking-tight">Finalizando Entrega</h3>
+              <p className="text-xs text-zinc-300 font-medium mt-1.5 leading-relaxed">
+                {finalizingStatus || 'Processando dados e documentos...'}
+              </p>
+            </div>
+            <div className="w-full bg-zinc-800 rounded-full h-2.5 overflow-hidden border border-zinc-700">
+              <div className="bg-gradient-to-r from-amber-500 to-amber-400 h-full rounded-full animate-pulse w-full" />
+            </div>
+            <p className="text-[10px] uppercase font-bold text-zinc-500 tracking-widest">
+              Aguarde a emissão do PDF e envio de e-mail...
+            </p>
+          </div>
+        </div>
+      )}
 
       <ConfirmModal
         isOpen={showDescartarConfirm}
