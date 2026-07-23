@@ -7,11 +7,9 @@ import React, { useState } from 'react';
 import { EntregaTecnica } from '../types';
 import { 
   Search, FileText, Download, Clock, MapPin, CheckCircle, AlertTriangle, 
-  CloudLightning, RefreshCw, Eye, Share2, MessageSquare, Mail, Copy, 
-  ExternalLink, X, Check, ShieldCheck, Info, Trash2, Pencil
+  CloudLightning, RefreshCw, Eye, Share2, X, Trash2, Pencil
 } from 'lucide-react';
 import { gerarPDFEntrega } from '../utils/pdfGenerator';
-import EmailModal from './EmailModal';
 import jfC120Img from '../assets/images/jf_c120_at_1783939073974.jpg';
 import { ForageHarvesterIcon } from './ForageHarvesterIcon';
 import { compressEntrega } from '../utils/compression';
@@ -28,12 +26,21 @@ export default function HistoryList({ onEditDraft, onSyncTrigger, syncing, entre
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'todos' | 'rascunho' | 'finalizado'>('todos');
   const [selectedEntrega, setSelectedEntrega] = useState<EntregaTecnica | null>(null);
-  
-  // Estado para Compartilhamento/Envio Inteligente
-  const [shareEntrega, setShareEntrega] = useState<EntregaTecnica | null>(null);
-  const [copiedLink, setCopiedLink] = useState(false);
-  const [copiedMessage, setCopiedMessage] = useState(false);
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+
+  const handleDirectShare = (entrega: EntregaTecnica, event?: React.MouseEvent) => {
+    if (event) event.stopPropagation();
+
+    const shareMessageText = getShareMessage(entrega);
+    const recipientEmail = 'carlos.silva@industriasnb.com.br';
+    const emailSubject = `[JF CHECK] Termo de Entrega Técnica Emitido - ${entrega.id}`;
+    const mailtoUrl = `mailto:${recipientEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(shareMessageText)}`;
+
+    try {
+      window.location.href = mailtoUrl;
+    } catch (err) {
+      console.error("Erro ao disparar cliente de e-mail:", err);
+    }
+  };
 
   const getShareMessage = (entrega: EntregaTecnica) => {
     // Se a entrega já está sincronizada ou já possui um link curto, utiliza ele diretamente
@@ -98,10 +105,7 @@ JF Máquinas - A solução para o produtor`;
               <Pencil className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Editar</span>
             </button>
             <button
-              onClick={(evt) => {
-                evt.stopPropagation();
-                setShareEntrega(entrega);
-              }}
+              onClick={(evt) => handleDirectShare(entrega, evt)}
               className="flex items-center gap-1 px-2.5 py-1 text-xs bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg transition"
               id={`${isMobile ? 'mobile-' : ''}btn-sidebar-share`}
               title="Compartilhar / Enviar"
@@ -457,10 +461,7 @@ JF Máquinas - A solução para o produtor`;
                         <Pencil className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={(evt) => {
-                          evt.stopPropagation();
-                          setShareEntrega(e);
-                        }}
+                        onClick={(evt) => handleDirectShare(e, evt)}
                         className="p-2 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 rounded-lg transition border border-emerald-200"
                         title="Compartilhar / Enviar"
                         id={`btn-share-${e.id}`}
@@ -528,132 +529,6 @@ JF Máquinas - A solução para o produtor`;
             {renderDetailsCard(selectedEntrega, true)}
           </div>
         </div>
-      )}
-
-      {shareEntrega && (
-        <div className="fixed inset-0 bg-zinc-950/85 backdrop-blur-sm flex items-center justify-center z-50 p-4" id="modal-envio-inteligente">
-          <div className="bg-zinc-900 text-white w-full max-w-2xl rounded-3xl border-4 border-amber-500 shadow-2xl overflow-hidden flex flex-col relative max-h-[90vh]">
-            {/* Header */}
-            <div className="px-6 py-4 bg-zinc-950 border-b border-zinc-800 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-amber-500 text-zinc-950 rounded-xl flex items-center justify-center shrink-0 shadow-md">
-                  <Share2 className="w-5 h-5 stroke-[2.5]" />
-                </div>
-                <div>
-                  <h3 className="text-base font-black uppercase tracking-tight text-white">Envio Inteligente</h3>
-                  <span className="text-[10px] text-amber-500 font-bold block uppercase tracking-wider">Check List - Entrega Técnica {shareEntrega.id}</span>
-                </div>
-              </div>
-              <button
-                onClick={() => setShareEntrega(null)}
-                className="p-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="p-6 overflow-y-auto space-y-6 scrollbar-thin">
-              
-              {/* Resumo do Destinatário */}
-              <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 grid grid-cols-2 gap-4 text-xs">
-                <div>
-                  <span className="text-[10px] text-zinc-500 uppercase font-black block">Cliente / Produtor</span>
-                  <span className="font-bold text-white block mt-0.5">{shareEntrega.cliente.nome}</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-zinc-500 uppercase font-black block">Máquina / Modelo</span>
-                  <span className="font-bold text-white block mt-0.5">{shareEntrega.maquina.modelo}</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-zinc-500 uppercase font-black block">Fazenda / Local</span>
-                  <span className="font-bold text-white block mt-0.5 truncate">{shareEntrega.cliente.fazenda} ({shareEntrega.cliente.cidade}-{shareEntrega.cliente.estado})</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-zinc-500 uppercase font-black block">Data de Registro</span>
-                  <span className="font-bold text-white block mt-0.5">{new Date(shareEntrega.dataFinalizacao || shareEntrega.dataCriacao).toLocaleDateString('pt-BR')}</span>
-                </div>
-              </div>
-
-              {/* Botões Rápidos de Despacho */}
-              <div className="grid grid-cols-1 gap-4">
-                {/* E-mail Link / Modal */}
-                <button
-                  onClick={() => setIsEmailModalOpen(true)}
-                  type="button"
-                  className="bg-amber-950 hover:bg-amber-900 border-2 border-amber-500/30 text-amber-100 p-5 rounded-2xl transition flex flex-col justify-between gap-3 group text-left cursor-pointer w-full"
-                  id="btn-open-email-history"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 bg-amber-500 text-zinc-950 rounded-xl flex items-center justify-center shadow-md">
-                      <Mail className="w-5 h-5" />
-                    </div>
-                    <ExternalLink className="w-4 h-4 text-amber-400 opacity-50 group-hover:opacity-100 transition" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-amber-400">Canal Oficial</span>
-                    <h5 className="font-black text-sm uppercase tracking-tight text-white mt-0.5">Enviar via E-mail</h5>
-                    <p className="text-[11px] text-amber-200/80 font-medium mt-1">Abre as opções de envio por e-mail com a mensagem formatada para o produtor.</p>
-                  </div>
-                </button>
-              </div>
-
-              {/* Pré-visualização da mensagem formatada */}
-              <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 flex flex-col gap-2 relative">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-zinc-500 font-black uppercase tracking-wider">Mensagem de Envio</span>
-                  <button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(getShareMessage(shareEntrega));
-                      setCopiedMessage(true);
-                      setTimeout(() => setCopiedMessage(false), 2000);
-                    }}
-                    className={`text-[10px] px-2.5 py-1 rounded font-black uppercase flex items-center gap-1.5 transition ${
-                      copiedMessage 
-                        ? 'bg-emerald-500 text-white' 
-                        : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
-                    }`}
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                    {copiedMessage ? 'Copiada!' : 'Copiar Mensagem'}
-                  </button>
-                </div>
-                <pre className="text-[10px] font-mono text-zinc-300 overflow-x-auto whitespace-pre-wrap max-h-32 bg-zinc-900 p-3 rounded-xl border border-zinc-800">
-                  {getShareMessage(shareEntrega)}
-                </pre>
-              </div>
-
-              {/* Dica Importante */}
-              <div className="bg-amber-950/40 border border-amber-500/20 p-3 rounded-xl flex items-start gap-2.5">
-                <Info className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                <p className="text-[11px] text-amber-200/80 leading-normal">
-                  <strong>Nota técnica:</strong> Se desejar enviar também o arquivo PDF físico por e-mail, você pode anexá-lo na mensagem de e-mail ao abrir seu provedor ou gerá-lo através do relatório em PDF.
-                </p>
-              </div>
-
-            </div>
-
-            {/* Footer */}
-            <div className="px-6 py-4 bg-zinc-950 border-t border-zinc-800 flex justify-end">
-              <button
-                onClick={() => setShareEntrega(null)}
-                className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition"
-              >
-                Fechar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {shareEntrega && (
-        <EmailModal
-          isOpen={isEmailModalOpen}
-          onClose={() => setIsEmailModalOpen(false)}
-          subject={`[JF CHECK] Termo de Entrega Técnica Emitido - ${shareEntrega.id}`}
-          body={getShareMessage(shareEntrega)}
-          recipientName={shareEntrega.cliente.nome}
-        />
       )}
     </div>
   );
