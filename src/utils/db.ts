@@ -226,7 +226,7 @@ const MOCK_ENTREGAS_INICIAIS: EntregaTecnica[] = [
     dataCriacao: '2026-06-22T08:00:00-03:00',
     dataFinalizacao: '2026-06-22T08:50:00-03:00',
     qrCodeUrl: 'https://ais-dev-2o7o4k5o6sf7eq5agahryd-54279175677.us-west1.run.app/verify/ET-2026-0003',
-    observacoesGerais: 'Manual físico entregue, manual em PDF enviado via WhatsApp para o gerente da fazenda.'
+    observacoesGerais: 'Manual físico entregue, manual em PDF enviado via e-mail para o gerente da fazenda.'
   },
   {
     id: 'ET-2026-0004',

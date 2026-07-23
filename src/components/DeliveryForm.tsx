@@ -189,6 +189,10 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
   // Controle de Tempo de Execução
   const startTimeRef = useRef<number>(Date.now());
   const autoAdvanceTimeoutRef = useRef<any>(null);
+  
+  // Controle de inicialização do índice do checklist para evitar reset ao voltar do passo 4
+  const hasInitializedIndexRef = useRef(false);
+  const lastDraftIdRef = useRef<string | undefined>(existingDraft?.id);
 
   // Limpa o timeout ao desmontar o componente
   useEffect(() => {
@@ -438,19 +442,30 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
     };
   }, [existingDraft, entregaIniciada]);
 
-  // Reseta índice do checklist se a lista ou o passo mudar
+  // Monitora se o rascunho ativo mudou para reiniciar a flag de inicialização do checklist
+  useEffect(() => {
+    if (existingDraft?.id !== lastDraftIdRef.current) {
+      hasInitializedIndexRef.current = false;
+      lastDraftIdRef.current = existingDraft?.id;
+    }
+  }, [existingDraft?.id]);
+
+  // Reseta índice do checklist se a lista ou o passo mudar (apenas no primeiro acesso do passo 3)
   useEffect(() => {
     if (step === 3) {
-      if (existingDraft) {
-        // Encontra o primeiro item que não tem resposta (conforme === null)
-        const firstUncheckedIndex = checklist.findIndex(item => item.conforme === null);
-        if (firstUncheckedIndex !== -1) {
-          setCurrentChecklistItemIndex(firstUncheckedIndex);
+      if (!hasInitializedIndexRef.current) {
+        if (existingDraft) {
+          // Encontra o primeiro item que não tem resposta (conforme === null)
+          const firstUncheckedIndex = checklist.findIndex(item => item.conforme === null);
+          if (firstUncheckedIndex !== -1) {
+            setCurrentChecklistItemIndex(firstUncheckedIndex);
+          } else {
+            setCurrentChecklistItemIndex(0);
+          }
         } else {
           setCurrentChecklistItemIndex(0);
         }
-      } else {
-        setCurrentChecklistItemIndex(0);
+        hasInitializedIndexRef.current = true;
       }
       setShowSkipWarning(false);
       setShowValidationErrors(false);
@@ -894,7 +909,6 @@ Acesse para auditar: ${entrega.qrCodeUrl}
 
   if (finalizedEntrega) {
     const shareMessageText = getShareMessage(finalizedEntrega);
-    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareMessageText)}`;
     const emailSubject = `[JF CHECK] Termo de Entrega Técnica Emitido - ${finalizedEntrega.id}`;
     const emailBody = shareMessageText;
     const emailUrl = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
@@ -932,7 +946,7 @@ Acesse para auditar: ${entrega.qrCodeUrl}
             <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 block">Termo Finalizado com Sucesso</span>
             <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 tracking-tight uppercase mt-1">Área de Envio Inteligente</h2>
             <p className="text-xs text-zinc-500 font-medium max-w-md mt-1">
-              O termo foi devidamente registrado e assinado. Escolha um dos canais oficiais abaixo para realizar o envio ao produtor.
+              O termo foi devidamente registrado e assinado. Utilize o canal oficial de E-mail abaixo para realizar o envio do check list realizado.
             </p>
           </div>
 
@@ -942,53 +956,34 @@ Acesse para auditar: ${entrega.qrCodeUrl}
           </div>
         </div>
 
-        {/* Canais Rápidos (WhatsApp & Email) */}
+        {/* Canais Rápidos (Email) */}
         <div className="bg-white border-2 border-zinc-800 rounded-3xl p-6 shadow-md flex flex-col gap-5 mt-4">
           <div>
             <h4 className="font-black text-zinc-900 text-base uppercase tracking-tight flex items-center gap-2">
               <Share2 className="w-5 h-5 text-amber-500" />
-              Canais de Envio Direto
+              Canal de Envio Direto
             </h4>
             <p className="text-xs text-zinc-500 font-semibold mt-1">Dispare a comprovação técnica diretamente para os contatos do cliente.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* WhatsApp */}
-            <a 
-              href={whatsappUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="bg-emerald-50 hover:bg-emerald-100/80 border-2 border-emerald-500/30 text-emerald-950 p-4 rounded-2xl transition flex flex-col justify-between gap-3 group"
-            >
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-md">
-                  <MessageSquare className="w-5 h-5" />
-                </div>
-                <ExternalLink className="w-4 h-4 text-emerald-600 opacity-50 group-hover:opacity-100 transition" />
-              </div>
-              <div>
-                <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-700">Canal Preferencial</span>
-                <h5 className="font-black text-sm uppercase tracking-tight text-emerald-900 mt-0.5">Enviar via WhatsApp</h5>
-                <p className="text-[11px] text-emerald-800 font-medium mt-1">Abre o WhatsApp Web/App com a mensagem formatada para o produtor.</p>
-              </div>
-            </a>
-
-            {/* Email */}
+          <div className="grid grid-cols-1 gap-4">
+            {/* E-mail */}
             <button 
               onClick={() => setIsEmailModalOpen(true)}
-              className="bg-sky-50 hover:bg-sky-100/80 border-2 border-sky-500/30 text-sky-950 p-4 rounded-2xl transition flex flex-col justify-between text-left gap-3 group"
               type="button"
+              className="bg-amber-50 hover:bg-amber-100/80 border-2 border-amber-500/30 text-amber-950 p-5 rounded-2xl transition flex flex-col justify-between gap-3 group text-left w-full cursor-pointer"
+              id="btn-open-email-modal"
             >
               <div className="flex items-center justify-between">
-                <div className="w-10 h-10 bg-sky-500 text-white rounded-xl flex items-center justify-center shadow-md">
+                <div className="w-10 h-10 bg-amber-500 text-zinc-950 rounded-xl flex items-center justify-center shadow-md">
                   <Mail className="w-5 h-5" />
                 </div>
-                <ExternalLink className="w-4 h-4 text-sky-600 opacity-50 group-hover:opacity-100 transition" />
+                <ExternalLink className="w-4 h-4 text-amber-700 opacity-50 group-hover:opacity-100 transition" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold tracking-wider text-sky-700">Relatório Formal</span>
-                <h5 className="font-black text-sm uppercase tracking-tight text-sky-900 mt-0.5">Enviar via E-mail</h5>
-                <p className="text-[11px] text-sky-800 font-medium mt-1">Preenche assunto e corpo do e-mail no aplicativo padrão de e-mail.</p>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-amber-700">Canal Oficial</span>
+                <h5 className="font-black text-sm uppercase tracking-tight text-amber-950 mt-0.5">Enviar via E-mail</h5>
+                <p className="text-[11px] text-amber-900 font-medium mt-1">Abre as opções de envio por e-mail com a mensagem formatada para o produtor.</p>
               </div>
             </button>
           </div>
@@ -997,9 +992,9 @@ Acesse para auditar: ${entrega.qrCodeUrl}
           <div className="bg-amber-50 border-2 border-amber-300 p-3.5 rounded-2xl flex items-start gap-3">
             <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
             <div>
-              <h6 className="text-xs font-black text-amber-950 uppercase tracking-tight">Como enviar o PDF pelo WhatsApp?</h6>
+              <h6 className="text-xs font-black text-amber-950 uppercase tracking-tight">Como enviar o PDF por E-mail?</h6>
               <p className="text-[11px] text-amber-900 mt-1 leading-relaxed">
-                O texto pré-configurado já contém o Link de Verificação Digital QR, permitindo que seu cliente acesse o Check List original a qualquer momento. Se desejar enviar também o arquivo PDF físico, utilize a opção do e-mail ou anexe-o normalmente na janela do WhatsApp aberta.
+                O texto pré-configurado já contém o Link de Verificação Digital QR, permitindo que seu cliente acesse o Check List original a qualquer momento. Se desejar enviar também o arquivo PDF físico, você pode anexá-lo diretamente na mensagem de e-mail ao abrir seu provedor ou gerá-lo novamente pelo botão de download.
               </p>
             </div>
           </div>

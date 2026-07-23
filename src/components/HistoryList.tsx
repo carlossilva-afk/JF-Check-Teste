@@ -570,43 +570,24 @@ Acesse para auditar: ${auditUrl}
               </div>
 
               {/* Botões Rápidos de Despacho */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* WhatsApp Link */}
-                <a
-                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(getShareMessage(shareEntrega))}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="bg-emerald-950 hover:bg-emerald-900 border-2 border-emerald-500/30 text-emerald-100 p-4 rounded-2xl transition flex flex-col justify-between gap-3 group"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-md">
-                      <MessageSquare className="w-5 h-5" />
-                    </div>
-                    <ExternalLink className="w-4 h-4 text-emerald-400 opacity-50 group-hover:opacity-100 transition" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-400">Canal Preferencial</span>
-                    <h5 className="font-black text-sm uppercase tracking-tight text-white mt-0.5">Enviar via WhatsApp</h5>
-                    <p className="text-[11px] text-emerald-300 font-medium mt-1">Abre o WhatsApp Web/App com a mensagem formatada para o produtor.</p>
-                  </div>
-                </a>
-
-                {/* E-mail Link */}
+              <div className="grid grid-cols-1 gap-4">
+                {/* E-mail Link / Modal */}
                 <button
                   onClick={() => setIsEmailModalOpen(true)}
-                  className="bg-sky-950 hover:bg-sky-900 border-2 border-sky-500/30 text-sky-100 p-4 rounded-2xl transition flex flex-col justify-between text-left gap-3 group"
                   type="button"
+                  className="bg-amber-950 hover:bg-amber-900 border-2 border-amber-500/30 text-amber-100 p-5 rounded-2xl transition flex flex-col justify-between gap-3 group text-left cursor-pointer w-full"
+                  id="btn-open-email-history"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 bg-sky-500 text-white rounded-xl flex items-center justify-center shadow-md">
+                    <div className="w-10 h-10 bg-amber-500 text-zinc-950 rounded-xl flex items-center justify-center shadow-md">
                       <Mail className="w-5 h-5" />
                     </div>
-                    <ExternalLink className="w-4 h-4 text-sky-400 opacity-50 group-hover:opacity-100 transition" />
+                    <ExternalLink className="w-4 h-4 text-amber-400 opacity-50 group-hover:opacity-100 transition" />
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-sky-400">Relatório Formal</span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-amber-400">Canal Oficial</span>
                     <h5 className="font-black text-sm uppercase tracking-tight text-white mt-0.5">Enviar via E-mail</h5>
-                    <p className="text-[11px] text-sky-300 font-medium mt-1">Preenche assunto e corpo no seu aplicativo oficial de e-mail.</p>
+                    <p className="text-[11px] text-amber-200/80 font-medium mt-1">Abre as opções de envio por e-mail com a mensagem formatada para o produtor.</p>
                   </div>
                 </button>
               </div>
@@ -640,7 +621,7 @@ Acesse para auditar: ${auditUrl}
               <div className="bg-amber-950/40 border border-amber-500/20 p-3 rounded-xl flex items-start gap-2.5">
                 <Info className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                 <p className="text-[11px] text-amber-200/80 leading-normal">
-                  <strong>Nota técnica:</strong> Se desejar enviar também o arquivo PDF anexo pelo WhatsApp, utilize a opção de e-mail ou faça o download do PDF primeiro e depois anexe-o na janela de chat que será aberta.
+                  <strong>Nota técnica:</strong> Se desejar enviar também o arquivo PDF físico por e-mail, você pode anexá-lo na mensagem de e-mail ao abrir seu provedor ou gerá-lo através do relatório em PDF.
                 </p>
               </div>
 
