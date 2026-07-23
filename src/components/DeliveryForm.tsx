@@ -223,7 +223,7 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
   // Dados Gerais
   const [clienteSelecionado, setClienteSelecionado] = useState<string>('novo');
   const [clienteForm, setClienteForm] = useState<Omit<Cliente, 'id'>>({
-    nome: '', documento: '', fazenda: '', cidade: '', estado: 'SP'
+    nome: '', documento: '', fazenda: '', cidade: '', estado: ''
   });
 
   const [listaMaquinas, setListaMaquinas] = useState<Maquina[]>([]);
@@ -529,7 +529,7 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
         });
       }
     } else {
-      setClienteForm({ nome: '', documento: '', fazenda: '', cidade: '', estado: 'SP' });
+      setClienteForm({ nome: '', documento: '', fazenda: '', cidade: '', estado: '' });
     }
   };
 
@@ -701,6 +701,9 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
     }
     if (!cf.cidade.trim()) {
       erros.push("Cidade é obrigatória.");
+    }
+    if (!cf.estado.trim()) {
+      erros.push("Estado (UF) é obrigatório.");
     }
     if (!mf.modelo.trim()) {
       erros.push("Modelo da Máquina é obrigatório.");
@@ -1381,13 +1384,27 @@ JF Máquinas - A solução para o produtor`;
                 <select
                   value={clienteForm.estado}
                   onChange={(e) => setClienteForm({ ...clienteForm, estado: e.target.value })}
-                  className="px-3 py-2 border border-zinc-300 rounded-lg text-sm bg-zinc-50 focus:bg-white focus:outline-none"
+                  className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-1 ${
+                    !clienteForm.estado ? 'font-normal text-zinc-500' : 'font-bold text-zinc-900'
+                  } ${
+                    !clienteForm.estado && showValidationErrors
+                      ? 'border-rose-500 focus:ring-rose-500 bg-rose-50/30'
+                      : 'border-zinc-300 focus:ring-amber-500 bg-zinc-50 focus:bg-white'
+                  }`}
                   id="input-client-state"
+                  required
                 >
-                  {['MT', 'GO', 'BA', 'PR', 'RS', 'MS', 'SP', 'MG', 'TO'].map(uf => (
-                    <option key={uf} value={uf}>{uf}</option>
+                  <option value="" disabled className="font-normal text-zinc-400">Selecione a UF...</option>
+                  {['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'].map(uf => (
+                    <option key={uf} value={uf} className="font-bold text-zinc-900">{uf}</option>
                   ))}
                 </select>
+                {!clienteForm.estado && showValidationErrors && (
+                  <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1 animate-fadeIn mt-0.5">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                    Selecione o Estado (UF).
+                  </span>
+                )}
               </div>
             </div>
 
