@@ -68,7 +68,7 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-2.5 sm:p-6 font-sans relative overflow-hidden" id="login-screen">
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-0 sm:p-6 font-sans relative overflow-hidden" id="login-screen">
       {/* Background Decorativo Tech */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-amber-500/10 via-zinc-950 to-black pointer-events-none" />
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px]" />
@@ -76,10 +76,10 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
       {/* Glowes sutis de background */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-amber-500/5 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="w-full max-w-xl sm:max-w-md md:max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-zinc-200/80 overflow-hidden relative z-10 transition-all duration-300 hover:shadow-[0_25px_60px_rgba(0,0,0,0.35)] animate-fadeIn my-auto">
+      <div className="w-full max-w-xl sm:max-w-md md:max-w-lg min-h-screen sm:min-h-0 bg-white rounded-none sm:rounded-3xl shadow-none sm:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border-0 sm:border border-zinc-200/80 overflow-y-auto sm:overflow-hidden relative z-10 transition-all duration-300 hover:shadow-[0_25px_60px_rgba(0,0,0,0.35)] animate-fadeIn my-0 sm:my-auto flex flex-col justify-between">
         
         {/* Banner do Cabeçalho */}
-        <div className="px-5 py-4 sm:px-6 sm:pt-10 sm:pb-8 bg-zinc-950 text-center flex flex-row sm:flex-col items-center justify-center gap-3.5 sm:gap-3 relative overflow-hidden">
+        <div className="px-5 py-4 sm:px-6 sm:pt-10 sm:pb-8 bg-zinc-950 text-center flex flex-row sm:flex-col items-center justify-center gap-3.5 sm:gap-3 relative overflow-hidden shrink-0">
           {/* Luz de destaque interna */}
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-40 h-24 bg-amber-500/10 blur-xl rounded-full" />
           
@@ -104,9 +104,9 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           {/* Detalhe de linha dourada refinado */}
           <div className="absolute bottom-0 inset-x-0 h-[3px] bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-80" />
         </div>
- 
+
         {/* Seletor de Abas (Acesso Técnico / Acesso Administrativo) */}
-        <div className="flex border-b border-zinc-150 bg-zinc-50">
+        <div className="flex border-b border-zinc-150 bg-zinc-50 shrink-0">
           <button
             type="button"
             onClick={() => { setLoginTab('geral'); setErrorMsg(''); setUsuarioInput(''); setSenhaInput(''); setShowPassword(false); }}
@@ -132,7 +132,7 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         </div>
 
         {/* Corpo do Form */}
-        <div className="p-5 sm:p-8 md:p-10 flex flex-col gap-4 sm:gap-6 text-center bg-white">
+        <div className="p-5 sm:p-8 md:p-10 flex flex-col justify-between flex-1 gap-4 sm:gap-6 text-center bg-white">
           
           <div className="space-y-1 sm:space-y-2.5">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 bg-zinc-100 text-zinc-800 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider rounded-full border border-zinc-200">
