@@ -875,7 +875,7 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
     // Salva no banco local
     salvarEntrega(novaEntrega, usuarioLogado.nome);
 
-    // Dispara geração do PDF e define o estado para a Área de Envio Inteligente
+    // Dispara geração do PDF
     try {
       const doc = gerarPDFEntrega(novaEntrega);
       doc.save(`Check_List_Entrega_Tecnica_${finalId}.pdf`);
@@ -883,28 +883,43 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
       console.error(err);
     }
     
-    setFinalizedEntrega(novaEntrega);
+    // Dispara o e-mail automático imediatamente para o destinatário padrão
+    const shareMessageText = getShareMessage(novaEntrega);
+    const recipientEmail = 'carlos.silva@industriasnb.com.br';
+    const emailSubject = `[JF CHECK] Termo de Entrega Técnica Emitido - ${finalId}`;
+    const mailtoUrl = `mailto:${recipientEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(shareMessageText)}`;
+    
+    try {
+      window.location.href = mailtoUrl;
+    } catch (err) {
+      console.error("Erro ao disparar cliente de e-mail:", err);
+    }
+
+    // Finaliza o checklist e retorna diretamente ao histórico sem passar pela página intermediária
+    onFinalized();
   };
 
   const getShareMessage = (entrega: EntregaTecnica) => {
-    return `*JF CHECK - TERMO DE ENTREGA TÉCNICA E GARANTIA* 🌾🚜
+    return `JF CHECK - TERMO DE ENTREGA TÉCNICA E GARANTIA 🌾🚜
 --------------------------------------------------
-*Nº do Termo:* ${entrega.id}
-*Cliente:* ${entrega.cliente.nome}
-*Propriedade:* ${entrega.cliente.fazenda} - ${entrega.cliente.cidade}/${entrega.cliente.estado}
-*Equipamento:* ${entrega.maquina.modelo} (Série: ${entrega.maquina.numeroSerie || 'N/A'})
-*Revenda:* ${entrega.revenda.nome}
-*Técnico Responsável:* ${entrega.tecnico.nome}
-*Data de Emissão:* ${new Date(entrega.dataFinalizacao || entrega.dataCriacao).toLocaleDateString('pt-BR')}
+Nº do Termo: ${entrega.id}
+Cliente: ${entrega.cliente.nome}
+Propriedade: ${entrega.cliente.fazenda} - ${entrega.cliente.cidade}/${entrega.cliente.estado}
+Equipamento: ${entrega.maquina.modelo} (Série: ${entrega.maquina.numeroSerie || 'N/A'})
+Revenda: ${entrega.revenda.nome}
+Técnico Responsável: ${entrega.tecnico.nome}
+Data de Emissão: ${new Date(entrega.dataFinalizacao || entrega.dataCriacao).toLocaleDateString('pt-BR')}
 
-📍 *Geolocalização do Registro:*
+📍 Geolocalização do Registro:
 Latitude: ${entrega.localizacao.latitude ? entrega.localizacao.latitude.toFixed(6) : 'N/A'}
 Longitude: ${entrega.localizacao.longitude ? entrega.localizacao.longitude.toFixed(6) : 'N/A'}
 
-🔐 *Verificação de Integridade Digital:*
-Acesse para auditar: ${entrega.qrCodeUrl}
+🔐 Link de Acesso ao Relatório e Download (Firebase):
+Acesse para visualizar e baixar o PDF: ${entrega.qrCodeUrl}
 
-*JF Máquinas - A solução para o produtor* ⚡️`;
+⚠️ ALERTA DE DOWNLOAD: O arquivo e o link de acesso ficam salvos no Firebase por no máximo 3 DIAS. Faça o download do arquivo em PDF em até 3 dias!
+
+JF Máquinas - A solução para o produtor ⚡️`;
   };
 
   if (finalizedEntrega) {

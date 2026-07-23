@@ -50,24 +50,26 @@ export default function HistoryList({ onEditDraft, onSyncTrigger, syncing, entre
       }
     }
 
-    return `*JF CHECK - TERMO DE ENTREGA TÉCNICA E GARANTIA* 🌾🚜
+    return `JF CHECK - TERMO DE ENTREGA TÉCNICA E GARANTIA 🌾🚜
 --------------------------------------------------
-*Nº do Termo:* ${entrega.id}
-*Cliente:* ${entrega.cliente.nome}
-*Propriedade:* ${entrega.cliente.fazenda} - ${entrega.cliente.cidade}/${entrega.cliente.estado}
-*Equipamento:* ${entrega.maquina.modelo} (Série: ${entrega.maquina.numeroSerie || 'N/A'})
-*Revenda:* ${entrega.revenda.nome}
-*Técnico Responsável:* ${entrega.tecnico.nome}
-*Data de Emissão:* ${new Date(entrega.dataFinalizacao || entrega.dataCriacao).toLocaleDateString('pt-BR')}
+Nº do Termo: ${entrega.id}
+Cliente: ${entrega.cliente.nome}
+Propriedade: ${entrega.cliente.fazenda} - ${entrega.cliente.cidade}/${entrega.cliente.estado}
+Equipamento: ${entrega.maquina.modelo} (Série: ${entrega.maquina.numeroSerie || 'N/A'})
+Revenda: ${entrega.revenda.nome}
+Técnico Responsável: ${entrega.tecnico.nome}
+Data de Emissão: ${new Date(entrega.dataFinalizacao || entrega.dataCriacao).toLocaleDateString('pt-BR')}
 
-📍 *Geolocalização do Registro:*
+📍 Geolocalização do Registro:
 Latitude: ${entrega.localizacao.latitude ? entrega.localizacao.latitude.toFixed(6) : 'N/A'}
 Longitude: ${entrega.localizacao.longitude ? entrega.localizacao.longitude.toFixed(6) : 'N/A'}
 
-🔐 *Verificação de Integridade Digital:*
-Acesse para auditar: ${auditUrl}
+🔐 Link de Acesso ao Relatório e Download (Firebase):
+Acesse para visualizar e baixar o PDF: ${auditUrl}
 
-*JF Máquinas - A solução para o produtor* ⚡️`;
+⚠️ ALERTA DE DOWNLOAD: O arquivo e o link de acesso ficam salvos no Firebase por no máximo 3 DIAS. Faça o download do arquivo em PDF em até 3 dias!
+
+JF Máquinas - A solução para o produtor ⚡️`;
   };
 
   const renderDetailsCard = (entrega: EntregaTecnica, isMobile = false) => {

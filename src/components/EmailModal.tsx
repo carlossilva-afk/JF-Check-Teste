@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mail, Copy, Check, X, ExternalLink } from 'lucide-react';
+import { Mail, Copy, Check, X, ExternalLink, AlertTriangle } from 'lucide-react';
 
 interface EmailModalProps {
   isOpen: boolean;
@@ -10,7 +10,7 @@ interface EmailModalProps {
 }
 
 export default function EmailModal({ isOpen, onClose, subject, body, recipientName }: EmailModalProps) {
-  const [recipientEmail, setRecipientEmail] = useState('');
+  const [recipientEmail, setRecipientEmail] = useState('carlos.silva@industriasnb.com.br');
   const [customSubject, setCustomSubject] = useState(subject);
   const [customBody, setCustomBody] = useState(body);
   const [copiedSubject, setCopiedSubject] = useState(false);
@@ -19,6 +19,7 @@ export default function EmailModal({ isOpen, onClose, subject, body, recipientNa
   // Reset state when modal opens with new data
   useEffect(() => {
     if (isOpen) {
+      setRecipientEmail('carlos.silva@industriasnb.com.br');
       setCustomSubject(subject);
       setCustomBody(body);
     }
@@ -84,10 +85,21 @@ export default function EmailModal({ isOpen, onClose, subject, body, recipientNa
                 type="email"
                 value={recipientEmail}
                 onChange={(e) => setRecipientEmail(e.target.value)}
-                placeholder="exemplo@fazenda.com.br"
+                placeholder="carlos.silva@industriasnb.com.br"
                 className="w-full px-4 py-2.5 bg-zinc-50 border-2 border-zinc-200 rounded-xl text-sm focus:outline-none focus:border-amber-500 font-semibold"
                 id="input-recipient-email"
               />
+            </div>
+          </div>
+
+          {/* Alerta de Prazo de Download no Firebase (3 Dias) */}
+          <div className="bg-amber-50 border-2 border-amber-400 p-4 rounded-2xl flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-black text-amber-950 uppercase tracking-tight">⚠️ Alerta - Prazo de 3 Dias para Download (Firebase)</p>
+              <p className="text-[11px] text-amber-900 mt-0.5 leading-relaxed font-medium">
+                O relatório e o link de verificação ficam hospedados no Firebase e estarão disponíveis para download por no máximo <strong>3 dias</strong>. Recomende ao destinatário baixar o PDF em até 3 dias!
+              </p>
             </div>
           </div>
 

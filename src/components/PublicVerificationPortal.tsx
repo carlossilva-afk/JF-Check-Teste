@@ -168,6 +168,15 @@ export default function PublicVerificationPortal({ verifyId, onGoToLogin }: Publ
           /* Estado: Documento Válido Autenticado */
           <div className="flex flex-col gap-8">
             
+            {/* Banner de Alerta - Validade de 3 Dias para Download no Firebase */}
+            <div className="bg-amber-950/60 border-2 border-amber-500/50 p-4 rounded-2xl flex items-start gap-3 shadow-lg text-amber-100">
+              <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+              <div className="text-xs leading-relaxed">
+                <span className="font-black text-amber-400 uppercase tracking-wide block">Atenção - Faça o Download do PDF em até 3 Dias</span>
+                Este termo e relatório estão hospedados no Firebase por no máximo <strong>3 dias</strong> a contar do envio. Por segurança, utilize o botão abaixo para baixar a via original do PDF para seu dispositivo.
+              </div>
+            </div>
+
             {/* Emblema Grande de Validação */}
             <div className="bg-zinc-900 border-2 border-emerald-500/40 p-6 md:p-8 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-2xl">
               <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
