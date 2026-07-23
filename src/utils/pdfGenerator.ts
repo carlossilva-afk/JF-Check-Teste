@@ -322,8 +322,16 @@ export function gerarPDFEntrega(entrega: EntregaTecnica): jsPDF {
   doc.setFont('helvetica', 'normal'); doc.text(new Date(entrega.localizacao.dataHora).toLocaleString('pt-BR'), 55, startY);
   
   doc.setFont('helvetica', 'bold'); doc.text('Tempo de Atendimento:', 110, startY);
-  const min = Math.floor(entrega.tempoExecucaoSegundos / 60);
-  const seg = entrega.tempoExecucaoSegundos % 60;
+  let totalSegundos = entrega.tempoExecucaoSegundos || 0;
+  if (totalSegundos <= 0 && entrega.dataCriacao) {
+    const inicioMs = new Date(entrega.dataCriacao).getTime();
+    const fimMs = entrega.dataFinalizacao ? new Date(entrega.dataFinalizacao).getTime() : Date.now();
+    if (!isNaN(inicioMs) && !isNaN(fimMs) && fimMs >= inicioMs) {
+      totalSegundos = Math.floor((fimMs - inicioMs) / 1000);
+    }
+  }
+  const min = Math.floor(totalSegundos / 60);
+  const seg = totalSegundos % 60;
   doc.setFont('helvetica', 'normal'); doc.text(`${min} min e ${seg} seg`, 155, startY);
 
   startY += 6;

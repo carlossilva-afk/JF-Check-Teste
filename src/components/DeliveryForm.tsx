@@ -158,6 +158,11 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
   const [showSkipWarning, setShowSkipWarning] = useState(false);
   const [ignoredItemIds, setIgnoredItemIds] = useState<string[]>([]);
   const [showValidationErrors, setShowValidationErrors] = useState(false);
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+
+  const markTouched = (fieldName: string) => {
+    setTouchedFields(prev => prev[fieldName] ? prev : { ...prev, [fieldName]: true });
+  };
   const [isTextExpanded, setIsTextExpanded] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editingItemText, setEditingItemText] = useState<string>('');
@@ -353,12 +358,9 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
 
   // Inicia contador e geolocalização automática
   useEffect(() => {
-    let interval: any = null;
-    if (entregaIniciada) {
-      interval = setInterval(() => {
-        setTempoPassado(Math.floor((Date.now() - startTimeRef.current) / 1000));
-      }, 1000);
-    }
+    const interval = setInterval(() => {
+      setTempoPassado(Math.floor((Date.now() - startTimeRef.current) / 1000));
+    }, 1000);
 
     // Dispara GPS
     capturarGPS();
@@ -650,6 +652,8 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
     setAssinaturaTecnico('');
     setAssinaturaCliente('');
     setObservacoesGerais('');
+    setShowValidationErrors(false);
+    setTouchedFields({});
     
     if (onStatusChange) {
       onStatusChange(false);
@@ -827,7 +831,7 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
         precisao: localizacao.precisao,
         dataHora: new Date().toISOString()
       },
-      tempoExecucaoSegundos: tempoPassado,
+      tempoExecucaoSegundos: Math.max(tempoPassado, Math.floor((Date.now() - startTimeRef.current) / 1000)),
       dataCriacao: existingDraft?.dataCriacao || new Date().toISOString(),
       observacoesGerais
     };
@@ -903,7 +907,7 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
           precisao: localizacao.precisao,
           dataHora: new Date().toISOString()
         },
-        tempoExecucaoSegundos: tempoPassado,
+        tempoExecucaoSegundos: Math.max(tempoPassado, Math.floor((Date.now() - startTimeRef.current) / 1000)),
         dataCriacao: existingDraft?.dataCriacao || new Date().toISOString(),
         dataFinalizacao: new Date().toISOString(),
         observacoesGerais,
@@ -933,37 +937,11 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
       // Salva no banco local
       salvarEntrega(novaEntrega, usuarioLogado.nome);
 
-      setFinalizingStatus("Gerando relatório PDF e otimizando fotos...");
-      await new Promise(resolve => setTimeout(resolve, 50));
-
-      // Dispara geração do PDF
-      try {
-        const doc = gerarPDFEntrega(novaEntrega);
-        doc.save(`Check_List_Entrega_Tecnica_${finalId}.pdf`);
-      } catch (err) {
-        console.error("Erro ao gerar PDF:", err);
-      }
-      
-      setFinalizingStatus("Preparando envio de e-mail...");
-      await new Promise(resolve => setTimeout(resolve, 50));
-
-      // Dispara o e-mail automático imediatamente para o destinatário padrão
-      const shareMessageText = getShareMessage(novaEntrega);
-      const recipientEmail = 'carlos.silva@industriasnb.com.br';
-      const emailSubject = `[JF CHECK] Termo de Entrega Técnica Emitido - ${finalId}`;
-      const mailtoUrl = `mailto:${recipientEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(shareMessageText)}`;
-      
-      try {
-        window.location.href = mailtoUrl;
-      } catch (err) {
-        console.error("Erro ao disparar cliente de e-mail:", err);
-      }
-
       setFinalizingStatus("Finalizado com sucesso!");
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 150));
 
-      // Finaliza o checklist e retorna diretamente ao histórico sem passar pela página intermediária
-      onFinalized();
+      // Exibe a Área de Envio Inteligente com botões dedicados para Baixar PDF e Enviar E-mail (Abordagem 2)
+      setFinalizedEntrega(novaEntrega);
     } catch (err) {
       console.error("Erro na finalização:", err);
       alert("Ocorreu um erro ao finalizar. Por favor tente novamente.");
@@ -1058,24 +1036,44 @@ JF Máquinas - A solução para o produtor`;
             <p className="text-xs text-zinc-500 font-semibold mt-1">Dispare a comprovação técnica diretamente para os contatos do cliente.</p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
-            {/* E-mail */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* 1. Baixar PDF */}
+            <button 
+              onClick={handleDownloadAgain}
+              type="button"
+              className="bg-zinc-50 hover:bg-zinc-100 border-2 border-zinc-300 hover:border-zinc-400 text-zinc-900 p-5 rounded-2xl transition flex flex-col justify-between gap-3 group text-left w-full cursor-pointer shadow-sm"
+              id="btn-download-pdf-direct"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 bg-zinc-900 text-amber-400 rounded-xl flex items-center justify-center shadow-md">
+                  <FileDown className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] bg-amber-100 text-amber-900 font-bold px-2.5 py-0.5 rounded-full border border-amber-300">OPÇÃO 1</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-black tracking-wider text-zinc-500">Documento Físico</span>
+                <h5 className="font-black text-sm uppercase tracking-tight text-zinc-900 mt-0.5">1. Baixar PDF do Check List</h5>
+                <p className="text-[11px] text-zinc-600 font-medium mt-1">Gera e salva o relatório PDF com assinaturas e fotos direto no seu aparelho.</p>
+              </div>
+            </button>
+
+            {/* 2. E-mail */}
             <button 
               onClick={() => setIsEmailModalOpen(true)}
               type="button"
-              className="bg-amber-50 hover:bg-amber-100/80 border-2 border-amber-500/30 text-amber-950 p-5 rounded-2xl transition flex flex-col justify-between gap-3 group text-left w-full cursor-pointer"
+              className="bg-amber-50 hover:bg-amber-100/80 border-2 border-amber-500/40 text-amber-950 p-5 rounded-2xl transition flex flex-col justify-between gap-3 group text-left w-full cursor-pointer shadow-sm"
               id="btn-open-email-modal"
             >
               <div className="flex items-center justify-between">
                 <div className="w-10 h-10 bg-amber-500 text-zinc-950 rounded-xl flex items-center justify-center shadow-md">
                   <Mail className="w-5 h-5" />
                 </div>
-                <ExternalLink className="w-4 h-4 text-amber-700 opacity-50 group-hover:opacity-100 transition" />
+                <span className="text-[10px] bg-amber-200 text-amber-950 font-bold px-2.5 py-0.5 rounded-full border border-amber-400">OPÇÃO 2</span>
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold tracking-wider text-amber-700">Canal Oficial</span>
-                <h5 className="font-black text-sm uppercase tracking-tight text-amber-950 mt-0.5">Enviar via E-mail</h5>
-                <p className="text-[11px] text-amber-900 font-medium mt-1">Abre as opções de envio por e-mail com a mensagem formatada para o produtor.</p>
+                <span className="text-[10px] uppercase font-black tracking-wider text-amber-700">Canal Oficial</span>
+                <h5 className="font-black text-sm uppercase tracking-tight text-amber-950 mt-0.5">2. Enviar por E-mail</h5>
+                <p className="text-[11px] text-amber-900 font-medium mt-1">Abre o seu e-mail (Gmail/Mail/Outros) com o texto e o link do termo prontos.</p>
               </div>
             </button>
           </div>
@@ -1312,11 +1310,26 @@ JF Máquinas - A solução para o produtor`;
                   type="text"
                   placeholder="Nome completo do produtor ou empresa"
                   value={clienteForm.nome}
-                  onChange={(e) => setClienteForm({ ...clienteForm, nome: e.target.value })}
-                  className="px-3 py-2 border border-zinc-300 rounded-lg text-sm bg-zinc-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  onFocus={() => markTouched('clienteNome')}
+                  onBlur={() => markTouched('clienteNome')}
+                  onChange={(e) => {
+                    markTouched('clienteNome');
+                    setClienteForm({ ...clienteForm, nome: e.target.value });
+                  }}
+                  className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-1 font-bold ${
+                    !clienteForm.nome.trim() && (touchedFields['clienteNome'] || showValidationErrors)
+                      ? 'border-rose-500 focus:ring-rose-500 text-rose-900 bg-rose-50/20'
+                      : 'border-zinc-300 focus:ring-amber-500 text-zinc-900 bg-zinc-50 focus:bg-white'
+                  }`}
                   required
                   id="input-client-name"
                 />
+                {!clienteForm.nome.trim() && (touchedFields['clienteNome'] || showValidationErrors) && (
+                  <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1 animate-fadeIn mt-0.5">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                    Nome do Cliente / Razão Social é obrigatório.
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -1327,25 +1340,38 @@ JF Máquinas - A solução para o produtor`;
                 {(() => {
                   const docDigits = clienteForm.documento.replace(/\D/g, '');
                   const isIncomplete = docDigits.length > 0 && docDigits.length !== 11 && docDigits.length !== 14;
+                  const isMissing = !clienteForm.documento.trim();
+                  const showFieldErr = (isIncomplete || isMissing) && (touchedFields['clienteDocumento'] || showValidationErrors);
                   return (
                     <>
                       <input
                         type="text"
                         placeholder="Informe CPF (11 dígitos) ou CNPJ (14 dígitos)"
                         value={clienteForm.documento}
-                        onChange={(e) => setClienteForm({ ...clienteForm, documento: formatCPFOrCNPJ(e.target.value) })}
-                        className={`px-3 py-2 border rounded-lg text-sm bg-zinc-50 focus:bg-white focus:outline-none focus:ring-1 font-bold ${
-                          isIncomplete 
+                        onFocus={() => markTouched('clienteDocumento')}
+                        onBlur={() => markTouched('clienteDocumento')}
+                        onChange={(e) => {
+                          markTouched('clienteDocumento');
+                          setClienteForm({ ...clienteForm, documento: formatCPFOrCNPJ(e.target.value) });
+                        }}
+                        className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-1 font-bold ${
+                          showFieldErr 
                             ? 'border-rose-500 focus:ring-rose-500 text-rose-900 bg-rose-50/20' 
-                            : 'border-zinc-300 focus:ring-amber-500 text-zinc-900'
+                            : 'border-zinc-300 focus:ring-amber-500 text-zinc-900 bg-zinc-50 focus:bg-white'
                         }`}
                         required
                         id="input-client-doc"
                       />
-                      {isIncomplete && (
+                      {isIncomplete && (touchedFields['clienteDocumento'] || showValidationErrors) && (
                         <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1 animate-fadeIn mt-0.5">
                           <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                           Documento incompleto! CPF necessita de 11 dígitos ou CNPJ de 14 dígitos (Digitado: {docDigits.length}).
+                        </span>
+                      )}
+                      {!clienteForm.documento.trim() && (touchedFields['clienteDocumento'] || showValidationErrors) && !isIncomplete && (
+                        <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1 animate-fadeIn mt-0.5">
+                          <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                          CPF ou CNPJ é obrigatório.
                         </span>
                       )}
                     </>
@@ -1359,11 +1385,26 @@ JF Máquinas - A solução para o produtor`;
                   type="text"
                   placeholder="Ex: Fazenda Ouro Verde"
                   value={clienteForm.fazenda}
-                  onChange={(e) => setClienteForm({ ...clienteForm, fazenda: e.target.value })}
-                  className="px-3 py-2 border border-zinc-300 rounded-lg text-sm bg-zinc-50 focus:bg-white focus:outline-none"
+                  onFocus={() => markTouched('clienteFazenda')}
+                  onBlur={() => markTouched('clienteFazenda')}
+                  onChange={(e) => {
+                    markTouched('clienteFazenda');
+                    setClienteForm({ ...clienteForm, fazenda: e.target.value });
+                  }}
+                  className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-1 font-bold ${
+                    !clienteForm.fazenda.trim() && (touchedFields['clienteFazenda'] || showValidationErrors)
+                      ? 'border-rose-500 focus:ring-rose-500 text-rose-900 bg-rose-50/20'
+                      : 'border-zinc-300 focus:ring-amber-500 text-zinc-900 bg-zinc-50 focus:bg-white'
+                  }`}
                   required
                   id="input-client-farm"
                 />
+                {!clienteForm.fazenda.trim() && (touchedFields['clienteFazenda'] || showValidationErrors) && (
+                  <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1 animate-fadeIn mt-0.5">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                    Nome da Fazenda é obrigatório.
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -1372,22 +1413,42 @@ JF Máquinas - A solução para o produtor`;
                   type="text"
                   placeholder="Ex: Sorriso"
                   value={clienteForm.cidade}
-                  onChange={(e) => setClienteForm({ ...clienteForm, cidade: e.target.value })}
-                  className="px-3 py-2 border border-zinc-300 rounded-lg text-sm bg-zinc-50 focus:bg-white focus:outline-none"
+                  onFocus={() => markTouched('clienteCidade')}
+                  onBlur={() => markTouched('clienteCidade')}
+                  onChange={(e) => {
+                    markTouched('clienteCidade');
+                    setClienteForm({ ...clienteForm, cidade: e.target.value });
+                  }}
+                  className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-1 font-bold ${
+                    !clienteForm.cidade.trim() && (touchedFields['clienteCidade'] || showValidationErrors)
+                      ? 'border-rose-500 focus:ring-rose-500 text-rose-900 bg-rose-50/20'
+                      : 'border-zinc-300 focus:ring-amber-500 text-zinc-900 bg-zinc-50 focus:bg-white'
+                  }`}
                   required
                   id="input-client-city"
                 />
+                {!clienteForm.cidade.trim() && (touchedFields['clienteCidade'] || showValidationErrors) && (
+                  <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1 animate-fadeIn mt-0.5">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                    Cidade é obrigatória.
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-bold text-zinc-600">Estado (UF) *</label>
                 <select
                   value={clienteForm.estado}
-                  onChange={(e) => setClienteForm({ ...clienteForm, estado: e.target.value })}
+                  onFocus={() => markTouched('clienteEstado')}
+                  onBlur={() => markTouched('clienteEstado')}
+                  onChange={(e) => {
+                    markTouched('clienteEstado');
+                    setClienteForm({ ...clienteForm, estado: e.target.value });
+                  }}
                   className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-1 ${
                     !clienteForm.estado ? 'font-normal text-zinc-500' : 'font-bold text-zinc-900'
                   } ${
-                    !clienteForm.estado && showValidationErrors
+                    !clienteForm.estado && (touchedFields['clienteEstado'] || showValidationErrors)
                       ? 'border-rose-500 focus:ring-rose-500 bg-rose-50/30'
                       : 'border-zinc-300 focus:ring-amber-500 bg-zinc-50 focus:bg-white'
                   }`}
@@ -1399,7 +1460,7 @@ JF Máquinas - A solução para o produtor`;
                     <option key={uf} value={uf} className="font-bold text-zinc-900">{uf}</option>
                   ))}
                 </select>
-                {!clienteForm.estado && showValidationErrors && (
+                {!clienteForm.estado && (touchedFields['clienteEstado'] || showValidationErrors) && (
                   <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1 animate-fadeIn mt-0.5">
                     <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                     Selecione o Estado (UF).
@@ -1416,14 +1477,29 @@ JF Máquinas - A solução para o produtor`;
                   type="text"
                   placeholder="Ex: Trator 6100J"
                   value={maquinaForm.modelo}
-                  onChange={(e) => setMaquinaForm({ ...maquinaForm, modelo: e.target.value })}
+                  onFocus={() => markTouched('maquinaModelo')}
+                  onBlur={() => markTouched('maquinaModelo')}
+                  onChange={(e) => {
+                    markTouched('maquinaModelo');
+                    setMaquinaForm({ ...maquinaForm, modelo: e.target.value });
+                  }}
                   disabled={maquinaSelecionada !== 'novo'}
-                  className={`px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-amber-500 ${
-                    maquinaSelecionada !== 'novo' ? 'bg-zinc-100 cursor-not-allowed font-medium text-zinc-600' : 'bg-zinc-50 focus:bg-white'
+                  className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-1 ${
+                    maquinaSelecionada !== 'novo' 
+                      ? 'bg-zinc-100 cursor-not-allowed font-medium text-zinc-600 border-zinc-300' 
+                      : !maquinaForm.modelo.trim() && (touchedFields['maquinaModelo'] || showValidationErrors)
+                        ? 'border-rose-500 focus:ring-rose-500 text-rose-900 bg-rose-50/20 font-bold'
+                        : 'border-zinc-300 focus:ring-amber-500 text-zinc-900 bg-zinc-50 focus:bg-white font-bold'
                   }`}
                   required
                   id="input-machine-model"
                 />
+                {!maquinaForm.modelo.trim() && maquinaSelecionada === 'novo' && (touchedFields['maquinaModelo'] || showValidationErrors) && (
+                  <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1 animate-fadeIn mt-0.5">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                    Modelo da Máquina é obrigatório.
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -1434,11 +1510,26 @@ JF Máquinas - A solução para o produtor`;
                   type="text"
                   placeholder="Ex: ABCD-123456"
                   value={maquinaForm.numeroSerie}
-                  onChange={(e) => setMaquinaForm({ ...maquinaForm, numeroSerie: formatChassi(e.target.value) })}
-                  className="px-3 py-2 border border-zinc-300 rounded-lg text-sm bg-zinc-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono text-xs font-bold"
+                  onFocus={() => markTouched('maquinaNumeroSerie')}
+                  onBlur={() => markTouched('maquinaNumeroSerie')}
+                  onChange={(e) => {
+                    markTouched('maquinaNumeroSerie');
+                    setMaquinaForm({ ...maquinaForm, numeroSerie: formatChassi(e.target.value) });
+                  }}
+                  className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-1 font-mono text-xs font-bold ${
+                    !maquinaForm.numeroSerie.trim() && (touchedFields['maquinaNumeroSerie'] || showValidationErrors)
+                      ? 'border-rose-500 focus:ring-rose-500 text-rose-900 bg-rose-50/20'
+                      : 'border-zinc-300 focus:ring-amber-500 text-zinc-900 bg-zinc-50 focus:bg-white'
+                  }`}
                   required
                   id="input-machine-serial"
                 />
+                {!maquinaForm.numeroSerie.trim() && (touchedFields['maquinaNumeroSerie'] || showValidationErrors) && (
+                  <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1 animate-fadeIn mt-0.5">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                    Número de Série (CHASSI) é obrigatório.
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -1473,11 +1564,26 @@ JF Máquinas - A solução para o produtor`;
                   type="text"
                   placeholder="Nome da revenda"
                   value={nomeRevenda}
-                  onChange={(e) => setNomeRevenda(e.target.value)}
-                  className="px-3 py-2 border border-zinc-300 rounded-lg text-sm bg-zinc-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  onFocus={() => markTouched('nomeRevenda')}
+                  onBlur={() => markTouched('nomeRevenda')}
+                  onChange={(e) => {
+                    markTouched('nomeRevenda');
+                    setNomeRevenda(e.target.value);
+                  }}
+                  className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-1 font-bold ${
+                    !nomeRevenda.trim() && (touchedFields['nomeRevenda'] || showValidationErrors)
+                      ? 'border-rose-500 focus:ring-rose-500 text-rose-900 bg-rose-50/20'
+                      : 'border-zinc-300 focus:ring-amber-500 text-zinc-900 bg-zinc-50 focus:bg-white'
+                  }`}
                   required
                   id="input-dealership"
                 />
+                {!nomeRevenda.trim() && (touchedFields['nomeRevenda'] || showValidationErrors) && (
+                  <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1 animate-fadeIn mt-0.5">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                    Nome da Revenda é obrigatório.
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -1486,17 +1592,25 @@ JF Máquinas - A solução para o produtor`;
                   type="text"
                   placeholder="Seu nome e sobrenome"
                   value={tecnicoNome}
-                  onChange={(e) => setTecnicoNome(e.target.value)}
-                  className={`px-3 py-2 border rounded-lg text-sm bg-zinc-50 focus:bg-white focus:outline-none focus:ring-1 ${
-                    tecnicoNome.trim() && tecnicoNome.trim().split(/\s+/).filter(Boolean).length < 2
+                  onFocus={() => markTouched('tecnicoNome')}
+                  onBlur={() => markTouched('tecnicoNome')}
+                  onChange={(e) => {
+                    markTouched('tecnicoNome');
+                    setTecnicoNome(e.target.value);
+                  }}
+                  className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-1 font-bold ${
+                    (tecnicoNome.trim().split(/\s+/).filter(Boolean).length < 2 && (touchedFields['tecnicoNome'] || showValidationErrors))
                       ? 'border-rose-500 focus:ring-rose-500 text-rose-900 bg-rose-50/20'
-                      : 'border-zinc-300 focus:ring-amber-500 text-zinc-800'
+                      : 'border-zinc-300 focus:ring-amber-500 text-zinc-800 bg-zinc-50 focus:bg-white'
                   }`}
                   required
                   id="input-technician"
                 />
-                {tecnicoNome.trim() && tecnicoNome.trim().split(/\s+/).filter(Boolean).length < 2 && (
-                  <span className="text-[10px] text-rose-600 font-semibold animate-pulse">Por favor, preencha seu nome e sobrenome.</span>
+                {tecnicoNome.trim().split(/\s+/).filter(Boolean).length < 2 && (touchedFields['tecnicoNome'] || showValidationErrors) && (
+                  <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1 animate-fadeIn mt-0.5">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                    Técnico Responsável deve conter Nome e Sobrenome.
+                  </span>
                 )}
               </div>
 
@@ -2403,7 +2517,11 @@ JF Máquinas - A solução para o produtor`;
                 setStep(prev => prev + 1);
               }
             }}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-1 h-10 sm:h-11 px-1.5 sm:px-6 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-zinc-950 font-black text-[9px] sm:text-sm uppercase tracking-wider rounded-xl transition shadow-md select-none whitespace-nowrap"
+            disabled={
+              (step === 1 && !validarPasso1()) ||
+              (step === 2 && !validarPasso2())
+            }
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1 h-10 sm:h-11 px-1.5 sm:px-6 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-not-allowed disabled:shadow-none text-zinc-950 font-black text-[9px] sm:text-sm uppercase tracking-wider rounded-xl transition shadow-md select-none whitespace-nowrap"
             id="btn-wizard-next"
           >
             <span>{step === 3 ? (currentChecklistItemIndex === checklist.length - 1 ? "Assinatura" : "Próximo Item") : "Avançar"}</span>

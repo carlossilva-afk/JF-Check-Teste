@@ -105,6 +105,7 @@ export function compressEntrega(entrega: any, includeSignatures: boolean = true,
 
   if (entrega.dataCriacao) comp.dc = entrega.dataCriacao;
   if (entrega.dataFinalizacao) comp.df = entrega.dataFinalizacao;
+  if (entrega.tempoExecucaoSegundos) comp.tmp = entrega.tempoExecucaoSegundos;
 
   return comp;
 }
@@ -178,7 +179,7 @@ export function decompressEntrega(comp: any): EntregaTecnica {
         precisao: null,
         dataHora: comp.df || comp.dc || new Date().toISOString()
       },
-      tempoExecucaoSegundos: 0,
+      tempoExecucaoSegundos: comp.tmp || comp.tempoExecucaoSegundos || 0,
       dataCriacao: comp.dc || new Date().toISOString(),
       dataFinalizacao: comp.df,
       observacoesGerais: comp.obs || ''
@@ -276,7 +277,7 @@ export function decompressEntrega(comp: any): EntregaTecnica {
       precisao: null,
       dataHora: comp.df || comp.dc || new Date().toISOString()
     },
-    tempoExecucaoSegundos: 0,
+    tempoExecucaoSegundos: comp.tmp || comp.tempoExecucaoSegundos || 0,
     dataCriacao: comp.dc || new Date().toISOString(),
     dataFinalizacao: comp.df,
     observacoesGerais: comp.obs || ''
