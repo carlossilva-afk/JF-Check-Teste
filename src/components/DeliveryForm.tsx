@@ -900,6 +900,10 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
   };
 
   const getShareMessage = (entrega: EntregaTecnica) => {
+    const downloadUrl = entrega.qrCodeUrl.includes('?') 
+      ? `${entrega.qrCodeUrl}&download=true` 
+      : `${entrega.qrCodeUrl}?download=true`;
+
     return `JF CHECK - TERMO DE ENTREGA TÉCNICA E GARANTIA 🌾🚜
 --------------------------------------------------
 Nº do Termo: ${entrega.id}
@@ -914,8 +918,8 @@ Data de Emissão: ${new Date(entrega.dataFinalizacao || entrega.dataCriacao).toL
 Latitude: ${entrega.localizacao.latitude ? entrega.localizacao.latitude.toFixed(6) : 'N/A'}
 Longitude: ${entrega.localizacao.longitude ? entrega.localizacao.longitude.toFixed(6) : 'N/A'}
 
-🔐 Link de Acesso ao Relatório e Download (Firebase):
-Acesse para visualizar e baixar o PDF: ${entrega.qrCodeUrl}
+🔐 Link de Acesso ao Relatório e Download Direto do PDF (Firebase):
+Acesse para visualizar e baixar o PDF: ${downloadUrl}
 
 ⚠️ ALERTA DE DOWNLOAD: O arquivo e o link de acesso ficam salvos no Firebase por no máximo 3 DIAS. Faça o download do arquivo em PDF em até 3 dias!
 

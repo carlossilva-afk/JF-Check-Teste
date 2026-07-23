@@ -48,6 +48,18 @@ export default function PublicVerificationPortal({ verifyId, onGoToLogin }: Publ
           if (decompressed) {
             setEntrega(decompressed);
             setLoading(false);
+
+            // Se o link do e-mail contiver &download=true, inicia o download do PDF automaticamente!
+            if (urlParams.get('download') === 'true' || urlParams.get('dl') === '1') {
+              setTimeout(() => {
+                try {
+                  const doc = gerarPDFEntrega(decompressed);
+                  doc.save(`Check_List_Verificado_JF_${decompressed.id}.pdf`);
+                } catch (e) {
+                  console.error('Erro no download automático do PDF:', e);
+                }
+              }, 600);
+            }
             return;
           }
         }
