@@ -68,7 +68,7 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4 sm:p-6 font-sans relative overflow-hidden" id="login-screen">
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-2.5 sm:p-6 font-sans relative overflow-hidden" id="login-screen">
       {/* Background Decorativo Tech */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-amber-500/10 via-zinc-950 to-black pointer-events-none" />
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px]" />
@@ -76,14 +76,14 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
       {/* Glowes sutis de background */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-amber-500/5 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="w-full max-w-md bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-zinc-200/80 overflow-hidden relative z-10 transition-all duration-300 hover:shadow-[0_25px_60px_rgba(0,0,0,0.35)] animate-fadeIn">
+      <div className="w-full max-w-xl sm:max-w-md md:max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-zinc-200/80 overflow-hidden relative z-10 transition-all duration-300 hover:shadow-[0_25px_60px_rgba(0,0,0,0.35)] animate-fadeIn my-auto">
         
         {/* Banner do Cabeçalho */}
-        <div className="px-4 py-3 sm:px-6 sm:pt-10 sm:pb-8 bg-zinc-950 text-center flex flex-row sm:flex-col items-center justify-center gap-3.5 sm:gap-3 relative overflow-hidden">
+        <div className="px-5 py-4 sm:px-6 sm:pt-10 sm:pb-8 bg-zinc-950 text-center flex flex-row sm:flex-col items-center justify-center gap-3.5 sm:gap-3 relative overflow-hidden">
           {/* Luz de destaque interna */}
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-40 h-24 bg-amber-500/10 blur-xl rounded-full" />
           
-          <div className="w-11 h-11 sm:w-20 sm:h-20 rounded-full flex items-center justify-center relative group shadow-[0_0_12px_rgba(245,158,11,0.4)] sm:shadow-[0_0_15px_rgba(245,158,11,0.45)] hover:shadow-[0_0_25px_rgba(245,158,11,0.7)] transition-all duration-300 shrink-0">
+          <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full flex items-center justify-center relative group shadow-[0_0_12px_rgba(245,158,11,0.4)] sm:shadow-[0_0_15px_rgba(245,158,11,0.45)] hover:shadow-[0_0_25px_rgba(245,158,11,0.7)] transition-all duration-300 shrink-0">
             <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full" />
             <img 
               src={jfLogo} 
@@ -93,10 +93,10 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           </div>
           
           <div className="space-y-0.5 text-left sm:text-center">
-            <h1 className="text-xl sm:text-3xl font-black text-white tracking-tighter uppercase leading-none">
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tighter uppercase leading-none">
               JF <span className="text-amber-500">CHECK</span>
             </h1>
-            <p className="text-[8px] sm:text-[10px] text-amber-500/90 font-black uppercase tracking-widest leading-relaxed">
+            <p className="text-[9px] sm:text-[10px] text-amber-500/90 font-black uppercase tracking-widest leading-relaxed">
               Entrega técnica digital JF Máquinas
             </p>
           </div>
