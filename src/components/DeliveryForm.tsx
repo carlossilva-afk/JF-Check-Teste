@@ -1080,7 +1080,7 @@ JF Máquinas - A solução para o produtor`;
           </div>
           <div>
             <h3 className="font-black uppercase tracking-wider text-left text-sm sm:text-base md:text-lg">
-              {existingDraft ? 'Editando Rascunho' : 'Nova Entrega'}
+              {existingDraft ? 'Editando Rascunho' : 'Nova Entrega Técnica'}
             </h3>
             <div className="flex flex-wrap items-center gap-2 mt-0.5">
               <span className="text-[10px] sm:text-xs text-amber-400 font-bold flex items-center gap-1 font-mono">
@@ -1116,7 +1116,7 @@ JF Máquinas - A solução para o produtor`;
                     ? 'bg-zinc-800 text-amber-400 border-zinc-700' 
                     : 'bg-zinc-900 text-zinc-500 border-zinc-800'
               } w-7 h-7 sm:w-9 sm:h-9 text-xs sm:text-sm`}>
-                {s}
+                {['', 'A', 'B', 'C', 'D'][s]}
               </div>
               {s < 4 && <div className={`h-0.5 sm:h-1 ${step > s ? 'bg-amber-500' : 'bg-zinc-800'} w-4 sm:w-8`} />}
             </div>
@@ -1560,8 +1560,7 @@ JF Máquinas - A solução para o produtor`;
                           </button>
                         </div>
                       ) : (() => {
-                        const relIndexStr = getRelativeIndexStr(currentItem, checklist);
-                        const displayedCatText = `${currentItem.categoria} ${relIndexStr}`;
+                        const displayedCatText = currentItem.categoria;
                         return (
                           <div className="flex items-center gap-1.5 min-w-0 max-w-[150px] sm:max-w-[320px] md:max-w-[450px]">
                             {displayedCatText.length > 22 ? (

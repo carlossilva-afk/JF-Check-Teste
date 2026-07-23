@@ -32,7 +32,21 @@ export default function App() {
   
   // Sincronização do botão voltar do celular com abas e passos do formulário
   const isNavigatingFromPopstate = useRef(false);
+  const activeTabRef = useRef(activeTab);
+  const formStepRef = useRef(formStep);
 
+  useEffect(() => {
+    activeTabRef.current = activeTab;
+    formStepRef.current = formStep;
+  }, [activeTab, formStep]);
+
+  // Inicializa o estado do histórico quando o usuário faz login
+  useEffect(() => {
+    if (!usuario) return;
+    window.history.replaceState({ tab: activeTab, step: formStep }, '');
+  }, [usuario]);
+
+  // Sincroniza o histórico ao mudar de aba ou passo
   useEffect(() => {
     if (!usuario) return;
     if (isNavigatingFromPopstate.current) return;
@@ -45,11 +59,9 @@ export default function App() {
     window.history.pushState({ tab: activeTab, step: formStep }, '');
   }, [activeTab, formStep, usuario]);
 
+  // Listener para captura do evento de voltar do celular (popstate)
   useEffect(() => {
     if (!usuario) return;
-
-    // Inicializa o estado atual do histórico com as abas e passos ativos
-    window.history.replaceState({ tab: activeTab, step: formStep }, '');
 
     const handlePopState = (event: PopStateEvent) => {
       const state = event.state;
@@ -61,20 +73,20 @@ export default function App() {
         }
         setTimeout(() => {
           isNavigatingFromPopstate.current = false;
-        }, 0);
+        }, 50);
       } else {
         // Se voltar para antes do estado inicial, re-empilha para evitar sair do app acidentalmente
         isNavigatingFromPopstate.current = true;
-        window.history.pushState({ tab: activeTab, step: formStep }, '');
+        window.history.pushState({ tab: activeTabRef.current, step: formStepRef.current }, '');
         setTimeout(() => {
           isNavigatingFromPopstate.current = false;
-        }, 0);
+        }, 50);
       }
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [activeTab, formStep, usuario]);
+  }, [usuario]);
   
   // Controle de Entrega Técnica Ativa em Andamento
   const [entregaEmAndamento, setEntregaEmAndamento] = useState(false);
