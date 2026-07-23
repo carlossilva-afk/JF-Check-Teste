@@ -679,29 +679,62 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
   };
 
   // Verificações rígidas de conformidade de cada passo
-  const validarPasso1 = () => {
+  const getPasso1Erros = (): string[] => {
+    const erros: string[] = [];
     const cf = clienteForm;
     const mf = maquinaForm;
     const nameParts = tecnicoNome.trim().split(/\s+/).filter(Boolean);
-    const hasNomeESobrenome = nameParts.length >= 2;
-    return (
-      cf.nome.trim() !== '' &&
-      cf.documento.trim() !== '' &&
-      cf.fazenda.trim() !== '' &&
-      cf.cidade.trim() !== '' &&
-      mf.modelo.trim() !== '' &&
-      mf.numeroSerie.trim() !== '' &&
-      nomeRevenda.trim() !== '' &&
-      hasNomeESobrenome
-    );
+
+    if (!cf.nome.trim()) {
+      erros.push("Nome do Cliente / Razão Social é obrigatório.");
+    }
+
+    const docDigits = cf.documento.replace(/\D/g, '');
+    if (!cf.documento.trim()) {
+      erros.push("CPF ou CNPJ é obrigatório.");
+    } else if (docDigits.length !== 11 && docDigits.length !== 14) {
+      erros.push(`CPF ou CNPJ deve estar totalmente preenchido (11 dígitos para CPF ou 14 dígitos para CNPJ). Atual: ${docDigits.length} dígitos.`);
+    }
+
+    if (!cf.fazenda.trim()) {
+      erros.push("Nome da Fazenda é obrigatório.");
+    }
+    if (!cf.cidade.trim()) {
+      erros.push("Cidade é obrigatória.");
+    }
+    if (!mf.modelo.trim()) {
+      erros.push("Modelo da Máquina é obrigatório.");
+    }
+    if (!mf.numeroSerie.trim()) {
+      erros.push("Número de Série (CHASSI) é obrigatório.");
+    }
+    if (!nomeRevenda.trim()) {
+      erros.push("Nome da Revenda é obrigatório.");
+    }
+    if (nameParts.length < 2) {
+      erros.push("Técnico Responsável deve conter Nome e Sobrenome.");
+    }
+
+    return erros;
+  };
+
+  const validarPasso1 = () => {
+    return getPasso1Erros().length === 0;
+  };
+
+  const getPasso2Erros = (): string[] => {
+    const erros: string[] = [];
+    if (!fotosGerais.maquinaCompleta) {
+      erros.push("Foto da Máquina Completa (Visão Geral) é obrigatória.");
+    }
+    if (!fotosGerais.numeroSerie) {
+      erros.push("Foto da Placa de Identificação / Nº de Série é obrigatória.");
+    }
+    return erros;
   };
 
   const validarPasso2 = () => {
-    // 2 fotos gerais são obrigatórias para auditoria de campo
-    return (
-      fotosGerais.maquinaCompleta !== undefined &&
-      fotosGerais.numeroSerie !== undefined
-    );
+    return getPasso2Erros().length === 0;
   };
 
   const handlePrevChecklistItem = () => {
@@ -1148,7 +1181,20 @@ JF Máquinas - A solução para o produtor`;
             <div key={s} className="flex items-center">
               <button
                 type="button"
-                onClick={() => setStep(s)}
+                onClick={() => {
+                  if (s > step) {
+                    if (step === 1 && !validarPasso1()) {
+                      setShowValidationErrors(true);
+                      return;
+                    }
+                    if (step === 2 && !validarPasso2()) {
+                      setShowValidationErrors(true);
+                      return;
+                    }
+                  }
+                  setShowValidationErrors(false);
+                  setStep(s);
+                }}
                 title={`Ir para o Passo ${['', 'A', 'B', 'C', 'D'][s]}`}
                 className={`rounded-full flex items-center justify-center font-black transition-all duration-150 border-2 cursor-pointer hover:scale-105 active:scale-95 ${
                   step === s 
@@ -1177,6 +1223,24 @@ JF Máquinas - A solução para o produtor`;
               <ForageHarvesterIcon className="text-amber-500 w-6 h-6 shrink-0" />
               Identificação do Equipamento
             </h4>
+
+            {/* AVISO DE ERRO DE PREENCHIMENTO EM VERMELHO */}
+            {showValidationErrors && getPasso1Erros().length > 0 && (
+              <div className="p-4 bg-rose-50 border-2 border-rose-300 rounded-xl text-rose-800 text-xs sm:text-sm font-bold flex flex-col gap-2 animate-fadeIn shadow-sm">
+                <div className="flex items-center gap-2 text-rose-700">
+                  <AlertCircle className="w-5 h-5 shrink-0 text-rose-600" />
+                  <span className="font-extrabold uppercase tracking-wide">Atenção: Preenchimento Incompleto</span>
+                </div>
+                <p className="text-xs font-semibold text-rose-900">
+                  Para prosseguir com a Entrega Técnica, corrija ou preencha todos os campos obrigatórios abaixo:
+                </p>
+                <ul className="list-disc list-inside text-xs space-y-1 font-bold text-rose-800 pl-1">
+                  {getPasso1Erros().map((err, idx) => (
+                    <li key={idx}>{err}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Dropdown Máquinas */}
             <div className="grid grid-cols-1 gap-5">
@@ -1253,16 +1317,37 @@ JF Máquinas - A solução para o produtor`;
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-zinc-600">CPF ou CNPJ *</label>
-                <input
-                  type="text"
-                  placeholder="Apenas números ou formatado"
-                  value={clienteForm.documento}
-                  onChange={(e) => setClienteForm({ ...clienteForm, documento: formatCPFOrCNPJ(e.target.value) })}
-                  className="px-3 py-2 border border-zinc-300 rounded-lg text-sm bg-zinc-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500 font-bold"
-                  required
-                  id="input-client-doc"
-                />
+                <label className="text-xs font-bold text-zinc-600 flex items-center justify-between">
+                  <span>CPF ou CNPJ *</span>
+                  <span className="text-[10px] text-zinc-400 font-normal">(11 ou 14 dígitos)</span>
+                </label>
+                {(() => {
+                  const docDigits = clienteForm.documento.replace(/\D/g, '');
+                  const isIncomplete = docDigits.length > 0 && docDigits.length !== 11 && docDigits.length !== 14;
+                  return (
+                    <>
+                      <input
+                        type="text"
+                        placeholder="Informe CPF (11 dígitos) ou CNPJ (14 dígitos)"
+                        value={clienteForm.documento}
+                        onChange={(e) => setClienteForm({ ...clienteForm, documento: formatCPFOrCNPJ(e.target.value) })}
+                        className={`px-3 py-2 border rounded-lg text-sm bg-zinc-50 focus:bg-white focus:outline-none focus:ring-1 font-bold ${
+                          isIncomplete 
+                            ? 'border-rose-500 focus:ring-rose-500 text-rose-900 bg-rose-50/20' 
+                            : 'border-zinc-300 focus:ring-amber-500 text-zinc-900'
+                        }`}
+                        required
+                        id="input-client-doc"
+                      />
+                      {isIncomplete && (
+                        <span className="text-[11px] text-rose-600 font-bold flex items-center gap-1 animate-fadeIn mt-0.5">
+                          <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                          Documento incompleto! CPF necessita de 11 dígitos ou CNPJ de 14 dígitos (Digitado: {docDigits.length}).
+                        </span>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -1448,6 +1533,24 @@ JF Máquinas - A solução para o produtor`;
               </h4>
               <p className="text-sm font-bold text-zinc-500 mt-2">Para garantir conformidade de faturamento e integridade de entrega, anexe as 2 fotos exigidas no painel abaixo.</p>
             </div>
+
+            {/* AVISO DE ERRO DE FOTOS EM VERMELHO */}
+            {showValidationErrors && getPasso2Erros().length > 0 && (
+              <div className="p-4 bg-rose-50 border-2 border-rose-300 rounded-xl text-rose-800 text-xs sm:text-sm font-bold flex flex-col gap-2 animate-fadeIn shadow-sm">
+                <div className="flex items-center gap-2 text-rose-700">
+                  <AlertCircle className="w-5 h-5 shrink-0 text-rose-600" />
+                  <span className="font-extrabold uppercase tracking-wide">Atenção: Fotos Obrigatórias Ausentes</span>
+                </div>
+                <p className="text-xs font-semibold text-rose-900">
+                  Para avançar para o checklist, você deve anexar as 2 fotos obrigatórias:
+                </p>
+                <ul className="list-disc list-inside text-xs space-y-1 font-bold text-rose-800 pl-1">
+                  {getPasso2Erros().map((err, idx) => (
+                    <li key={idx}>{err}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 max-w-3xl mx-auto w-full gap-6">
               {/* Foto 1: Máquina Completa */}
@@ -2191,6 +2294,13 @@ JF Máquinas - A solução para o produtor`;
             </div>
 
             {/* Signature Canvases */}
+            {(!assinaturaTecnico || !assinaturaCliente) && (
+              <div className="p-3.5 bg-rose-50 border-2 border-rose-300 rounded-xl text-rose-800 text-xs sm:text-sm font-bold flex items-center gap-2.5 shadow-sm animate-fadeIn">
+                <AlertCircle className="w-5 h-5 shrink-0 text-rose-600" />
+                <span>Aviso: É obrigatório que o Técnico e o Produtor (Cliente) assinem digitalmente o termo abaixo para permitir a finalização do Check List.</span>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <SignatureCanvas
                 id="tecnico"
@@ -2249,6 +2359,11 @@ JF Máquinas - A solução para o produtor`;
             type="button"
             onClick={() => {
               if (step === 1) {
+                if (!validarPasso1()) {
+                  setShowValidationErrors(true);
+                  return;
+                }
+                setShowValidationErrors(false);
                 setEntregaIniciada(true);
                 if (tempoPassado === 0) {
                   startTimeRef.current = Date.now();
@@ -2256,18 +2371,22 @@ JF Máquinas - A solução para o produtor`;
                   startTimeRef.current = Date.now() - (tempoPassado * 1000);
                 }
               }
+
+              if (step === 2) {
+                if (!validarPasso2()) {
+                  setShowValidationErrors(true);
+                  return;
+                }
+                setShowValidationErrors(false);
+              }
+
               if (step === 3) {
                 handleNextChecklistItem();
               } else {
                 setStep(prev => prev + 1);
               }
             }}
-            disabled={
-              (step === 1 && !validarPasso1()) ||
-              (step === 2 && !validarPasso2()) ||
-              (step === 3 && !validarPasso3())
-            }
-            className="flex-1 sm:flex-none flex items-center justify-center gap-1 h-10 sm:h-11 px-1.5 sm:px-6 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-not-allowed text-zinc-950 font-black text-[9px] sm:text-sm uppercase tracking-wider rounded-xl transition shadow-md select-none whitespace-nowrap"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1 h-10 sm:h-11 px-1.5 sm:px-6 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-zinc-950 font-black text-[9px] sm:text-sm uppercase tracking-wider rounded-xl transition shadow-md select-none whitespace-nowrap"
             id="btn-wizard-next"
           >
             <span>{step === 3 ? (currentChecklistItemIndex === checklist.length - 1 ? "Assinatura" : "Próximo Item") : "Avançar"}</span>

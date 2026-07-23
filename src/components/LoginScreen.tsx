@@ -92,11 +92,11 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             />
           </div>
           
-          <div className="space-y-0.5 text-left sm:text-center">
+          <div className="space-y-1 text-left sm:text-center">
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tighter uppercase leading-none">
               JF <span className="text-amber-500">CHECK</span>
             </h1>
-            <p className="text-[9px] sm:text-[10px] text-amber-500/90 font-black uppercase tracking-widest leading-relaxed">
+            <p className="text-xs sm:text-sm text-amber-400 font-bold uppercase tracking-wider leading-relaxed">
               Entrega técnica digital JF Máquinas
             </p>
           </div>
@@ -106,14 +106,14 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         </div>
 
         {/* Seletor de Abas (Acesso Técnico / Acesso Administrativo) */}
-        <div className="flex border-b border-zinc-150 bg-zinc-50 shrink-0">
+        <div className="flex border-b border-zinc-200 bg-zinc-50 shrink-0">
           <button
             type="button"
             onClick={() => { setLoginTab('geral'); setErrorMsg(''); setUsuarioInput(''); setSenhaInput(''); setShowPassword(false); }}
-            className={`flex-1 py-3 sm:py-4 text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all ${
+            className={`flex-1 py-3.5 sm:py-4 text-xs sm:text-sm font-black uppercase tracking-wider transition-all ${
               loginTab === 'geral'
-                ? 'bg-white text-amber-500 border-b-2 border-amber-500'
-                : 'text-zinc-500 hover:text-zinc-800'
+                ? 'bg-white text-amber-600 border-b-2 border-amber-500 shadow-sm'
+                : 'text-zinc-600 hover:text-zinc-900'
             }`}
           >
             Acesso Técnico
@@ -121,10 +121,10 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           <button
             type="button"
             onClick={() => { setLoginTab('admin'); setErrorMsg(''); setUsuarioInput(''); setSenhaInput(''); setShowPassword(false); }}
-            className={`flex-1 py-3 sm:py-4 text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all ${
+            className={`flex-1 py-3.5 sm:py-4 text-xs sm:text-sm font-black uppercase tracking-wider transition-all ${
               loginTab === 'admin'
-                ? 'bg-white text-amber-500 border-b-2 border-amber-500'
-                : 'text-zinc-500 hover:text-zinc-800'
+                ? 'bg-white text-amber-600 border-b-2 border-amber-500 shadow-sm'
+                : 'text-zinc-600 hover:text-zinc-900'
             }`}
           >
             Acesso Administrativo
@@ -132,17 +132,17 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         </div>
 
         {/* Corpo do Form */}
-        <div className="p-5 sm:p-8 md:p-10 flex flex-col justify-between flex-1 gap-4 sm:gap-6 text-center bg-white">
+        <div className="p-5 sm:p-8 md:p-10 flex flex-col justify-between flex-1 gap-5 sm:gap-6 text-center bg-white">
           
-          <div className="space-y-1 sm:space-y-2.5">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 bg-zinc-100 text-zinc-800 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider rounded-full border border-zinc-200">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-100 text-zinc-800 text-xs font-bold uppercase tracking-wider rounded-full border border-zinc-200">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
               {loginTab === 'admin' ? 'Área Administrativa' : 'Área Técnica Autorizada'}
             </div>
-            <h2 className="text-zinc-900 font-extrabold text-base sm:text-xl tracking-tight uppercase">
+            <h2 className="text-zinc-900 font-extrabold text-lg sm:text-2xl tracking-tight uppercase">
               {loginTab === 'admin' ? 'Acesso Administrativo' : 'Acesso Técnico Geral'}
             </h2>
-            <p className="hidden sm:block text-xs text-zinc-500 font-medium px-4 leading-relaxed">
+            <p className="text-xs sm:text-sm text-zinc-600 font-medium px-2 leading-relaxed">
               {loginTab === 'admin' 
                 ? 'Área de uso exclusivo da JF Máquinas' 
                 : 'Realize checklists, registre entregas técnicas e tenha total controle de rastreabilidade.'}
@@ -150,23 +150,23 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           </div>
  
           {errorMsg && (
-            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-bold flex items-center gap-2.5 text-left animate-fadeIn">
-              <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs sm:text-sm font-bold flex items-center gap-2.5 text-left animate-fadeIn">
+              <AlertCircle className="w-5 h-5 shrink-0 text-rose-500" />
               <p className="leading-tight">{errorMsg}</p>
             </div>
           )}
  
           {/* Formulário de Credenciais */}
-          <form onSubmit={handleLoginSubmit} className="flex flex-col gap-3 sm:gap-4 text-left">
-            <div className="flex flex-col gap-1 sm:gap-1.5">
-              <label className="text-[9px] sm:text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-1">
+          <form onSubmit={handleLoginSubmit} className="flex flex-col gap-4 text-left">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs sm:text-sm font-bold text-zinc-700 uppercase tracking-wider flex items-center gap-1.5">
                 {loginTab === 'admin' ? (
                   <>
-                    <Mail className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400" /> E-mail de Administrador
+                    <Mail className="w-4 h-4 text-amber-600" /> E-mail de Administrador
                   </>
                 ) : (
                   <>
-                    <User className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400" /> Usuário Geral
+                    <User className="w-4 h-4 text-amber-600" /> Usuário Geral
                   </>
                 )}
               </label>
@@ -175,14 +175,14 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                 required
                 value={usuarioInput}
                 onChange={(e) => setUsuarioInput(e.target.value)}
-                className="w-full px-3.5 py-2 sm:px-4 sm:py-3 border border-zinc-200 rounded-xl text-xs font-bold bg-zinc-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all duration-150"
+                className="w-full px-4 py-3 sm:py-3.5 border border-zinc-300 rounded-xl text-sm sm:text-base font-bold bg-zinc-50 text-zinc-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all duration-150"
                 placeholder={loginTab === 'admin' ? 'ex: administrador@jfmaquinas.com.br' : 'Informe o seu usuário'}
               />
             </div>
 
-            <div className="flex flex-col gap-1 sm:gap-1.5">
-              <label className="text-[9px] sm:text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-1">
-                <Lock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400" /> Senha de Segurança
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs sm:text-sm font-bold text-zinc-700 uppercase tracking-wider flex items-center gap-1.5">
+                <Lock className="w-4 h-4 text-amber-600" /> Senha de Segurança
               </label>
               <div className="relative w-full">
                 <input
@@ -190,19 +190,19 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                   required
                   value={senhaInput}
                   onChange={(e) => setSenhaInput(e.target.value)}
-                  className="w-full pl-3.5 pr-10 py-2 sm:pl-4 sm:pr-12 sm:py-3 border border-zinc-200 rounded-xl text-xs font-bold bg-zinc-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all duration-150"
+                  className="w-full pl-4 pr-12 py-3 sm:py-3.5 border border-zinc-300 rounded-xl text-sm sm:text-base font-bold bg-zinc-50 text-zinc-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all duration-150"
                   placeholder="Sua senha de acesso"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-zinc-700 active:text-zinc-900 transition-colors focus:outline-none rounded-lg"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 text-zinc-400 hover:text-zinc-700 active:text-zinc-900 transition-colors focus:outline-none rounded-lg"
                   title={showPassword ? "Ocultar senha" : "Exibir senha"}
                 >
                   {showPassword ? (
-                    <EyeOff className="w-4 h-4" />
+                    <EyeOff className="w-5 h-5" />
                   ) : (
-                    <Eye className="w-4 h-4" />
+                    <Eye className="w-5 h-5" />
                   )}
                 </button>
               </div>
@@ -210,27 +210,27 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
 
             <button
               type="submit"
-              className="w-full mt-1 sm:mt-2 py-3 sm:py-3.5 bg-zinc-950 hover:bg-zinc-900 active:bg-black text-white font-bold text-xs uppercase tracking-widest rounded-xl transition duration-150 shadow-md flex items-center justify-center gap-2"
+              className="w-full mt-2 py-3.5 sm:py-4 bg-zinc-950 hover:bg-zinc-900 active:bg-black text-white font-black text-sm sm:text-base uppercase tracking-wider rounded-xl transition duration-150 shadow-md flex items-center justify-center gap-2.5"
             >
-              <Shield className="w-4 h-4 text-amber-500 shrink-0" />
+              <Shield className="w-5 h-5 text-amber-500 shrink-0" />
               <span>Autenticar e Entrar</span>
             </button>
           </form>
 
           {/* Dicas / Ajuda */}
-          <div className="mt-1 sm:mt-2 border-t border-zinc-100 pt-3 sm:pt-4">
+          <div className="mt-2 border-t border-zinc-100 pt-4">
             <button
               type="button"
               onClick={() => setShowHelp(!showHelp)}
-              className="text-[9px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest hover:text-amber-500 flex items-center justify-center gap-1.5 mx-auto transition"
+              className="text-xs sm:text-sm font-bold text-zinc-500 hover:text-amber-600 uppercase tracking-wider flex items-center justify-center gap-1.5 mx-auto transition"
             >
-              <HelpCircle className="w-3.5 h-3.5" />
+              <HelpCircle className="w-4 h-4 text-amber-500" />
               Precisa de ajuda com o acesso?
             </button>
 
             {showHelp && (
-              <div className="mt-2.5 p-3 sm:p-4 bg-amber-50/50 border border-amber-200/50 rounded-xl sm:rounded-2xl text-left text-zinc-600 text-xs leading-relaxed space-y-1.5 animate-fadeIn">
-                <p className="font-bold text-zinc-800">Instruções de acesso:</p>
+              <div className="mt-3 p-3.5 sm:p-4 bg-amber-50/70 border border-amber-200/80 rounded-xl sm:rounded-2xl text-left text-zinc-700 text-xs sm:text-sm leading-relaxed space-y-1.5 animate-fadeIn">
+                <p className="font-bold text-zinc-900">Instruções de acesso:</p>
                 {loginTab === 'admin' ? (
                   <p>Insira o e-mail administrativo mestre cadastrado e sua respectiva senha autorizada.</p>
                 ) : (
@@ -240,8 +240,8 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             )}
           </div>
 
-          <div className="flex items-center justify-center gap-2 text-[8px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest bg-zinc-50 py-2 sm:py-3 px-3 sm:px-4 rounded-xl border border-zinc-150 mt-0.5 sm:mt-1">
-            <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 shrink-0" />
+          <div className="flex items-center justify-center gap-2 text-xs sm:text-sm font-bold text-zinc-600 uppercase tracking-wider bg-zinc-50 py-2.5 sm:py-3 px-4 rounded-xl border border-zinc-200 mt-1">
+            <Shield className="w-4 h-4 text-amber-500 shrink-0" />
             Certificado de Conformidade Digital JF
           </div>
 
