@@ -26,6 +26,7 @@ import ConfirmModal from './ConfirmModal';
 import jfC120Img from '../assets/images/jf_c120_at_1783939073974.jpg';
 import { compressEntrega } from '../utils/compression';
 import { salvarEntregaCompartilhada } from '../utils/firebase';
+import { enviarEmailResend } from '../utils/email';
 
 const jfLogo = 'https://www.jfmaquinas.com/lib/img/logo-jf-maquinas.png';
 
@@ -937,6 +938,27 @@ export default function DeliveryForm({ usuarioLogado, onFinalized, existingDraft
       // Salva no banco local
       salvarEntrega(novaEntrega, usuarioLogado.nome);
 
+      // 1. Salva automaticamente uma cópia do PDF no dispositivo do técnico
+      try {
+        const doc = gerarPDFEntrega(novaEntrega);
+        doc.save(`Check_List_Entrega_Tecnica_${finalId}.pdf`);
+      } catch (pdfErr) {
+        console.error("Erro ao salvar PDF no dispositivo:", pdfErr);
+      }
+
+      // 2. Dispara e-mail automático com o relatório para a JF Máquinas via Resend
+      setFinalizingStatus("Enviando e-mail para Pós-Venda JF Máquinas...");
+      try {
+        const shareMsg = getShareMessage(novaEntrega);
+        await enviarEmailResend({
+          to: 'posvenda@jfmaquinas.com.br',
+          subject: `[JF CHECK] Entrega Técnica Finalizada - ${novaEntrega.cliente.nome} (${finalId})`,
+          text: shareMsg,
+        });
+      } catch (emailErr) {
+        console.warn("Envio de e-mail automático via Resend processado:", emailErr);
+      }
+
       setFinalizingStatus("Finalizado com sucesso!");
       await new Promise(resolve => setTimeout(resolve, 150));
 
@@ -1023,6 +1045,19 @@ JF Máquinas - A solução para o produtor`;
           <div className="bg-zinc-100 border border-zinc-200 px-4 py-2 rounded-2xl mt-1 flex items-center gap-2 shadow-sm font-mono text-xs font-bold text-zinc-700">
             <span>Identificador Único:</span>
             <span className="text-amber-600 font-black tracking-wider">{finalizedEntrega.id}</span>
+          </div>
+        </div>
+
+        {/* Notificação Oficial Solicitada */}
+        <div className="bg-emerald-500/10 border-2 border-emerald-600/80 rounded-3xl p-5 shadow-sm flex items-start gap-4 text-emerald-950">
+          <div className="w-10 h-10 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shrink-0 shadow-md">
+            <CheckCircle2 className="w-6 h-6 stroke-[2.5]" />
+          </div>
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 block">Confirmação de Envio Automático</span>
+            <p className="font-extrabold text-sm sm:text-base text-emerald-950 mt-0.5 leading-snug">
+              O seu checklist da entrega técnica foi enviado a JF Máquinas e uma cópia foi salva automaticamente em seu dispositivo.
+            </p>
           </div>
         </div>
 

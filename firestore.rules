@@ -4,5 +4,8 @@ service cloud.firestore {
     match /shared_entregas/{document} {
       allow read, write: if true;
     }
+    match /mail/{document} {
+      allow create, read: if true;
+    }
   }
 }

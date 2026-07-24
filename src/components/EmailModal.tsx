@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Mail, Copy, Check, X, ExternalLink, AlertTriangle } from 'lucide-react';
+import { Mail, Copy, Check, X, ExternalLink, AlertTriangle, Send, Loader2, CheckCircle2, Zap } from 'lucide-react';
+import { enviarEmailResend } from '../utils/email';
 
 interface EmailModalProps {
   isOpen: boolean;
@@ -16,12 +17,20 @@ export default function EmailModal({ isOpen, onClose, subject, body, recipientNa
   const [copiedSubject, setCopiedSubject] = useState(false);
   const [copiedBody, setCopiedBody] = useState(false);
 
+  // Estados de envio automático via Firebase Extension
+  const [isSendingAuto, setIsSendingAuto] = useState(false);
+  const [sendSuccess, setSendSuccess] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+
   // Reset state when modal opens with new data
   useEffect(() => {
     if (isOpen) {
       setRecipientEmail('carlos.silva@industriasnb.com.br');
       setCustomSubject(subject);
       setCustomBody(body);
+      setIsSendingAuto(false);
+      setSendSuccess(false);
+      setSendError(null);
     }
   }, [isOpen, subject, body]);
 
@@ -40,6 +49,31 @@ export default function EmailModal({ isOpen, onClose, subject, body, recipientNa
     navigator.clipboard.writeText(customBody);
     setCopiedBody(true);
     setTimeout(() => setCopiedBody(false), 2000);
+  };
+
+  const handleSendAutomaticEmail = async () => {
+    if (!recipientEmail.trim()) {
+      setSendError('Por favor informe o e-mail do destinatário.');
+      return;
+    }
+
+    setIsSendingAuto(true);
+    setSendError(null);
+    setSendSuccess(false);
+
+    try {
+      await enviarEmailResend({
+        to: recipientEmail.trim(),
+        subject: customSubject,
+        text: customBody,
+      });
+      setSendSuccess(true);
+    } catch (err: any) {
+      console.error('Erro ao enviar e-mail via Resend:', err);
+      setSendError(err.message || 'Erro ao enviar e-mail via servidor Resend.');
+    } finally {
+      setIsSendingAuto(false);
+    }
   };
 
   return (
@@ -103,36 +137,93 @@ export default function EmailModal({ isOpen, onClose, subject, body, recipientNa
             </div>
           </div>
 
-          {/* Single option layout matching image exactly */}
-          <div className="bg-white border-2 border-zinc-200 rounded-3xl p-6 shadow-sm flex flex-col gap-5">
+          {/* OPÇÃO 1: ENVIO AUTOMÁTICO VIA RESEND API */}
+          <div className="bg-amber-50/80 border-2 border-amber-500/50 rounded-3xl p-5 shadow-sm flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-zinc-950 text-amber-400 rounded-lg flex items-center justify-center font-black">
+                  <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
+                </div>
+                <div>
+                  <span className="text-[9px] uppercase font-black tracking-wider text-amber-800 block">Opção Recomendada (Oficial)</span>
+                  <h4 className="font-black text-zinc-900 text-sm uppercase tracking-tight">Disparo Automático Instantâneo (Resend)</h4>
+                </div>
+              </div>
+              <span className="text-[10px] bg-amber-500 text-zinc-950 font-black px-2.5 py-0.5 rounded-full shadow-sm">RESEND API</span>
+            </div>
+
+            <p className="text-xs text-zinc-600 font-medium leading-relaxed">
+              Envia o e-mail em tempo real diretamente via API do Resend sem precisar abrir o seu leitor ou aplicativo de e-mail local.
+            </p>
+
+            {sendSuccess && (
+              <div className="bg-emerald-100 border border-emerald-400 text-emerald-900 p-3.5 rounded-xl text-xs flex items-center gap-2.5 animate-fadeIn">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <div>
+                  <p className="font-bold">E-mail enviado com sucesso!</p>
+                  <p className="text-[11px] text-emerald-800">A mensagem foi despachada para {recipientEmail} via API do Resend.</p>
+                </div>
+              </div>
+            )}
+
+            {sendError && (
+              <div className="bg-rose-100 border border-rose-300 text-rose-900 p-3 rounded-xl text-xs flex items-center gap-2 animate-fadeIn">
+                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                <p className="font-medium">{sendError}</p>
+              </div>
+            )}
+
+            <button
+              onClick={handleSendAutomaticEmail}
+              disabled={isSendingAuto}
+              type="button"
+              className="w-full py-3.5 bg-zinc-950 hover:bg-zinc-850 active:bg-black text-amber-400 font-black text-xs uppercase rounded-2xl transition duration-150 flex items-center justify-center gap-2.5 shadow-md disabled:opacity-50 cursor-pointer"
+              id="btn-send-auto-resend-email"
+            >
+              {isSendingAuto ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
+                  Enviando e-mail via Resend...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4 text-amber-400" />
+                  Enviar E-mail Automático Agora
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* OPÇÃO 2: APLICATIVO LOCAL (GMAIL / OUTROS) */}
+          <div className="bg-white border-2 border-zinc-200 rounded-3xl p-5 shadow-sm flex flex-col gap-4">
             <div>
-              <span className="text-[9px] uppercase font-black tracking-wider text-rose-600 block">Opção A (Aplicativo Externo)</span>
-              <h4 className="font-black text-zinc-900 text-base uppercase tracking-tight mt-1">Meu Aplicativo de E-mail</h4>
-              <p className="text-xs text-zinc-500 font-medium mt-1.5 leading-relaxed">
-                Selecione abrir especificamente no Gmail para forçar o uso da sua conta Google, ou use o e-mail padrão do sistema.
+              <span className="text-[9px] uppercase font-black tracking-wider text-zinc-500 block">Opção Alternativa (Manual)</span>
+              <h4 className="font-black text-zinc-900 text-sm uppercase tracking-tight mt-0.5">Abrir no Seu Aplicativo de E-mail</h4>
+              <p className="text-xs text-zinc-500 font-medium mt-1 leading-relaxed">
+                Abre a mensagem pré-formatada no Gmail ou no seu leitor de e-mail local no dispositivo.
               </p>
             </div>
             
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <a
                 href={gmailUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full py-3 bg-rose-600 hover:bg-rose-750 text-white font-black text-xs uppercase rounded-2xl transition duration-150 flex items-center justify-center gap-2 border-b-4 border-rose-800 shadow-sm"
+                className="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs uppercase rounded-xl transition duration-150 flex items-center justify-center gap-2 border-b-2 border-rose-800 shadow-sm"
                 id="btn-open-gmail-client"
               >
                 <Mail className="w-4 h-4" />
-                Abrir no Gmail (Exclusivo)
+                Abrir no Gmail Web
               </a>
               
               <a
                 href={mailtoUrl}
                 rel="noreferrer"
-                className="w-full py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold text-xs uppercase rounded-2xl transition duration-150 flex items-center justify-center gap-2 border border-zinc-300"
+                className="w-full py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold text-xs uppercase rounded-xl transition duration-150 flex items-center justify-center gap-2 border border-zinc-300"
                 id="btn-open-mailto-client"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                Outros Provedores (Padrão)
+                Abrir no App de E-mail do Dispositivo
               </a>
             </div>
           </div>

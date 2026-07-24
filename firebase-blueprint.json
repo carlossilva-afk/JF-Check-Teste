@@ -1,0 +1,44 @@
+{
+  "entities": {
+    "SharedEntrega": {
+      "title": "Entrega Técnica Compartilhada",
+      "description": "Dados compactados do termo de entrega técnica com expiração de 3 dias",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "compressedData": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "expiresAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "compressedData", "createdAt", "expiresAt"]
+    },
+    "MailMessage": {
+      "title": "Mensagem de E-mail Automático",
+      "description": "Documento na coleção mail processado pela extensão Trigger Email do Firebase",
+      "type": "object",
+      "properties": {
+        "to": { "type": "string" },
+        "message": {
+          "type": "object",
+          "properties": {
+            "subject": { "type": "string" },
+            "text": { "type": "string" },
+            "html": { "type": "string" }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["to", "message"]
+    }
+  },
+  "firestore": {
+    "/shared_entregas/{id}": {
+      "schema": "SharedEntrega",
+      "description": "Coleção de entregas técnicas para verificação pública"
+    },
+    "/mail/{id}": {
+      "schema": "MailMessage",
+      "description": "Coleção escutada pela extensão Trigger Email para envio por SMTP/Gmail"
+    }
+  }
+}

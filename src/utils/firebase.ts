@@ -14,6 +14,7 @@ import {
   query, 
   where, 
   getDocs,
+  addDoc,
   Timestamp
 } from 'firebase/firestore';
 
@@ -104,4 +105,27 @@ export async function limparRegistrosExpirados(): Promise<void> {
   } catch (err) {
     console.error("Erro ao limpar registros expirados:", err);
   }
+}
+
+/**
+ * Envia um e-mail de forma automática gravando um documento na coleção 'mail' do Firestore.
+ * Esta coleção é monitorada pela Extensão do Firebase "Trigger Email from Firestore".
+ */
+export async function enviarEmailAutomaticoFirebase(
+  para: string, 
+  assunto: string, 
+  texto: string, 
+  html?: string
+): Promise<string> {
+  const mailRef = collection(db, 'mail');
+  const docRef = await addDoc(mailRef, {
+    to: para,
+    message: {
+      subject: assunto,
+      text: texto,
+      html: html || texto.replace(/\n/g, '<br>')
+    },
+    createdAt: Timestamp.now()
+  });
+  return docRef.id;
 }
